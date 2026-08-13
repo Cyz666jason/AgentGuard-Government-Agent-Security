@@ -34,6 +34,7 @@ def command_available(name: str) -> bool:
 
 def main() -> int:
     openbao = load_optional("openbao_kms_ha_e2e.json")
+    openbao_raft = load_optional("openbao_raft_ha_e2e.json")
     qemu = load_optional("qemu_native_isolation_e2e.json")
     toolhive = load_optional("toolhive_environment_check.json") or {}
     redaction = load_optional("authorized_data_redaction.json")
@@ -76,16 +77,19 @@ def main() -> int:
         {
             "item": "外部密钥与共享票据状态",
             "status": (
-                "completed_test_environment"
-                if openbao and openbao.get("passed") == openbao.get("total")
+                "completed_ha_test_environment"
+                if openbao
+                and openbao.get("passed") == openbao.get("total")
+                and openbao_raft
+                and openbao_raft.get("passed") == openbao_raft.get("total")
                 else "failed_or_missing"
             ),
             "evidence": (
-                f"OpenBao Transit+KV {openbao['passed']}/{openbao['total']}"
-                if openbao
+                f"OpenBao Transit+KV {openbao['passed']}/{openbao['total']}；三节点Raft故障切换 {openbao_raft['passed']}/{openbao_raft['total']}"
+                if openbao and openbao_raft
                 else "未生成"
             ),
-            "blocker": "本机dev server不是多节点OpenBao生产集群",
+            "blocker": "本机三进程已验证HA；正式生产仍需跨故障域、TLS、自动解封、备份恢复和容量压测",
         },
         {
             "item": "原生程序独立来宾内核隔离",
@@ -149,7 +153,7 @@ def main() -> int:
 
 ## 结论
 
-已经自动完成 OpenBao 外部密钥与共享票据状态验证、QEMU 独立 Linux 来宾内核隔离、本地 Git 仓库、真实业务 HTTPS 接入代码和生产数据脱敏流水线。需要管理员权限、单位授权数据、真实预生产凭据或用户 GitHub 登录的项目保留为外部阻塞，不能自动伪造为完成。
+已经自动完成 OpenBao 外部密钥与共享票据状态验证、三节点Raft选主/复制/主节点故障切换、QEMU 独立 Linux 来宾内核隔离、本地 Git 仓库、真实业务 HTTPS 接入代码和生产数据脱敏流水线。需要管理员权限、单位授权数据、真实预生产凭据或用户 GitHub 登录的项目保留为外部阻塞，不能自动伪造为完成。
 """
     (REPORTS / "productionization_status.md").write_text(markdown, encoding="utf-8")
     print(json.dumps({"items": len(items), "report": str(json_path)}, ensure_ascii=False))

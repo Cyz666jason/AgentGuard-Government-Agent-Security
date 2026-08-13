@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-14T03:02:15.339334+08:00",
+  "generated_at": "2026-08-14T03:59:54.349043+08:00",
   "service": "OpenBao Transit + KV v2",
   "address": "http://127.0.0.1:18200",
   "secret_material_in_report": false,

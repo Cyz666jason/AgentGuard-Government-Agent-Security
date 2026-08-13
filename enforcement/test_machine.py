@@ -79,6 +79,7 @@ def main() -> int:
     docker_present = shutil.which("docker") is not None
     linux_available = wsl_distribution_available()
     openbao_report = ROOT / "reports" / "openbao_kms_ha_e2e.json"
+    openbao_raft_report = ROOT / "reports" / "openbao_raft_ha_e2e.json"
     qemu_report = ROOT / "reports" / "qemu_native_isolation_e2e.json"
     report = {
         "tested_at": datetime.now().astimezone().isoformat(timespec="seconds"),
@@ -99,7 +100,11 @@ def main() -> int:
             "pyjwt": importlib.metadata.version("PyJWT"),
             "keycloak_portable": "26.7.1 (OIDC E2E tested)",
             "toolhive_portable": "0.28.3 (CLI/checksum tested)",
-            "openbao": "2.6.1 (Transit/KV E2E tested)" if openbao_report.exists() else "not tested",
+            "openbao": (
+                "2.6.1 (Transit/KV + three-node Raft failover E2E tested)"
+                if openbao_report.exists() and openbao_raft_report.exists()
+                else "not fully tested"
+            ),
             "qemu": "11.1.0 (Linux guest kernel E2E tested)" if qemu_report.exists() else "not tested",
         },
         "container_environment": {

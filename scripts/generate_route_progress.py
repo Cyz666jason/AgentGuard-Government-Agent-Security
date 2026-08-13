@@ -47,6 +47,7 @@ def main() -> int:
     evaluation = load_json(REPORT_DIR / "evaluation_summary.json")
     coverage = load_json(REPORT_DIR / "coverage.json")
     machine = load_json(REPORT_DIR / "test_machine_environment.json")
+    openbao_raft = load_json(REPORT_DIR / "openbao_raft_ha_e2e.json")
 
     dataset_specs = [
         (
@@ -128,6 +129,11 @@ def main() -> int:
             "reports/openbao_kms_ha_e2e.json",
         ),
         result_row(
+            "OpenBao三节点Raft故障切换",
+            openbao_raft,
+            "reports/openbao_raft_ha_e2e.json",
+        ),
+        result_row(
             "QEMU独立Linux来宾内核隔离",
             full["qemu_native_isolation_e2e"],
             "reports/qemu_native_isolation_e2e.json",
@@ -146,7 +152,7 @@ def main() -> int:
             "stage": "2 开源技术路线与选型",
             "status": "completed",
             "evidence": "Keycloak + OPA + LangGraph + 强制网关 + Wasmtime",
-            "next": "生产分支补OPA-Envoy、ToolHive、KMS/HA与原生隔离",
+            "next": "生产分支补OPA-Envoy、ToolHive、跨故障域KMS/HA与Kata/Firecracker",
         },
         {
             "stage": "3 复现效果与问题",
@@ -187,7 +193,7 @@ def main() -> int:
                 and unsafe_execution_count == 0
             ),
             "production_ready": False,
-            "production_ready_reason": "仍缺OPA-Envoy/ToolHive产品容器E2E、多节点KMS/HA故障切换、真实业务凭据、获批真实数据和远程GitHub认证。",
+            "production_ready_reason": "本机三节点KMS/HA故障切换已完成；仍缺OPA-Envoy/ToolHive产品容器E2E、跨故障域部署、真实业务凭据、获批真实数据和远程GitHub认证。",
         },
         "route": route,
         "test_metrics": metrics,

@@ -4,6 +4,13 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: security-tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -24,9 +31,11 @@ jobs:
         run: |
           ./opa fmt --fail policy/*.rego tests/*.rego > /dev/null
           ./opa check --strict policy tests data
+          ./opa check --strict deployment/opa-envoy
       - name: Unit tests and coverage
         run: |
           ./opa test policy tests data --fail-on-empty
+          ./opa test deployment/opa-envoy --fail-on-empty
           ./opa test policy tests data --coverage --format=json > reports/coverage.json
       - name: Batch evaluation
         run: python scripts/evaluate.py --opa ./opa
@@ -34,3 +43,7 @@ jobs:
         run: pip install -r requirements-full.txt
       - name: Python security and integration tests
         run: python -m enforcement.run_tests
+      - name: Compile automation entrypoints
+        run: python -m py_compile scripts/*.py enforcement/*.py integrations/*.py
+      - name: Refuse committed secrets and runtime state
+        run: python scripts/prepublish_security_check.py

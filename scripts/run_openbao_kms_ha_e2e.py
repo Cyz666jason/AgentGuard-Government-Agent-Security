@@ -7,8 +7,10 @@ import json
 import os
 import sys
 import tempfile
+import time
 import urllib.error
 import urllib.request
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from pathlib import Path
@@ -69,14 +71,22 @@ def ensure_mount(address: str, token: str, name: str, mount_type: str) -> None:
     )
     if status not in {200, 204, 400}:
         raise RuntimeError(f"enable mount {name} failed: HTTP {status}")
+    # A newly enabled KV v2 mount briefly returns HTTP 400 while OpenBao
+    # finishes its internal versioned-storage upgrade.  Probe an inert key so
+    # the E2E does not race the first real ticket write.
+    if mount_type == "kv" and status in {200, 204}:
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline:
+            probe_status, _ = api_request(
+                address, token, "GET", f"{name}/data/__agentguard_readiness__"
+            )
+            if probe_status in {200, 404}:
+                return
+            time.sleep(0.2)
+        raise RuntimeError(f"KV v2 mount {name} did not become ready")
 
 
-def main() -> int:
-    address = os.environ.get("AGENTGUARD_BAO_ADDR", "http://127.0.0.1:18200")
-    token = os.environ.get("AGENTGUARD_BAO_TOKEN", "")
-    if not token:
-        raise RuntimeError("缺少 AGENTGUARD_BAO_TOKEN")
-
+def run_e2e(address: str, token: str, report_path: Path) -> dict[str, Any]:
     ensure_mount(address, token, "transit", "transit")
     ensure_mount(address, token, "agentguard-tickets", "kv")
     create_status, _ = api_request(
@@ -94,6 +104,7 @@ def main() -> int:
     sample = json.loads(
         (PROJECT_ROOT / "samples" / "allow_low_risk.json").read_text(encoding="utf-8")
     )
+    run_id = uuid.uuid4().hex[:12]
 
     with tempfile.TemporaryDirectory() as raw_state:
         state = Path(raw_state)
@@ -111,8 +122,14 @@ def main() -> int:
         )
 
         old_request = copy.deepcopy(sample)
-        old_request["task_id"] = "openbao-before-rotation"
-        old_ticket = gateway_a.authorize(old_request)["ticket"]
+        old_request["task_id"] = f"openbao-before-rotation-{run_id}"
+        old_authorization = gateway_a.authorize(old_request)
+        if old_authorization.get("status") != "authorized":
+            raise RuntimeError(
+                "OpenBao ticket authorization failed: "
+                + json.dumps(old_authorization, ensure_ascii=False)
+            )
+        old_ticket = old_authorization["ticket"]
 
         rotate_status, _ = api_request(
             address, token, "POST", "transit/keys/agentguard-ticket/rotate", {}
@@ -121,11 +138,11 @@ def main() -> int:
         old_after_rotation = gateway_b.dispatch(old_request, old_ticket)
 
         new_request = copy.deepcopy(sample)
-        new_request["task_id"] = "openbao-after-rotation"
+        new_request["task_id"] = f"openbao-after-rotation-{run_id}"
         new_result = gateway_b.invoke(new_request)
 
         race_request = copy.deepcopy(sample)
-        race_request["task_id"] = "openbao-two-gateway-race"
+        race_request["task_id"] = f"openbao-two-gateway-race-{run_id}"
         race_ticket = gateway_a.authorize(race_request)["ticket"]
 
         def consume(index: int) -> dict[str, Any]:
@@ -149,7 +166,7 @@ def main() -> int:
             opa_client=AlwaysAllowOpa(),
         )
         outage_request = copy.deepcopy(sample)
-        outage_request["task_id"] = "openbao-outage"
+        outage_request["task_id"] = f"openbao-outage-{run_id}"
         outage_result = outage_gateway.invoke(outage_request)
 
     checks = {
@@ -179,12 +196,21 @@ def main() -> int:
         },
         "boundary": "本报告证明外部密钥服务、轮换和共享CAS核销；本机dev server不是多节点生产OpenBao集群。",
     }
-    report_path = PROJECT_ROOT / "reports" / "openbao_kms_ha_e2e.json"
     report_path.write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
+    return report
+
+
+def main() -> int:
+    address = os.environ.get("AGENTGUARD_BAO_ADDR", "http://127.0.0.1:18200")
+    token = os.environ.get("AGENTGUARD_BAO_TOKEN", "")
+    if not token:
+        raise RuntimeError("缺少 AGENTGUARD_BAO_TOKEN")
+    report_path = PROJECT_ROOT / "reports" / "openbao_kms_ha_e2e.json"
+    report = run_e2e(address, token, report_path)
     print(json.dumps({"passed": report["passed"], "total": report["total"]}))
-    return 0 if all(checks.values()) else 1
+    return 0 if report["passed"] == report["total"] else 1
 
 
 if __name__ == "__main__":

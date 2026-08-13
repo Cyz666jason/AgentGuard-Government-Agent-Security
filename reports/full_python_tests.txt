@@ -46,6 +46,6 @@ test_redaction_masks_secrets_and_pseudonymizes_identifiers (test_integrations.Pr
 test_unexpected_business_adapter_failure_is_fail_closed (test_integrations.ProductionIntegrationTests.test_unexpected_business_adapter_failure_is_fail_closed) ... ok
 
 ----------------------------------------------------------------------
-Ran 46 tests in 4.899s
+Ran 46 tests in 5.318s
 
 OK

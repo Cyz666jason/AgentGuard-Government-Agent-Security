@@ -74,6 +74,10 @@ try {
         Set-Content -LiteralPath (Join-Path $reportDir 'openbao_kms_ha_console.json') -Encoding UTF8
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+    & $venvPython .\scripts\run_openbao_raft_ha_e2e.py |
+        Set-Content -LiteralPath (Join-Path $reportDir 'openbao_raft_ha_console.json') -Encoding UTF8
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
     & $venvPython .\scripts\run_qemu_native_isolation_e2e.py |
         Set-Content -LiteralPath (Join-Path $reportDir 'qemu_native_isolation_console.json') -Encoding UTF8
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

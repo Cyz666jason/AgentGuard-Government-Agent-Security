@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-14T03:09:41.294719+08:00",
+  "generated_at": "2026-08-14T04:05:21.830431+08:00",
   "all_production_items_completed": false,
   "items": [
     {
@@ -16,9 +16,9 @@
     },
     {
       "item": "外部密钥与共享票据状态",
-      "status": "completed_test_environment",
-      "evidence": "OpenBao Transit+KV 7/7",
-      "blocker": "本机dev server不是多节点OpenBao生产集群"
+      "status": "completed_ha_test_environment",
+      "evidence": "OpenBao Transit+KV 7/7；三节点Raft故障切换 8/8",
+      "blocker": "本机三进程已验证HA；正式生产仍需跨故障域、TLS、自动解封、备份恢复和容量压测"
     },
     {
       "item": "原生程序独立来宾内核隔离",

@@ -1,5 +1,5 @@
 ﻿{
-  "tested_at": "2026-08-14T03:02:11+08:00",
+  "tested_at": "2026-08-14T04:05:19+08:00",
   "hostname": "LAPTOP-JBJSO312",
   "os": "Windows-11-10.0.26200-SP0",
   "architecture": "AMD64",
@@ -15,7 +15,7 @@
     "pyjwt": "2.10.1",
     "keycloak_portable": "26.7.1 (OIDC E2E tested)",
     "toolhive_portable": "0.28.3 (CLI/checksum tested)",
-    "openbao": "2.6.1 (Transit/KV E2E tested)",
+    "openbao": "2.6.1 (Transit/KV + three-node Raft failover E2E tested)",
     "qemu": "11.1.0 (Linux guest kernel E2E tested)"
   },
   "container_environment": {

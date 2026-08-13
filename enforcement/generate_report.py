@@ -61,6 +61,7 @@ def main() -> int:
     network_e2e = load_json("network_enforcement_e2e.json")
     keycloak_e2e = load_json("keycloak_oidc_e2e.json")
     openbao_e2e = load_json("openbao_kms_ha_e2e.json")
+    openbao_raft_e2e = load_json("openbao_raft_ha_e2e.json")
     qemu_e2e = load_json("qemu_native_isolation_e2e.json")
 
     checks = {
@@ -95,6 +96,8 @@ def main() -> int:
         ],
         "OpenBao外部密钥与共享票据核销": openbao_e2e["passed"]
         == openbao_e2e["total"],
+        "OpenBao三节点Raft主节点故障切换": openbao_raft_e2e["passed"]
+        == openbao_raft_e2e["total"],
         "QEMU独立Linux来宾内核隔离": qemu_e2e["passed"] == qemu_e2e["total"],
     }
     gaps = [
@@ -118,9 +121,9 @@ def main() -> int:
         },
         {
             "severity": "中",
-            "item": "生产级KMS/HA仍需多节点集群",
-            "reason": "OpenBao Transit密钥外置/轮换和KV CAS双网关核销7/7已完成，但本机dev server仍是单服务进程",
-            "next": "在预生产部署多节点OpenBao Raft或云KMS加高可用数据库，补leader切换和灾难恢复",
+            "item": "生产KMS/HA仍需跨故障域加固",
+            "reason": "OpenBao Transit/KV 7/7及三节点Raft选主、复制、leader故障切换8/8已完成，但三个节点仍位于同一Windows测试机且关闭TLS",
+            "next": "预生产跨故障域部署，启用TLS与自动解封，并补快照恢复、网络分区和容量压测",
         },
         {
             "severity": "中",
@@ -158,6 +161,7 @@ def main() -> int:
             "Wasmtime 安全内核",
             "真实本地测试业务适配器",
             "OpenBao Transit外部密钥与共享票据账本",
+            "OpenBao三节点Raft高可用与故障切换",
             "QEMU独立Linux来宾内核隔离",
         ],
         "opa_unit_tests": {"passed": opa_passed, "total": opa_total},
@@ -183,6 +187,10 @@ def main() -> int:
         "openbao_kms_ha_e2e": {
             "passed": openbao_e2e["passed"],
             "total": openbao_e2e["total"],
+        },
+        "openbao_raft_ha_e2e": {
+            "passed": openbao_raft_e2e["passed"],
+            "total": openbao_raft_e2e["total"],
         },
         "qemu_native_isolation_e2e": {
             "passed": qemu_e2e["passed"],

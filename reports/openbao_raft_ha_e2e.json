@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-08-14T04:00:41.034462+08:00",
+  "service": "OpenBao integrated storage Raft",
+  "nodes": 3,
+  "secret_material_in_report": false,
+  "checks": {
+    "three_server_processes_started": true,
+    "cluster_initialized": true,
+    "leader_unsealed": true,
+    "three_raft_voters_joined": true,
+    "leader_elected": true,
+    "transit_and_shared_ledger_work_on_cluster": true,
+    "leader_failover_completed": true,
+    "transit_and_ledger_survive_failover": true
+  },
+  "passed": 8,
+  "total": 8,
+  "leader_before_failover": "http://127.0.0.1:18301",
+  "leader_after_failover": "http://127.0.0.1:18302",
+  "boundary": "三节点本机Raft进程证明选主、复制和leader故障切换；生产仍需跨故障域部署、TLS、自动解封、备份恢复与容量压测。"
+}

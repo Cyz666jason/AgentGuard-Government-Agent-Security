@@ -19,6 +19,7 @@ reports/network_e2e_state/
 reports/keycloak_stdout.log
 reports/keycloak_stderr.log
 reports/openbao_state/
+reports/openbao_raft_state/
 reports/qemu_container_host/
 reports/authorized_business_state/
 private_data/

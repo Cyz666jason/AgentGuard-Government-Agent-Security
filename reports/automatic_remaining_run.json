@@ -1,0 +1,46 @@
+﻿{
+    "generated_at":  "2026-08-14T03:58:04.5495001+08:00",
+    "all_automatable_steps_succeeded":  true,
+    "items":  [
+                  {
+                      "item":  "OpenBao three-node Raft failover",
+                      "status":  "completed",
+                      "detail":  "exit_code=0"
+                  },
+                  {
+                      "item":  "QEMU isolated Linux guest kernel",
+                      "status":  "completed",
+                      "detail":  "exit_code=0"
+                  },
+                  {
+                      "item":  "OPA-Envoy/ToolHive product container E2E",
+                      "status":  "blocked_external_environment",
+                      "detail":  "Docker/Podman daemon is unavailable on this Windows test machine"
+                  },
+                  {
+                      "item":  "Authorized production data redaction",
+                      "status":  "skipped_missing_external_input",
+                      "detail":  "No approved source JSONL was supplied"
+                  },
+                  {
+                      "item":  "Authorized business API credential-gated E2E",
+                      "status":  "skipped_missing_external_input",
+                      "detail":  "exit_code=2"
+                  },
+                  {
+                      "item":  "Pre-publication secret scan",
+                      "status":  "completed",
+                      "detail":  "exit_code=0"
+                  },
+                  {
+                      "item":  "Productionization status report",
+                      "status":  "completed",
+                      "detail":  "exit_code=0"
+                  },
+                  {
+                      "item":  "GitHub private repository publication",
+                      "status":  "blocked_user_authentication",
+                      "detail":  "Run gh auth login --web --git-protocol https once, then rerun this script with -PublishGitHub"
+                  }
+              ]
+}

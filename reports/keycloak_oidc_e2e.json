@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T19:01:51.095634+00:00",
+  "generated_at": "2026-08-13T19:59:27.308665+00:00",
   "issuer": "http://127.0.0.1:18080/realms/agentguard",
   "audience": "agentguard",
   "checks": {
@@ -17,10 +17,10 @@
     "reason_code": "G000_EXECUTED",
     "policy_effect": "allow",
     "receipt": {
-      "receipt_id": "iso-06075da2c55f44f6",
+      "receipt_id": "iso-44c87eface884952",
       "task_id": "task-demo-001",
       "action_digest": "7c7ce2215b25aae9b9f596c4699365a5178b539b7add7d2da1b32db0b927586e",
-      "ticket_jti": "08f66d53a4d8492aa77d2593d9155b1e",
+      "ticket_jti": "df8d877afe15479bb212eb5089e110ab",
       "tool": "database.query",
       "operation": "query",
       "result": "local_test_business_operation",
@@ -35,7 +35,7 @@
         "reason_code": "K000_OK",
         "output": 20,
         "fuel_consumed": 2,
-        "duration_ms": 2.588
+        "duration_ms": 3.118
       },
       "business_result": {
         "adapter": "sqlite_notice_query",
@@ -87,10 +87,10 @@
     "reason_code": "G000_EXECUTED",
     "policy_effect": "allow",
     "receipt": {
-      "receipt_id": "iso-0a214e94d89845f9",
-      "task_id": "task-approved-01-oidc-605734bd",
-      "action_digest": "3ddf81ca3b729b2f1a0db9bcfc8abb8a53a968b1c0361c14f363a838d84c0dc5",
-      "ticket_jti": "f1944829fad846cb9ed32d8e4740bdb7",
+      "receipt_id": "iso-52844c5fe932498d",
+      "task_id": "task-approved-01-oidc-9744fe98",
+      "action_digest": "ae8a244ecb1dfe2672ee31ed6a69fc2c5b3303b966dd0c538f4f57872d91e4d1",
+      "ticket_jti": "d97557320525493ead9262063408ef08",
       "tool": "payment.transfer",
       "operation": "transfer",
       "result": "local_test_business_operation",
@@ -105,13 +105,13 @@
         "reason_code": "K000_OK",
         "output": 5000,
         "fuel_consumed": 2,
-        "duration_ms": 1.344
+        "duration_ms": 1.228
       },
       "business_result": {
         "adapter": "sqlite_test_payment_ledger",
         "database": "payment_ledger.sqlite",
-        "payment_id": 9,
-        "task_id": "task-approved-01-oidc-605734bd",
+        "payment_id": 10,
+        "task_id": "task-approved-01-oidc-9744fe98",
         "amount_cents": 500000,
         "currency": "CNY",
         "status": "recorded_test_only",
