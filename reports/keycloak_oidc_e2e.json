@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T19:59:27.308665+00:00",
+  "generated_at": "2026-08-13T22:04:59.006342+00:00",
   "issuer": "http://127.0.0.1:18080/realms/agentguard",
   "audience": "agentguard",
   "checks": {
@@ -7,20 +7,22 @@
     "untrusted_json_subject_overwritten": true,
     "missing_token_blocked": true,
     "tampered_token_blocked": true,
+    "approver_identity_verified_by_keycloak": true,
+    "approval_is_signed": true,
     "finance_token_payment_recorded": true
   },
-  "passed": 5,
-  "total": 5,
+  "passed": 7,
+  "total": 7,
   "query_result": {
     "status": "executed_isolated",
     "http_status": 200,
     "reason_code": "G000_EXECUTED",
     "policy_effect": "allow",
     "receipt": {
-      "receipt_id": "iso-44c87eface884952",
+      "receipt_id": "iso-a8a55c00a5e84692",
       "task_id": "task-demo-001",
       "action_digest": "7c7ce2215b25aae9b9f596c4699365a5178b539b7add7d2da1b32db0b927586e",
-      "ticket_jti": "df8d877afe15479bb212eb5089e110ab",
+      "ticket_jti": "567d700590724289b400cc8d28593c0e",
       "tool": "database.query",
       "operation": "query",
       "result": "local_test_business_operation",
@@ -35,7 +37,7 @@
         "reason_code": "K000_OK",
         "output": 20,
         "fuel_consumed": 2,
-        "duration_ms": 3.118
+        "duration_ms": 3.611
       },
       "business_result": {
         "adapter": "sqlite_notice_query",
@@ -87,10 +89,10 @@
     "reason_code": "G000_EXECUTED",
     "policy_effect": "allow",
     "receipt": {
-      "receipt_id": "iso-52844c5fe932498d",
-      "task_id": "task-approved-01-oidc-9744fe98",
-      "action_digest": "ae8a244ecb1dfe2672ee31ed6a69fc2c5b3303b966dd0c538f4f57872d91e4d1",
-      "ticket_jti": "d97557320525493ead9262063408ef08",
+      "receipt_id": "iso-fb0e437646314031",
+      "task_id": "task-demo-002-oidc-eed1cc07",
+      "action_digest": "a9d06c7e9ef1ff7ea499851923e7f77d603650ebedc2b5524e3cf6a07bdb664f",
+      "ticket_jti": "65d7691f1023482aae71be1e80060688",
       "tool": "payment.transfer",
       "operation": "transfer",
       "result": "local_test_business_operation",
@@ -105,13 +107,13 @@
         "reason_code": "K000_OK",
         "output": 5000,
         "fuel_consumed": 2,
-        "duration_ms": 1.228
+        "duration_ms": 1.631
       },
       "business_result": {
         "adapter": "sqlite_test_payment_ledger",
         "database": "payment_ledger.sqlite",
-        "payment_id": 10,
-        "task_id": "task-approved-01-oidc-9744fe98",
+        "payment_id": 14,
+        "task_id": "task-demo-002-oidc-eed1cc07",
         "amount_cents": 500000,
         "currency": "CNY",
         "status": "recorded_test_only",

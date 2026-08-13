@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 from datetime import datetime
@@ -14,8 +15,15 @@ REPORT = ROOT / "reports" / "prepublish_security_check.json"
 PATTERNS = {
     "github_token": re.compile(rb"(?:ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})"),
     "aws_access_key": re.compile(rb"AKIA[0-9A-Z]{16}"),
+    "google_api_key": re.compile(rb"AIza[0-9A-Za-z_-]{35}"),
+    "slack_token": re.compile(rb"xox[baprs]-[0-9A-Za-z-]{20,}"),
+    "jwt": re.compile(rb"eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{20,}"),
     "private_key": re.compile(rb"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
     "bearer_token": re.compile(rb"Authorization\s*[:=]\s*Bearer\s+[A-Za-z0-9._~-]{20,}", re.I),
+    "generic_secret_assignment": re.compile(
+        rb"(?:password|passwd|secret|api[_-]?key|access[_-]?token)\s*[:=]\s*['\"](?!replace-|leave-|__)[^'\"\r\n]{12,}['\"]",
+        re.I,
+    ),
 }
 
 
@@ -42,11 +50,19 @@ def main() -> int:
             continue
         scanned += 1
         for name, pattern in PATTERNS.items():
-            if pattern.search(data):
+            match = pattern.search(data)
+            if (
+                name == "generic_secret_assignment"
+                and match is not None
+                and b"$(" in match.group(0)
+            ):
+                continue
+            if match:
                 findings.append(
                     {"file": path.relative_to(ROOT).as_posix(), "pattern": name}
                 )
     report = {
+        "run_id": os.environ.get("AGENTGUARD_RUN_ID", "standalone"),
         "generated_at": datetime.now().astimezone().isoformat(),
         "status": "passed" if not findings else "failed",
         "files_scanned": scanned,

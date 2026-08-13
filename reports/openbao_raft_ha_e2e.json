@@ -1,5 +1,6 @@
 {
-  "generated_at": "2026-08-14T04:00:41.034462+08:00",
+  "run_id": "403cfd8e1f22",
+  "generated_at": "2026-08-14T06:16:57.479901+08:00",
   "service": "OpenBao integrated storage Raft",
   "nodes": 3,
   "secret_material_in_report": false,
@@ -16,6 +17,7 @@
   "passed": 8,
   "total": 8,
   "leader_before_failover": "http://127.0.0.1:18301",
-  "leader_after_failover": "http://127.0.0.1:18302",
+  "leader_after_failover": "http://127.0.0.1:18303",
+  "post_failover_recovery_attempts": 1,
   "boundary": "三节点本机Raft进程证明选主、复制和leader故障切换；生产仍需跨故障域部署、TLS、自动解封、备份恢复与容量压测。"
 }

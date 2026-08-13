@@ -5,9 +5,12 @@ from .gateway import EnforcementGateway, build_gateway
 from .ledgers import OpenBaoKvTicketLedger, SQLiteTicketLedger, TicketLedgerError
 from .signers import HmacKeyringSigner, OpenBaoTransitSigner, TicketSignerError
 from .tickets import ExecutionTicketStore, TicketError, compute_action_digest
+from approval.credentials import ApprovalCredentialError, ApprovalCredentialService
 
 __all__ = [
     "BusinessAdapterError",
+    "ApprovalCredentialError",
+    "ApprovalCredentialService",
     "EnforcementGateway",
     "ExecutionTicketStore",
     "HmacKeyringSigner",

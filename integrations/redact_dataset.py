@@ -97,6 +97,7 @@ def main() -> int:
 
     output_bytes = args.output.read_bytes()
     report = {
+        "run_id": os.environ.get("AGENTGUARD_RUN_ID", "standalone"),
         "generated_at": datetime.now().astimezone().isoformat(),
         "source_filename": input_path.name,
         "source_path_recorded": False,

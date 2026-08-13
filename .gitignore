@@ -5,6 +5,7 @@ __pycache__/
 .venv/
 approval/checkpoints/*.sqlite
 approval/checkpoints/*.sqlite-*
+approval/checkpoints/*.key
 enforcement/runtime/*.sqlite*
 enforcement/runtime/*.jsonl
 third_party/downloads/*.zip

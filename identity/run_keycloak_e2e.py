@@ -4,6 +4,7 @@ import argparse
 import base64
 import copy
 import json
+import os
 import sys
 import urllib.parse
 import urllib.request
@@ -17,7 +18,7 @@ if str(PROJECT_HINT) not in sys.path:
 
 from approval.workflow import PROJECT_ROOT
 from enforcement import build_gateway
-from identity import OidcVerifier
+from identity import OidcApproverAuthenticator, OidcVerifier
 
 
 def get_token(base_url: str, username: str, password: str) -> str:
@@ -76,8 +77,14 @@ def main() -> None:
     gateway = build_gateway(
         Path(args.state_dir), secret=b"K" * 32, enable_local_adapters=True
     )
-    office_token = get_token(args.base_url, "office-test", "Office-Test-2026!")
-    finance_token = get_token(args.base_url, "finance-test", "Finance-Test-2026!")
+    office_password = os.environ.get("AGENTGUARD_KEYCLOAK_OFFICE_PASSWORD", "")
+    finance_password = os.environ.get("AGENTGUARD_KEYCLOAK_FINANCE_PASSWORD", "")
+    approver_password = os.environ.get("AGENTGUARD_KEYCLOAK_APPROVER_PASSWORD", "")
+    if not office_password or not finance_password or not approver_password:
+        raise RuntimeError("Keycloak测试密码必须由启动脚本临时注入")
+    office_token = get_token(args.base_url, "office-test", office_password)
+    finance_token = get_token(args.base_url, "finance-test", finance_password)
+    approver_token = get_token(args.base_url, "approver-test", approver_password)
 
     forged = sample("allow_low_risk.json")
     forged["subject"] = {
@@ -92,12 +99,19 @@ def main() -> None:
     tampered = tamper_jwt_signature(office_token)
     tampered_result = gateway.invoke_authenticated(forged, f"Bearer {tampered}", verifier)
 
-    payment_request = sample("allow_with_approval.json")
+    payment_request = sample("require_approval.json")
     payment_request["task_id"] += f"-oidc-{uuid.uuid4().hex[:8]}"
-    payment_request["approval"]["task_id"] = payment_request["task_id"]
     from enforcement import compute_action_digest
 
-    payment_request["approval"]["action_digest"] = compute_action_digest(payment_request)
+    trusted_approver = OidcApproverAuthenticator(verifier)(
+        {"authorization": f"Bearer {approver_token}"}
+    )
+    payment_request["approval"] = gateway.approvals.issue(
+        payment_request,
+        compute_action_digest(payment_request),
+        str(trusted_approver["id"]),
+        list(trusted_approver["roles"]),
+    )
     payment_result = gateway.invoke_authenticated(
         payment_request, f"Bearer {finance_token}", verifier
     )
@@ -110,6 +124,11 @@ def main() -> None:
         == "sqlite_notice_query",
         "missing_token_blocked": no_token.get("http_status") == 401,
         "tampered_token_blocked": tampered_result.get("http_status") == 401,
+        "approver_identity_verified_by_keycloak": (
+            trusted_approver.get("identity_source") == "oidc_verified_jwt"
+            and "business_approver" in trusted_approver.get("roles", [])
+        ),
+        "approval_is_signed": bool(payment_request.get("approval", {}).get("signature")),
         "finance_token_payment_recorded": payment_result.get("receipt", {})
         .get("business_result", {})
         .get("status")

@@ -1,0 +1,57 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: agentguard-product-backend
+    environment:
+      AGENTGUARD_CONTAINER_TICKET_SECRET: ${AGENTGUARD_CONTAINER_TICKET_SECRET:?runtime-generated ticket secret is required}
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=8m
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    networks: [agentguard-internal]
+
+  opa-envoy:
+    image: openpolicyagent/opa:1.16.2-envoy@sha256:f854ba5a366b7ff25a6b4598b8e408606cf47a3e39b8c560e9f02b062dd580db
+    container_name: agentguard-product-opa-envoy
+    command:
+      - run
+      - --server
+      - --addr=0.0.0.0:8181
+      - --config-file=/config/opa-envoy-config.yaml
+      - /policy/envoy_guard.rego
+    volumes:
+      - ../opa-envoy/opa-envoy-config.yaml:/config/opa-envoy-config.yaml:ro
+      - ../opa-envoy/envoy_guard.rego:/policy/envoy_guard.rego:ro
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=8m
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    networks: [agentguard-internal]
+
+  envoy:
+    image: envoyproxy/envoy:v1.38.0@sha256:8146b97ee61a42cd216514709e4e3198af75f014974e3d9f310aef9c901fcbdf
+    container_name: agentguard-product-envoy
+    command: ["envoy", "-c", "/etc/envoy/envoy.yaml"]
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml:ro
+    ports:
+      - "127.0.0.1:18081:8081"
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=8m
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      - backend
+      - opa-envoy
+    networks: [agentguard-internal]
+
+networks:
+  agentguard-internal:
+    internal: true

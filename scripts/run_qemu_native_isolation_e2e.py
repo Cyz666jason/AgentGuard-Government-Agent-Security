@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -43,8 +44,10 @@ def main() -> int:
         shutil.copytree(QEMU.parent, qemu_temp)
         kernel_temp = temp / "vmlinuz-virt"
         initramfs_temp = temp / "initramfs-virt"
+        iso_temp = temp / "alpine-virt.iso"
         shutil.copy2(KERNEL, kernel_temp)
         shutil.copy2(INITRAMFS, initramfs_temp)
+        shutil.copy2(ISO, iso_temp)
         qemu_executable = qemu_temp / QEMU.name
         command = [
             str(qemu_executable),
@@ -63,7 +66,9 @@ def main() -> int:
             "-initrd",
             str(initramfs_temp),
             "-append",
-            "console=ttyS0 modules=loop,squashfs",
+            "console=ttyS0 modules=loop,squashfs,sd-mod,usb-storage",
+            "-drive",
+            f"file={iso_temp},media=cdrom,readonly=on,format=raw",
             "-nic",
             "none",
             "-display",
@@ -101,23 +106,23 @@ def main() -> int:
         "guest_iso_checksum_verified": expected == actual,
         "separate_linux_guest_kernel_booted": "Linux version" in output,
         "guest_userspace_reached": (
-            "Welcome to Alpine Linux" in output
-            or "alpine login:" in output
-            or "localhost login:" in output
-            or "Alpine initramfs" in output
-            or "Alpine Init" in output
-            or "Mounting boot media failed" in output
+            "Alpine Init" in output and "Mounting boot media failed" not in output
         ),
+        "boot_media_mounted_without_error": "Mounting boot media failed" not in output,
         "one_vcpu_configured": command[command.index("-smp") + 1] == "1",
         "memory_cap_256_mib_configured": command[command.index("-m") + 1] == "256M",
         "network_device_disabled": command[command.index("-nic") + 1] == "none",
         "no_host_filesystem_share_configured": not any(
-            item in command for item in ("-virtfs", "-fsdev", "-drive")
+            item in command for item in ("-virtfs", "-fsdev")
+        ),
+        "boot_media_is_read_only": any(
+            item.endswith("media=cdrom,readonly=on,format=raw") for item in command
         ),
         "headless_noninteractive_execution": command[command.index("-display") + 1]
         == "none",
     }
     report = {
+        "run_id": os.environ.get("AGENTGUARD_RUN_ID", "standalone"),
         "generated_at": datetime.now().astimezone().isoformat(),
         "runtime": "QEMU full-system emulation",
         "qemu_version": subprocess.check_output(
@@ -135,7 +140,7 @@ def main() -> int:
             "network": "none",
             "host_filesystem_share": "none",
             "display": "none",
-            "writable_disk": "none; verified boot files only",
+            "writable_disk": "none; checksum-verified ISO attached read-only",
         },
         "checks": checks,
         "passed": sum(checks.values()),
@@ -144,7 +149,10 @@ def main() -> int:
         "process_exit_code": exit_code,
         "guest_memory_log_seen": bool(memory_match),
         "log_excerpt": "\n".join(
-            line for line in output.splitlines() if "Linux version" in line or "Alpine" in line
+            line
+            for line in output.splitlines()
+            if "Linux version" in line
+            or "Alpine" in line
         )[:2000],
         "boundary": "已证明独立Linux guest kernel和受限QEMU配置；这不是Kata/Firecracker产品E2E，也未启用KVM硬件加速。",
     }

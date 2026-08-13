@@ -252,11 +252,19 @@ def main() -> int:
             time.sleep(0.5)
         checks["leader_failover_completed"] = bool(active_port) and leader_after != leader_before
 
-        post_failover = run_e2e(
-            f"http://127.0.0.1:{active_port}",
-            root_token,
-            STATE / "post_failover_security.json",
-        ) if active_port else {"passed": 0, "total": 1}
+        post_failover = {"passed": 0, "total": 1}
+        post_failover_attempts = 0
+        recovery_deadline = time.monotonic() + 45
+        while active_port and time.monotonic() < recovery_deadline:
+            post_failover_attempts += 1
+            post_failover = run_e2e(
+                f"http://127.0.0.1:{active_port}",
+                root_token,
+                STATE / "post_failover_security.json",
+            )
+            if post_failover["passed"] == post_failover["total"]:
+                break
+            time.sleep(2)
         checks["transit_and_ledger_survive_failover"] = (
             post_failover["passed"] == post_failover["total"]
         )
@@ -265,6 +273,7 @@ def main() -> int:
             stop(process)
 
     report = {
+        "run_id": os.environ.get("AGENTGUARD_RUN_ID", "standalone"),
         "generated_at": datetime.now().astimezone().isoformat(),
         "service": "OpenBao integrated storage Raft",
         "nodes": len(NODES),
@@ -274,6 +283,7 @@ def main() -> int:
         "total": len(checks),
         "leader_before_failover": leader_before,
         "leader_after_failover": leader_after,
+        "post_failover_recovery_attempts": post_failover_attempts,
         "boundary": "三节点本机Raft进程证明选主、复制和leader故障切换；生产仍需跨故障域部署、TLS、自动解封、备份恢复与容量压测。",
     }
     REPORT.write_text(

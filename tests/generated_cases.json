@@ -33,6 +33,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -77,6 +78,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -121,6 +123,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -168,6 +171,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -212,6 +216,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -258,6 +263,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -304,6 +310,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -348,6 +355,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -395,6 +403,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -442,6 +451,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -489,6 +499,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -536,6 +547,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -582,6 +594,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -626,6 +639,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -672,6 +686,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "external",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -718,6 +733,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -764,6 +780,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -810,6 +827,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -856,6 +874,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "external",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -903,6 +922,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": false,
@@ -950,6 +970,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -994,6 +1015,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -1041,6 +1063,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -1100,6 +1123,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -1158,6 +1182,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -1214,6 +1239,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -1272,6 +1298,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "external",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -1330,6 +1357,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -1388,6 +1416,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -1446,6 +1475,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -1504,6 +1534,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "external",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -1563,6 +1594,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": false,
@@ -1622,6 +1654,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -1678,6 +1711,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -1737,6 +1771,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -1784,6 +1819,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -1830,6 +1866,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -1877,6 +1914,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -1921,6 +1959,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -1967,6 +2006,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "external",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -2013,6 +2053,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -2059,6 +2100,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -2105,6 +2147,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -2152,6 +2195,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "direct",
           "business_hours": true,
@@ -2199,6 +2243,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -2245,6 +2290,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "external",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -2292,6 +2338,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -2339,6 +2386,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -2398,6 +2446,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -2457,6 +2506,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -2516,6 +2566,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -2575,6 +2626,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -2634,6 +2686,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -2693,6 +2746,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,
@@ -2752,6 +2806,7 @@
         },
         "context": {
           "source": "mcp",
+          "server_time": "2026-08-04T10:00:00Z",
           "destination_zone": "internal",
           "enforcement_point": "gateway",
           "business_hours": true,

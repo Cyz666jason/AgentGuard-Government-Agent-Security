@@ -94,41 +94,53 @@ def main() -> int:
         "审批后真实测试账本副作用": keycloak_e2e["checks"][
             "finance_token_payment_recorded"
         ],
+        "审批人OIDC身份及审批签名已验证": keycloak_e2e["checks"][
+            "approver_identity_verified_by_keycloak"
+        ]
+        and keycloak_e2e["checks"]["approval_is_signed"],
         "OpenBao外部密钥与共享票据核销": openbao_e2e["passed"]
         == openbao_e2e["total"],
+        "同一审批跨双网关只能核销一次": openbao_e2e["checks"][
+            "two_gateways_share_atomic_approval_ledger"
+        ]
+        and openbao_e2e["checks"]["concurrent_approval_reuse_blocked"],
         "OpenBao三节点Raft主节点故障切换": openbao_raft_e2e["passed"]
         == openbao_raft_e2e["total"],
         "QEMU独立Linux来宾内核隔离": qemu_e2e["passed"] == qemu_e2e["total"],
+        "QEMU只读启动介质无挂载错误": qemu_e2e["checks"][
+            "boot_media_is_read_only"
+        ]
+        and qemu_e2e["checks"]["boot_media_mounted_without_error"],
     }
     gaps = [
         {
             "severity": "中",
             "item": "Envoy/ToolHive 指定产品的容器部署未启动",
-            "reason": "本机没有 Docker/Podman/Linux；已用等价的双端口 HTTP PEP 完成核心强制链路 5/5 实测，ToolHive v0.28.3 CLI 与官方校验和已验证",
-            "next": "在具备容器运行时的 Linux 预生产机复用 deployment/ 配置，补产品级 ext_authz、mTLS、NetworkPolicy 和 MCP 容器证据",
+            "reason": "本机没有 Docker/Podman/Linux；已用等价的双端口 HTTP PEP 完成核心强制链路 5/5 实测，并已实现容器后端的签名、时效、动作绑定和一次性票据校验，ToolHive v0.28.3 CLI 与官方校验和已固定",
+            "next": "在具备容器运行时的 Linux 预生产机执行现成E2E，补OPA-Envoy故障注入、伪造票据、重放和ToolHive容器运行证据；生产再补mTLS与NetworkPolicy",
         },
         {
             "severity": "中",
             "item": "Keycloak 当前为本机开发模式测试域",
-            "reason": "真实 Keycloak 26.7.1、JWT 签名、issuer、audience、角色、部门、密级和 MFA 声明已 5/5 实测，但测试域使用 HTTP 和固定测试声明",
+            "reason": f"真实 Keycloak 26.7.1、JWT签名、issuer、audience、角色、部门、密级和MFA声明已 {keycloak_e2e['passed']}/{keycloak_e2e['total']} 实测；测试密码改为每次随机生成，但测试域仍使用HTTP和合成MFA声明",
             "next": "生产改用 HTTPS、组织目录联邦、真实 OTP/WebAuthn 认证流程和密钥轮换，删除测试用户与固定 MFA mapper",
         },
         {
             "severity": "中",
             "item": "尚未连接真实外部业务系统",
-            "reason": "HTTPS、CA、主机白名单、幂等键、审批检查和fail-closed适配器已经实现；未获得单位批准的预生产URL、令牌和CA",
+            "reason": "HTTPS、CA、主机白名单、幂等键、显式写操作双确认、金额上限、可信OIDC审批和结果未知对账均已实现；未获得单位批准的预生产URL、令牌和CA",
             "next": "获得合法测试凭据后运行真实API E2E；不得生成、猜测或把本地模拟凭据称为真实凭据",
         },
         {
             "severity": "中",
             "item": "生产KMS/HA仍需跨故障域加固",
-            "reason": "OpenBao Transit/KV 7/7及三节点Raft选主、复制、leader故障切换8/8已完成，但三个节点仍位于同一Windows测试机且关闭TLS",
+            "reason": f"OpenBao票据与审批独立Transit密钥/共享KV {openbao_e2e['passed']}/{openbao_e2e['total']}及三节点Raft选主、复制、leader故障切换{openbao_raft_e2e['passed']}/{openbao_raft_e2e['total']}已完成，但三个节点仍位于同一Windows测试机且关闭TLS",
             "next": "预生产跨故障域部署，启用TLS与自动解封，并补快照恢复、网络分区和容量压测",
         },
         {
             "severity": "中",
             "item": "Kata/Firecracker产品隔离尚未运行",
-            "reason": "QEMU独立Linux来宾内核9/9已验证无网络、无宿主目录和资源限制，但当前为TCG软件模拟",
+            "reason": f"QEMU独立Linux来宾内核/Alpine用户态/只读启动介质 {qemu_e2e['passed']}/{qemu_e2e['total']}已验证无网络、无宿主目录和资源限制，但当前为TCG软件模拟",
             "next": "在Linux/KVM测试机运行Kata或Firecracker产品E2E和性能测试",
         },
         {
@@ -220,7 +232,7 @@ def main() -> int:
 
 ## 总结
 
-原先列出的三个高优先级缺口均已完成测试级补齐：真实 Keycloak/OIDC 5/5、常驻 OPA REST 网络强制链路 5/5、真实本地 SQLite 业务读写 6/6。测试机上 OPA 单元测试 {opa_passed}/{opa_total} 通过，OPA-Envoy 网络策略测试 {envoy_passed}/{envoy_total} 通过，OPA 数据集 {summary['opa_dataset']['passed']}/{summary['opa_dataset']['total']} 通过，Python 身份/审批/网关/内核测试 {summary['python_security_tests']['passed']}/{python_total} 通过，关键演示与新增端到端检查 {summary['demonstration_passed']}/{summary['demonstration_total']} 通过；危险、拒绝、重放、篡改、身份伪造和沙箱攻击场景的误执行次数为 0。
+原先列出的高优先级缺口均已完成测试级补齐：真实 Keycloak/OIDC {keycloak_e2e['passed']}/{keycloak_e2e['total']}、常驻 OPA REST 网络强制链路 {network_e2e['passed']}/{network_e2e['total']}、OpenBao共享审批/票据 {openbao_e2e['passed']}/{openbao_e2e['total']}、QEMU隔离 {qemu_e2e['passed']}/{qemu_e2e['total']}。测试机上 OPA 单元测试 {opa_passed}/{opa_total} 通过，OPA-Envoy 网络策略测试 {envoy_passed}/{envoy_total} 通过，OPA 数据集 {summary['opa_dataset']['passed']}/{summary['opa_dataset']['total']} 通过，Python 身份/审批/网关/内核测试 {summary['python_security_tests']['passed']}/{python_total} 通过，关键演示与新增端到端检查 {summary['demonstration_passed']}/{summary['demonstration_total']} 通过；危险、拒绝、重放、篡改、身份伪造和沙箱攻击场景的误执行次数为 0。
 
 ## 已完成内容
 

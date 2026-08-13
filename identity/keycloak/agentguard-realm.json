@@ -63,7 +63,7 @@
           }
         },
         {
-          "name": "mfa-test-proof",
+          "name": "mfa-test-only-synthetic-proof",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-hardcoded-claim-mapper",
           "consentRequired": false,
@@ -90,7 +90,7 @@
       "requiredActions": [],
       "realmRoles": ["office_user"],
       "credentials": [
-        {"type": "password", "value": "Office-Test-2026!", "temporary": false}
+        {"type": "password", "value": "__OFFICE_TEST_PASSWORD__", "temporary": false}
       ]
     },
     {
@@ -104,7 +104,21 @@
       "requiredActions": [],
       "realmRoles": ["finance_operator"],
       "credentials": [
-        {"type": "password", "value": "Finance-Test-2026!", "temporary": false}
+        {"type": "password", "value": "__FINANCE_TEST_PASSWORD__", "temporary": false}
+      ]
+    },
+    {
+      "username": "approver-test",
+      "enabled": true,
+      "email": "approver-test@agentguard.local",
+      "emailVerified": true,
+      "firstName": "Approver",
+      "lastName": "Tester",
+      "attributes": {"department": ["审批中心"], "clearance": ["2"]},
+      "requiredActions": [],
+      "realmRoles": ["business_approver"],
+      "credentials": [
+        {"type": "password", "value": "__APPROVER_TEST_PASSWORD__", "temporary": false}
       ]
     }
   ]

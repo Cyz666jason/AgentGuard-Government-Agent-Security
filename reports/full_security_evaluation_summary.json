@@ -26,29 +26,29 @@
     "unsafe_allow_count": 0
   },
   "python_security_tests": {
-    "passed": 46,
-    "total": 46
+    "passed": 60,
+    "total": 60
   },
   "network_enforcement_e2e": {
     "passed": 5,
     "total": 5
   },
   "keycloak_oidc_e2e": {
-    "passed": 5,
-    "total": 5,
+    "passed": 7,
+    "total": 7,
     "issuer": "http://127.0.0.1:18080/realms/agentguard"
   },
   "openbao_kms_ha_e2e": {
-    "passed": 7,
-    "total": 7
+    "passed": 10,
+    "total": 10
   },
   "openbao_raft_ha_e2e": {
     "passed": 8,
     "total": 8
   },
   "qemu_native_isolation_e2e": {
-    "passed": 9,
-    "total": 9
+    "passed": 11,
+    "total": 11
   },
   "demonstration_checks": {
     "低风险动作经网关与 Wasmtime 执行": true,
@@ -66,15 +66,18 @@
     "真实 Keycloak/OIDC 身份签名校验": true,
     "OIDC 身份覆盖不可信 JSON 主体": true,
     "审批后真实测试账本副作用": true,
+    "审批人OIDC身份及审批签名已验证": true,
     "OpenBao外部密钥与共享票据核销": true,
+    "同一审批跨双网关只能核销一次": true,
     "OpenBao三节点Raft主节点故障切换": true,
-    "QEMU独立Linux来宾内核隔离": true
+    "QEMU独立Linux来宾内核隔离": true,
+    "QEMU只读启动介质无挂载错误": true
   },
-  "demonstration_passed": 18,
-  "demonstration_total": 18,
+  "demonstration_passed": 21,
+  "demonstration_total": 21,
   "unsafe_execution_count": 0,
   "test_machine": {
-    "tested_at": "2026-08-14T04:05:19+08:00",
+    "tested_at": "2026-08-14T06:05:22+08:00",
     "hostname": "LAPTOP-JBJSO312",
     "os": "Windows-11-10.0.26200-SP0",
     "architecture": "AMD64",
@@ -107,31 +110,31 @@
     {
       "severity": "中",
       "item": "Envoy/ToolHive 指定产品的容器部署未启动",
-      "reason": "本机没有 Docker/Podman/Linux；已用等价的双端口 HTTP PEP 完成核心强制链路 5/5 实测，ToolHive v0.28.3 CLI 与官方校验和已验证",
-      "next": "在具备容器运行时的 Linux 预生产机复用 deployment/ 配置，补产品级 ext_authz、mTLS、NetworkPolicy 和 MCP 容器证据"
+      "reason": "本机没有 Docker/Podman/Linux；已用等价的双端口 HTTP PEP 完成核心强制链路 5/5 实测，并已实现容器后端的签名、时效、动作绑定和一次性票据校验，ToolHive v0.28.3 CLI 与官方校验和已固定",
+      "next": "在具备容器运行时的 Linux 预生产机执行现成E2E，补OPA-Envoy故障注入、伪造票据、重放和ToolHive容器运行证据；生产再补mTLS与NetworkPolicy"
     },
     {
       "severity": "中",
       "item": "Keycloak 当前为本机开发模式测试域",
-      "reason": "真实 Keycloak 26.7.1、JWT 签名、issuer、audience、角色、部门、密级和 MFA 声明已 5/5 实测，但测试域使用 HTTP 和固定测试声明",
+      "reason": "真实 Keycloak 26.7.1、JWT签名、issuer、audience、角色、部门、密级和MFA声明已 7/7 实测；测试密码改为每次随机生成，但测试域仍使用HTTP和合成MFA声明",
       "next": "生产改用 HTTPS、组织目录联邦、真实 OTP/WebAuthn 认证流程和密钥轮换，删除测试用户与固定 MFA mapper"
     },
     {
       "severity": "中",
       "item": "尚未连接真实外部业务系统",
-      "reason": "HTTPS、CA、主机白名单、幂等键、审批检查和fail-closed适配器已经实现；未获得单位批准的预生产URL、令牌和CA",
+      "reason": "HTTPS、CA、主机白名单、幂等键、显式写操作双确认、金额上限、可信OIDC审批和结果未知对账均已实现；未获得单位批准的预生产URL、令牌和CA",
       "next": "获得合法测试凭据后运行真实API E2E；不得生成、猜测或把本地模拟凭据称为真实凭据"
     },
     {
       "severity": "中",
       "item": "生产KMS/HA仍需跨故障域加固",
-      "reason": "OpenBao Transit/KV 7/7及三节点Raft选主、复制、leader故障切换8/8已完成，但三个节点仍位于同一Windows测试机且关闭TLS",
+      "reason": "OpenBao票据与审批独立Transit密钥/共享KV 10/10及三节点Raft选主、复制、leader故障切换8/8已完成，但三个节点仍位于同一Windows测试机且关闭TLS",
       "next": "预生产跨故障域部署，启用TLS与自动解封，并补快照恢复、网络分区和容量压测"
     },
     {
       "severity": "中",
       "item": "Kata/Firecracker产品隔离尚未运行",
-      "reason": "QEMU独立Linux来宾内核9/9已验证无网络、无宿主目录和资源限制，但当前为TCG软件模拟",
+      "reason": "QEMU独立Linux来宾内核/Alpine用户态/只读启动介质 11/11已验证无网络、无宿主目录和资源限制，但当前为TCG软件模拟",
       "next": "在Linux/KVM测试机运行Kata或Firecracker产品E2E和性能测试"
     },
     {

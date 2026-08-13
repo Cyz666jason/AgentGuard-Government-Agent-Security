@@ -1,4 +1,7 @@
-﻿test_approval_resumes_and_executes_once (test_workflow.ApprovalWorkflowTests.test_approval_resumes_and_executes_once) ... ok
+﻿test_cas_collision_is_replay_only_when_exact_record_exists (test_credentials.OpenBaoApprovalLedgerTests.test_cas_collision_is_replay_only_when_exact_record_exists) ... ok
+test_unexplained_http_400_is_not_misreported_as_replay (test_credentials.OpenBaoApprovalLedgerTests.test_unexplained_http_400_is_not_misreported_as_replay) ... ok
+test_approval_resumes_and_executes_once (test_workflow.ApprovalWorkflowTests.test_approval_resumes_and_executes_once) ... ok
+test_approval_without_trusted_approver_authenticator_is_rejected (test_workflow.ApprovalWorkflowTests.test_approval_without_trusted_approver_authenticator_is_rejected) ... ok
 test_cross_task_approval_reuse_is_blocked (test_workflow.ApprovalWorkflowTests.test_cross_task_approval_reuse_is_blocked) ... ok
 test_edit_clears_old_approval_and_pauses_again (test_workflow.ApprovalWorkflowTests.test_edit_clears_old_approval_and_pauses_again) ... ok
 test_high_risk_action_is_persistently_paused (test_workflow.ApprovalWorkflowTests.test_high_risk_action_is_persistently_paused) ... ok
@@ -30,9 +33,18 @@ test_low_risk_allow_reaches_wasmtime_adapter (test_gateway.EnforcementGatewayTes
 test_opa_allow_cannot_bypass_missing_adapter_registry (test_gateway.EnforcementGatewayTests.test_opa_allow_cannot_bypass_missing_adapter_registry) ... ok
 test_opa_outage_fails_closed (test_gateway.EnforcementGatewayTests.test_opa_outage_fails_closed) ... ok
 test_policy_deny_never_gets_a_ticket_or_receipt (test_gateway.EnforcementGatewayTests.test_policy_deny_never_gets_a_ticket_or_receipt) ... ok
+test_same_approval_cannot_issue_two_execution_tickets (test_gateway.EnforcementGatewayTests.test_same_approval_cannot_issue_two_execution_tickets) ... ok
+test_server_clock_rejects_expired_signed_approval (test_gateway.EnforcementGatewayTests.test_server_clock_rejects_expired_signed_approval) ... ok
+test_tampered_signed_approval_is_blocked (test_gateway.EnforcementGatewayTests.test_tampered_signed_approval_is_blocked) ... ok
 test_ticket_replay_is_blocked (test_gateway.EnforcementGatewayTests.test_ticket_replay_is_blocked) ... ok
 test_ticket_signature_tampering_is_blocked (test_gateway.EnforcementGatewayTests.test_ticket_signature_tampering_is_blocked) ... ok
+test_unknown_business_write_outcome_requires_reconciliation (test_gateway.EnforcementGatewayTests.test_unknown_business_write_outcome_requires_reconciliation) ... ok
+test_unsigned_forged_approval_is_blocked (test_gateway.EnforcementGatewayTests.test_unsigned_forged_approval_is_blocked) ... ok
 test_valid_approval_reaches_isolated_adapter (test_gateway.EnforcementGatewayTests.test_valid_approval_reaches_isolated_adapter) ... ok
+test_action_digest_changes_with_protected_path (test_product_backend.ProductContainerBackendTests.test_action_digest_changes_with_protected_path) ... ok
+test_expired_ticket_is_rejected (test_product_backend.ProductContainerBackendTests.test_expired_ticket_is_rejected) ... ok
+test_signed_ticket_decodes_with_binding_fields (test_product_backend.ProductContainerBackendTests.test_signed_ticket_decodes_with_binding_fields) ... ok
+test_tampered_ticket_is_rejected (test_product_backend.ProductContainerBackendTests.test_tampered_ticket_is_rejected) ... ok
 test_active_key_signs_and_old_key_still_verifies_after_rotation (test_signers.HmacKeyringSignerTests.test_active_key_signs_and_old_key_still_verifies_after_rotation) ... ok
 test_unknown_key_version_fails_closed (test_signers.HmacKeyringSignerTests.test_unknown_key_version_fails_closed) ... ok
 test_infinite_loop_is_stopped_by_fuel (test_sandbox.WasmSecurityKernelTests.test_infinite_loop_is_stopped_by_fuel) ... ok
@@ -43,9 +55,11 @@ test_wasi_filesystem_import_is_forbidden (test_sandbox.WasmSecurityKernelTests.t
 test_http_endpoint_is_rejected (test_integrations.ProductionIntegrationTests.test_http_endpoint_is_rejected) ... ok
 test_missing_credentials_fail_closed (test_integrations.ProductionIntegrationTests.test_missing_credentials_fail_closed) ... ok
 test_redaction_masks_secrets_and_pseudonymizes_identifiers (test_integrations.ProductionIntegrationTests.test_redaction_masks_secrets_and_pseudonymizes_identifiers) ... ok
+test_side_effect_requires_explicit_preproduction_gate (test_integrations.ProductionIntegrationTests.test_side_effect_requires_explicit_preproduction_gate) ... ok
+test_uncertain_write_outcome_is_marked_for_reconciliation (test_integrations.ProductionIntegrationTests.test_uncertain_write_outcome_is_marked_for_reconciliation) ... ok
 test_unexpected_business_adapter_failure_is_fail_closed (test_integrations.ProductionIntegrationTests.test_unexpected_business_adapter_failure_is_fail_closed) ... ok
 
 ----------------------------------------------------------------------
-Ran 46 tests in 5.318s
+Ran 60 tests in 8.197s
 
 OK

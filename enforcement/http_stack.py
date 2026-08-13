@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import copy
 import json
 import threading
 import urllib.error
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from datetime import datetime, timezone
 from typing import Any, Mapping
 
 from identity import OidcIdentityError, OidcVerifier
@@ -22,7 +24,13 @@ class OpaRestClient:
         self.timeout = timeout
 
     def decide(self, request: Mapping[str, Any]) -> dict[str, Any]:
-        body = json.dumps({"input": request}, ensure_ascii=False).encode("utf-8")
+        trusted_request = copy.deepcopy(dict(request))
+        if not isinstance(trusted_request.get("context"), dict):
+            trusted_request["context"] = {}
+        trusted_request["context"]["server_time"] = (
+            datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        )
+        body = json.dumps({"input": trusted_request}, ensure_ascii=False).encode("utf-8")
         http_request = urllib.request.Request(
             self.url, data=body, headers={"Content-Type": "application/json"}
         )

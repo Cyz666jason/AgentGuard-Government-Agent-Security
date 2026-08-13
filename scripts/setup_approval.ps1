@@ -14,7 +14,7 @@ if (-not (Test-Path -LiteralPath $venvPython)) {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 
-& $venvPython -m pip install --disable-pip-version-check -r (Join-Path $projectRoot 'requirements-approval.txt')
+& $venvPython -m pip install --disable-pip-version-check --require-hashes -r (Join-Path $projectRoot 'requirements-approval-lock.txt')
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 Write-Host "审批工作流依赖安装完成：$venvPython"

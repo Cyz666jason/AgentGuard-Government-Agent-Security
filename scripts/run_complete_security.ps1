@@ -82,6 +82,10 @@ try {
         Set-Content -LiteralPath (Join-Path $reportDir 'qemu_native_isolation_console.json') -Encoding UTF8
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+    & $venvPython .\scripts\run_container_product_e2e.py |
+        Set-Content -LiteralPath (Join-Path $reportDir 'container_product_e2e_console.json') -Encoding UTF8
+    if ($LASTEXITCODE -notin @(0, 2)) { exit $LASTEXITCODE }
+
     & $venvPython -m enforcement.generate_report |
         Set-Content -LiteralPath (Join-Path $reportDir 'full_security_console.json') -Encoding UTF8
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

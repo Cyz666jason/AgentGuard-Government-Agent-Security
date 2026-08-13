@@ -4,10 +4,10 @@
   "reason_code": "G000_EXECUTED",
   "policy_effect": "allow",
   "receipt": {
-    "receipt_id": "iso-8eced602021e46ea",
-    "task_id": "task-approved-01",
-    "action_digest": "32e277b0f1d12e97cc3bea75223ff5acaebab960c2f11953e1673df25e97cca6",
-    "ticket_jti": "09e0d2f509cf42968f6c1ab989821d4f",
+    "receipt_id": "iso-0ca31e1eca3d4dcc",
+    "task_id": "task-demo-002",
+    "action_digest": "45038a9c228a7385f793bbc3c9acb9ad4692959f4205eadcaa5b44b08364f8de",
+    "ticket_jti": "b18c113e7a6b4150a2d31be4118c1777",
     "tool": "payment.transfer",
     "operation": "transfer",
     "result": "wasmtime_isolated_simulation",
@@ -22,7 +22,7 @@
       "reason_code": "K000_OK",
       "output": 5000,
       "fuel_consumed": 2,
-      "duration_ms": 3.462
+      "duration_ms": 2.979
     },
     "business_result": null
   }

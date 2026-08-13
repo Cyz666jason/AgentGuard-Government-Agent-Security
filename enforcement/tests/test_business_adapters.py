@@ -8,6 +8,7 @@ from pathlib import Path
 
 from approval.workflow import PROJECT_ROOT
 from enforcement import build_gateway
+from enforcement import compute_action_digest
 
 
 class LocalBusinessAdapterTests(unittest.TestCase):
@@ -34,8 +35,18 @@ class LocalBusinessAdapterTests(unittest.TestCase):
         self.assertEqual(3, business["row_count"])
         self.assertFalse(business["side_effect"])
 
+    def approved_request(self) -> dict:
+        request = self.sample("require_approval.json")
+        request["approval"] = self.gateway.approvals.issue(
+            request,
+            compute_action_digest(request),
+            "manager-verified",
+            ["business_approver"],
+        )
+        return request
+
     def test_approved_payment_writes_exactly_one_ledger_row(self) -> None:
-        request = self.sample("allow_with_approval.json")
+        request = self.approved_request()
         result = self.gateway.invoke(request)
         business = result["receipt"]["business_result"]
         self.assertTrue(business["side_effect"])
@@ -55,11 +66,11 @@ class LocalBusinessAdapterTests(unittest.TestCase):
         self.assertEqual(before, self.gateway.business_adapters.payment_count())
 
     def test_duplicate_business_task_is_blocked_without_second_row(self) -> None:
-        request = self.sample("allow_with_approval.json")
+        request = self.approved_request()
         first = self.gateway.invoke(copy.deepcopy(request))
         second = self.gateway.invoke(copy.deepcopy(request))
         self.assertEqual("executed_isolated", first["status"])
-        self.assertEqual("G009_BUSINESS_ADAPTER_FAILED", second["reason_code"])
+        self.assertEqual("G012_APPROVAL_REPLAY", second["reason_code"])
         self.assertEqual(1, self.gateway.business_adapters.payment_count(request["task_id"]))
 
     def test_adapter_databases_are_confined_to_state_directory(self) -> None:

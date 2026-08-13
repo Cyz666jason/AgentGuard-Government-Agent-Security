@@ -64,10 +64,10 @@ try {
                 '',
                 '## Validation',
                 '',
-                '- OPA 31/31, dataset 55/55, Python security tests 46/46',
-                '- Network enforcement 5/5, Keycloak OIDC 5/5',
-                '- OpenBao Transit/KV 7/7, three-node Raft HA 8/8',
-                '- QEMU isolation 9/9, integrated demonstration checks 18/18',
+                '- OPA 31/31, dataset 55/55, Python security tests 60/60',
+                '- Network enforcement 5/5, Keycloak OIDC 7/7',
+                '- OpenBao Transit/KV 10/10, three-node Raft HA 8/8',
+                '- QEMU isolation 11/11, integrated demonstration checks 21/21',
                 '- Pre-publication secret scan passed with zero findings'
             ) | Set-Content -LiteralPath $bodyFile -Encoding UTF8
             & $ghPath pr create --draft --base main --head $currentBranch `

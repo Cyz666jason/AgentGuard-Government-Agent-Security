@@ -14,10 +14,14 @@ $venvPython = Join-Path $projectRoot '.venv\Scripts\python.exe'
 if ($Python -ne '') { $venvPython = $Python }
 $reportPath = Join-Path $projectRoot 'reports\automatic_remaining_run.json'
 $items = [System.Collections.Generic.List[object]]::new()
+$runId = [Guid]::NewGuid().ToString('N').Substring(0, 12)
+$runStartedAt = [DateTimeOffset]::Now
+$env:AGENTGUARD_RUN_ID = $runId
+$env:AGENTGUARD_RUN_STARTED_AT = $runStartedAt.ToString('o')
 
 function Add-Result {
     param([string]$Name, [string]$Status, [string]$Detail)
-    $items.Add([ordered]@{ item = $Name; status = $Status; detail = $Detail })
+    $items.Add([ordered]@{ item = $Name; status = $Status; detail = $Detail; run_id = $runId })
 }
 
 function Invoke-PythonStep {
@@ -44,24 +48,21 @@ function Find-GitHubCli {
 
 Push-Location $projectRoot
 try {
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_openbao_kms_ha_e2e.ps1 -Python $venvPython
+    if ($LASTEXITCODE -ne 0) { throw "OpenBao shared approval/ticket E2E failed with exit code $LASTEXITCODE" }
+    Add-Result 'OpenBao shared approval and ticket ledger' 'completed' 'exit_code=0'
     Invoke-PythonStep 'OpenBao three-node Raft failover' @('.\scripts\run_openbao_raft_ha_e2e.py')
     Invoke-PythonStep 'QEMU isolated Linux guest kernel' @('.\scripts\run_qemu_native_isolation_e2e.py')
 
-    $runtimeReady = $false
-    foreach ($runtime in @('docker', 'podman')) {
-        $command = Get-Command $runtime -ErrorAction SilentlyContinue
-        if ($null -eq $command) { continue }
-        & $command.Source info *> $null
-        if ($LASTEXITCODE -eq 0) {
-            $runtimeReady = $true
-            Add-Result 'Product container runtime' 'ready' "$runtime is available"
-            break
-        }
-    }
-    if (-not $runtimeReady) {
-        Add-Result 'OPA-Envoy/ToolHive product container E2E' 'blocked_external_environment' 'Docker/Podman daemon is unavailable on this Windows test machine'
+    & $venvPython .\scripts\run_container_product_e2e.py
+    $containerCode = $LASTEXITCODE
+    if ($containerCode -eq 0) {
+        Add-Result 'OPA-Envoy/ToolHive product container E2E' 'completed' "exit_code=0"
+    } elseif ($containerCode -eq 2) {
+        Add-Result 'OPA-Envoy/ToolHive product container E2E' 'blocked_external_environment' 'Docker/Podman daemon is unavailable on this test machine'
     } else {
-        Add-Result 'OPA-Envoy/ToolHive product container E2E' 'ready_for_linux_runner' 'Container runtime is ready; execute the pinned deployment configuration on a Linux host'
+        Add-Result 'OPA-Envoy/ToolHive product container E2E' 'failed' "exit_code=$containerCode"
+        throw "Product container E2E failed with exit code $containerCode"
     }
 
     if ($AuthorizedJsonl -ne '') {
@@ -105,12 +106,18 @@ try {
     }
 } finally {
     $report = [ordered]@{
+        run_id = $runId
+        run_started_at = $runStartedAt.ToString('o')
         generated_at = [DateTimeOffset]::Now.ToString('o')
-        all_automatable_steps_succeeded = -not [bool]($items | Where-Object { $_.status -eq 'failed' })
+        execution_engine_healthy = -not [bool]($items | Where-Object { $_.status -eq 'failed' })
+        all_requested_items_completed = -not [bool]($items | Where-Object { $_.status -ne 'completed' })
+        all_automatable_steps_succeeded = -not [bool]($items | Where-Object { $_.status -in @('failed', 'blocked_external_environment', 'blocked_user_authentication', 'skipped_missing_external_input', 'ready_awaiting_publish_switch') })
         items = $items
     }
     $report | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $reportPath -Encoding utf8
     Pop-Location
+    Remove-Item Env:AGENTGUARD_RUN_ID -ErrorAction SilentlyContinue
+    Remove-Item Env:AGENTGUARD_RUN_STARTED_AT -ErrorAction SilentlyContinue
 }
 
 Write-Host "Automatic continuation report: $reportPath"

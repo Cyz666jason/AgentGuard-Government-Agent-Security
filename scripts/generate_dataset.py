@@ -52,6 +52,7 @@ def base_input(case_id: str) -> dict:
         },
         "context": {
             "source": "mcp",
+            "server_time": "2026-08-04T10:00:00Z",
             "destination_zone": "internal",
             "enforcement_point": "gateway",
             "business_hours": True,

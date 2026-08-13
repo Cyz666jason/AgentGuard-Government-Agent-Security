@@ -1,10 +1,10 @@
-﻿deployment\opa-envoy\envoy_guard_test.rego:48:
-data.envoy.authz_test.test_denies_get_method: PASS (508.2µs)
-deployment\opa-envoy\envoy_guard_test.rego:37:
-data.envoy.authz_test.test_denies_wrong_path: PASS (1.0228ms)
+﻿deployment\opa-envoy\envoy_guard_test.rego:22:
+data.envoy.authz_test.test_denies_missing_ticket: PASS (518.4µs)
+deployment\opa-envoy\envoy_guard_test.rego:48:
+data.envoy.authz_test.test_denies_get_method: PASS (518.4µs)
 deployment\opa-envoy\envoy_guard_test.rego:18:
-data.envoy.authz_test.test_allows_internal_post_with_ticket: PASS (1.0228ms)
-deployment\opa-envoy\envoy_guard_test.rego:22:
-data.envoy.authz_test.test_denies_missing_ticket: PASS (1.5384ms)
+data.envoy.authz_test.test_allows_internal_post_with_ticket: PASS (518.4µs)
+deployment\opa-envoy\envoy_guard_test.rego:37:
+data.envoy.authz_test.test_denies_wrong_path: PASS (1.0509ms)
 --------------------------------------------------------------------------------
 PASS: 4/4

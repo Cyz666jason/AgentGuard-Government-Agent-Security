@@ -40,6 +40,18 @@ class EnforcementGatewayTests(unittest.TestCase):
     def sample(self, name: str) -> dict:
         return json.loads((PROJECT_ROOT / "samples" / name).read_text(encoding="utf-8"))
 
+    def signed_approval_request(self, ttl_seconds: int = 1800) -> dict:
+        request = self.sample("require_approval.json")
+        digest = compute_action_digest(request)
+        request["approval"] = self.gateway.approvals.issue(
+            request,
+            digest,
+            "manager-verified",
+            ["business_approver"],
+            ttl_seconds=ttl_seconds,
+        )
+        return request
+
     def test_low_risk_allow_reaches_wasmtime_adapter(self) -> None:
         result = self.gateway.invoke(self.sample("allow_low_risk.json"))
         self.assertEqual("executed_isolated", result["status"])
@@ -59,9 +71,35 @@ class EnforcementGatewayTests(unittest.TestCase):
         self.assertIsNone(result["receipt"])
 
     def test_valid_approval_reaches_isolated_adapter(self) -> None:
-        result = self.gateway.invoke(self.sample("allow_with_approval.json"))
+        result = self.gateway.invoke(self.signed_approval_request())
         self.assertEqual("executed_isolated", result["status"])
         self.assertEqual("payment.transfer", result["receipt"]["tool"])
+
+    def test_unsigned_forged_approval_is_blocked(self) -> None:
+        request = self.sample("allow_with_approval.json")
+        request["approval"]["expires_at"] = "2099-01-01T00:00:00Z"
+        result = self.gateway.invoke(request)
+        self.assertEqual("G010_APPROVAL_CREDENTIAL_INVALID", result["reason_code"])
+
+    def test_server_clock_rejects_expired_signed_approval(self) -> None:
+        request = self.signed_approval_request(ttl_seconds=60)
+        current = float(self.gateway.approvals.clock())
+        self.gateway.approvals.clock = lambda: current + 61
+        result = self.gateway.invoke(request)
+        self.assertEqual("G011_APPROVAL_EXPIRED", result["reason_code"])
+
+    def test_same_approval_cannot_issue_two_execution_tickets(self) -> None:
+        request = self.signed_approval_request()
+        first = self.gateway.invoke(copy.deepcopy(request))
+        second = self.gateway.invoke(copy.deepcopy(request))
+        self.assertEqual("executed_isolated", first["status"])
+        self.assertEqual("G012_APPROVAL_REPLAY", second["reason_code"])
+
+    def test_tampered_signed_approval_is_blocked(self) -> None:
+        request = self.signed_approval_request()
+        request["approval"]["approver_roles"] = ["security_approver"]
+        result = self.gateway.invoke(request)
+        self.assertEqual("G010_APPROVAL_CREDENTIAL_INVALID", result["reason_code"])
 
     def test_opa_outage_fails_closed(self) -> None:
         gateway = build_gateway(
@@ -81,6 +119,27 @@ class EnforcementGatewayTests(unittest.TestCase):
         )
         result = gateway.invoke(self.sample("allow_low_risk.json"))
         self.assertEqual("G004_UNREGISTERED_ADAPTER", result["reason_code"])
+
+    def test_unknown_business_write_outcome_requires_reconciliation(self) -> None:
+        class UnknownOutcomeAdapter:
+            def execute(self, request):
+                error = RuntimeError("simulated timeout after send")
+                error.outcome_unknown = True
+                error.idempotency_key = "a" * 64
+                error.endpoint_host = "erp-preprod.example.gov.cn"
+                raise error
+
+        gateway = build_gateway(
+            self.state_dir / "unknown-outcome",
+            secret=b"U" * 32,
+            business_adapter=UnknownOutcomeAdapter(),
+        )
+        result = gateway.invoke(self.sample("allow_low_risk.json"))
+        self.assertEqual("reconciliation_required", result["status"])
+        self.assertEqual("G015_BUSINESS_OUTCOME_UNKNOWN", result["reason_code"])
+        self.assertFalse(
+            result["receipt"]["reconciliation"]["automatic_retry_allowed"]
+        )
 
     def test_direct_backend_call_without_ticket_is_blocked(self) -> None:
         result = self.gateway.dispatch(self.sample("allow_low_risk.json"), None)
@@ -149,7 +208,16 @@ class EnforcementGatewayTests(unittest.TestCase):
         def isolated_executor(request, decision):
             return self.gateway.invoke(request)
 
-        graph, connection = build_workflow(checkpoint, executor=isolated_executor)
+        graph, connection = build_workflow(
+            checkpoint,
+            executor=isolated_executor,
+            approval_service=self.gateway.approvals,
+            approver_authenticator=lambda review: {
+                "id": review["approver_id"],
+                "roles": review["approver_roles"],
+                "identity_source": "test_only",
+            },
+        )
         config = {"configurable": {"thread_id": f"full-{uuid.uuid4().hex}"}}
         try:
             first = graph.invoke(

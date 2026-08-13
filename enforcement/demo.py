@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import secrets
 import tempfile
 import uuid
 from pathlib import Path
@@ -68,7 +69,16 @@ def main() -> int:
             elif args.scenario == "deny":
                 result = gateway.invoke(sample("deny_dangerous_command.json"))
             elif args.scenario == "approved":
-                result = gateway.invoke(sample("allow_with_approval.json"))
+                request = sample("require_approval.json")
+                from enforcement import compute_action_digest
+
+                request["approval"] = gateway.approvals.issue(
+                    request,
+                    compute_action_digest(request),
+                    "manager-demo",
+                    ["business_approver"],
+                )
+                result = gateway.invoke(request)
             elif args.scenario == "opa_down":
                 result = gateway.invoke(sample("allow_low_risk.json"))
             elif args.scenario == "replay":
@@ -89,7 +99,25 @@ def main() -> int:
                 def isolated_executor(request, decision):
                     return gateway.invoke(request)
 
-                graph, connection = build_workflow(checkpoint, executor=isolated_executor)
+                demo_token = secrets.token_urlsafe(24)
+
+                def demo_authenticator(review):
+                    if not secrets.compare_digest(
+                        str(review.get("demo_auth_token", "")), demo_token
+                    ):
+                        raise PermissionError("演示审批身份验证失败")
+                    return {
+                        "id": "manager-demo",
+                        "roles": ["business_approver"],
+                        "identity_source": "local_demo_authenticator",
+                    }
+
+                graph, connection = build_workflow(
+                    checkpoint,
+                    executor=isolated_executor,
+                    approval_service=gateway.approvals,
+                    approver_authenticator=demo_authenticator,
+                )
                 config = {"configurable": {"thread_id": f"demo-{uuid.uuid4().hex}"}}
                 try:
                     first = graph.invoke(
@@ -101,6 +129,7 @@ def main() -> int:
                                 "decision": "approve",
                                 "approver_id": "manager-demo",
                                 "approver_roles": ["business_approver"],
+                                "demo_auth_token": demo_token,
                             }
                         ),
                         config=config,

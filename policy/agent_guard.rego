@@ -16,6 +16,7 @@ approval := object.get(input, "approval", {})
 request_id := object.get(input, "request_id", "")
 task_id := object.get(input, "task_id", "")
 request_time := object.get(input, "timestamp", "")
+server_time := object.get(context, "server_time", "")
 subject_id := object.get(subject, "id", "")
 roles := object.get(subject, "roles", [])
 clearance := object.get(subject, "clearance", 0)
@@ -217,8 +218,8 @@ authorized_approver if {
 approval_not_expired if {
 	expires_at := object.get(approval, "expires_at", "")
 	expires_at != ""
-	request_time != ""
-	time.parse_rfc3339_ns(expires_at) >= time.parse_rfc3339_ns(request_time)
+	server_time != ""
+	time.parse_rfc3339_ns(expires_at) >= time.parse_rfc3339_ns(server_time)
 }
 
 approval_issues contains {

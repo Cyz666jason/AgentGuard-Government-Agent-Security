@@ -1,24 +1,31 @@
 {
-  "generated_at": "2026-08-14T03:59:54.349043+08:00",
+  "run_id": "403cfd8e1f22",
+  "generated_at": "2026-08-14T06:16:13.640732+08:00",
   "service": "OpenBao Transit + KV v2",
   "address": "http://127.0.0.1:18200",
   "secret_material_in_report": false,
   "checks": {
     "transit_key_created_and_externalized": true,
+    "separate_approval_transit_key_created": true,
     "transit_key_rotated": true,
     "pre_rotation_ticket_valid_after_rotation": true,
     "post_rotation_ticket_executes": true,
     "two_gateway_instances_share_one_ledger": true,
     "concurrent_replay_blocked": true,
+    "two_gateways_share_atomic_approval_ledger": true,
+    "concurrent_approval_reuse_blocked": true,
     "signer_outage_fails_closed": true
   },
-  "passed": 7,
-  "total": 7,
+  "passed": 10,
+  "total": 10,
   "concurrency": {
     "attempts": 32,
     "executed": 1,
     "replay_blocked": 31,
-    "gateway_instances": 2
+    "gateway_instances": 2,
+    "approval_attempts": 32,
+    "approval_authorized": 1,
+    "approval_replay_blocked": 31
   },
-  "boundary": "本报告证明外部密钥服务、轮换和共享CAS核销；本机dev server不是多节点生产OpenBao集群。"
+  "boundary": "本报告证明票据与审批分别使用外部密钥、轮换和共享CAS核销；本机dev server不是多节点生产OpenBao集群。"
 }

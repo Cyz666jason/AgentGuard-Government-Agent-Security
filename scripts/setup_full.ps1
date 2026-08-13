@@ -14,7 +14,7 @@ if (-not (Test-Path -LiteralPath $venvPython)) {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 
-& $venvPython -m pip install --disable-pip-version-check -r (Join-Path $projectRoot 'requirements-full.txt')
+& $venvPython -m pip install --disable-pip-version-check --require-hashes -r (Join-Path $projectRoot 'requirements-lock.txt')
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 Write-Host "完整安全原型依赖安装完成：$venvPython"

@@ -20,6 +20,17 @@ class ProductionAdapterError(RuntimeError):
     pass
 
 
+class ProductionOutcomeUnknownError(ProductionAdapterError):
+    """The remote write may have committed; reconcile before any retry."""
+
+    outcome_unknown = True
+
+    def __init__(self, idempotency_key: str, endpoint_host: str) -> None:
+        super().__init__("业务写操作结果未知，禁止自动重试，必须按幂等键查询对账")
+        self.idempotency_key = idempotency_key
+        self.endpoint_host = endpoint_host
+
+
 class NoRedirectHandler(urllib.request.HTTPRedirectHandler):
     """Redirects are blocked so an allowlisted host cannot bounce to another host."""
 
@@ -34,6 +45,9 @@ class ProductionApiConfig:
     allowed_hosts: tuple[str, ...]
     ca_bundle: str | None = None
     timeout_seconds: float = 5.0
+    environment: str = "unconfigured"
+    allow_side_effects: bool = False
+    max_write_amount: float = 0.0
 
     @classmethod
     def from_environment(cls) -> "ProductionApiConfig":
@@ -48,6 +62,15 @@ class ProductionApiConfig:
             raise ProductionAdapterError(
                 "真实业务适配器未配置：需要BASE_URL、TOKEN和ALLOWED_HOSTS"
             )
+        environment = os.environ.get("AGENTGUARD_BUSINESS_ENVIRONMENT", "").lower()
+        write_confirmation = os.environ.get(
+            "AGENTGUARD_ALLOW_PRODUCTION_SIDE_EFFECTS", ""
+        )
+        allow_side_effects = (
+            environment == "preproduction"
+            and write_confirmation
+            == "I_UNDERSTAND_AND_AUTHORIZE_PREPRODUCTION_WRITES"
+        )
         return cls(
             base_url=base_url,
             bearer_token=token,
@@ -55,6 +78,11 @@ class ProductionApiConfig:
             ca_bundle=os.environ.get("AGENTGUARD_BUSINESS_API_CA_BUNDLE") or None,
             timeout_seconds=float(
                 os.environ.get("AGENTGUARD_BUSINESS_API_TIMEOUT_SECONDS", "5")
+            ),
+            environment=environment or "unconfigured",
+            allow_side_effects=allow_side_effects,
+            max_write_amount=float(
+                os.environ.get("AGENTGUARD_BUSINESS_MAX_WRITE_AMOUNT", "0")
             ),
         )
 
@@ -120,6 +148,18 @@ class ProductionHttpBusinessAdapter:
         method, path, side_effect = routes[key]
         if side_effect and request.get("approval", {}).get("status") != "approved":
             raise ProductionAdapterError("生产写操作必须携带已批准凭证")
+        if side_effect and not self.config.allow_side_effects:
+            raise ProductionAdapterError(
+                "预生产写操作未取得双重显式授权，当前适配器保持只读"
+            )
+        amount = action.get("parameters", {}).get("amount", 0)
+        if side_effect:
+            try:
+                numeric_amount = float(amount)
+            except (TypeError, ValueError) as exc:
+                raise ProductionAdapterError("写操作金额格式无效") from exc
+            if numeric_amount <= 0 or numeric_amount > self.config.max_write_amount:
+                raise ProductionAdapterError("写操作金额超过预先授权上限")
         payload = {
             "task_id": request.get("task_id", ""),
             "resource": action.get("resource", ""),
@@ -134,6 +174,7 @@ class ProductionHttpBusinessAdapter:
             url += "?" + urllib.parse.urlencode(
                 {"limit": action.get("parameters", {}).get("limit", 20)}
             )
+        idempotency_key = self._idempotency_key(request)
         api_request = urllib.request.Request(
             url,
             data=data,
@@ -141,7 +182,7 @@ class ProductionHttpBusinessAdapter:
             headers={
                 "Authorization": f"Bearer {self.config.bearer_token}",
                 "Content-Type": "application/json",
-                "Idempotency-Key": self._idempotency_key(request),
+                "Idempotency-Key": idempotency_key,
                 "X-AgentGuard-Task-ID": str(request.get("task_id", "")),
             },
         )
@@ -153,15 +194,28 @@ class ProductionHttpBusinessAdapter:
             ) as response:
                 body = json.loads(response.read().decode("utf-8"))
                 status = response.status
-        except (
-            urllib.error.URLError,
-            TimeoutError,
-            json.JSONDecodeError,
-            ProductionAdapterError,
-        ) as exc:
+        except urllib.error.HTTPError as exc:
+            if side_effect and exc.code >= 500:
+                raise ProductionOutcomeUnknownError(
+                    idempotency_key, self.hostname
+                ) from exc
+            raise ProductionAdapterError(
+                f"业务API明确拒绝请求：HTTP {exc.code}"
+            ) from exc
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+            if side_effect:
+                raise ProductionOutcomeUnknownError(
+                    idempotency_key, self.hostname
+                ) from exc
             raise ProductionAdapterError(
                 f"业务API调用失败并默认拒绝：{type(exc).__name__}"
             ) from exc
+        except ProductionAdapterError as exc:
+            if side_effect and "重定向" in str(exc):
+                raise ProductionOutcomeUnknownError(
+                    idempotency_key, self.hostname
+                ) from exc
+            raise
         if status < 200 or status >= 300:
             raise ProductionAdapterError(f"业务API拒绝请求：HTTP {status}")
         return {
@@ -169,6 +223,7 @@ class ProductionHttpBusinessAdapter:
             "endpoint_host": self.hostname,
             "http_status": status,
             "side_effect": side_effect,
+            "idempotency_key": idempotency_key,
             "response": body,
         }
 

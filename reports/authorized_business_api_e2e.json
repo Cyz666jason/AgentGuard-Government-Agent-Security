@@ -1,5 +1,6 @@
 {
-  "generated_at": "2026-08-14T03:58:03.492052+08:00",
+  "run_id": "403cfd8e1f22",
+  "generated_at": "2026-08-14T06:17:54.635505+08:00",
   "status": "skipped_missing_authorized_credentials",
   "credentials_recorded": false,
   "reason": "未提供单位批准的预生产BASE_URL、TOKEN和ALLOWED_HOSTS。"

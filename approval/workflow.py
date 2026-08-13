@@ -13,14 +13,17 @@ import json
 import operator
 import sqlite3
 import subprocess
+import secrets
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Annotated, Any, Callable, Mapping, TypedDict
 
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import interrupt
+
+from approval.credentials import ApprovalCredentialService, SQLiteApprovalLedger
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -48,12 +51,18 @@ class OpaClient:
         self.opa_path = candidate
 
     def decide(self, request: Mapping[str, Any]) -> dict[str, Any]:
+        trusted_request = copy.deepcopy(dict(request))
+        if not isinstance(trusted_request.get("context"), dict):
+            trusted_request["context"] = {}
+        trusted_request["context"]["server_time"] = (
+            datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        )
         reports_dir = self.project_root / "reports"
         reports_dir.mkdir(parents=True, exist_ok=True)
         relative_input = Path("reports") / f".approval-{uuid.uuid4().hex}.json"
         absolute_input = self.project_root / relative_input
         absolute_input.write_text(
-            json.dumps(request, ensure_ascii=False, indent=2), encoding="utf-8"
+            json.dumps(trusted_request, ensure_ascii=False, indent=2), encoding="utf-8"
         )
         try:
             command = [
@@ -98,21 +107,19 @@ def issue_approval(
     approver_id: str,
     approver_roles: list[str] | None = None,
     status: str = "approved",
+    credential_service: ApprovalCredentialService | None = None,
 ) -> dict[str, Any]:
     """签发一次性审批凭证，并绑定 OPA 已计算的任务与动作摘要。"""
 
-    expires_at = (_request_time(request) + timedelta(minutes=30)).astimezone(timezone.utc)
-    return {
-        "approval_id": f"apr-{uuid.uuid4().hex[:16]}",
-        "status": status,
-        "approver_id": approver_id,
-        "approver_roles": approver_roles or ["business_approver"],
-        "task_id": request["task_id"],
-        "action_digest": action_digest,
-        "expires_at": expires_at.isoformat().replace("+00:00", "Z"),
-        "max_uses": 1,
-        "use_count": 0,
-    }
+    if credential_service is None:
+        raise ValueError("签发审批凭证必须使用 ApprovalCredentialService")
+    return credential_service.issue(
+        request,
+        action_digest,
+        approver_id,
+        approver_roles or ["business_approver"],
+        status=status,
+    )
 
 
 def _decision_codes(decision: Mapping[str, Any]) -> list[str]:
@@ -123,15 +130,32 @@ def build_workflow(
     checkpoint_path: Path | str,
     project_root: Path | str = PROJECT_ROOT,
     executor: Callable[[dict[str, Any], dict[str, Any]], Mapping[str, Any]] | None = None,
+    approval_service: ApprovalCredentialService | None = None,
+    approver_authenticator: Callable[[Mapping[str, Any]], Mapping[str, Any]] | None = None,
 ):
     """构建工作流，返回 ``(compiled_graph, sqlite_connection)``。
 
     调用方应为每个业务任务提供稳定且唯一的 ``thread_id``，并在结束后关闭连接。
     """
 
-    opa = OpaClient(project_root)
     checkpoint_path = Path(checkpoint_path)
     checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
+    if approval_service is None:
+        from enforcement.signers import HmacKeyringSigner
+
+        key_path = checkpoint_path.with_suffix(checkpoint_path.suffix + ".approval.key")
+        if key_path.exists():
+            approval_key = bytes.fromhex(key_path.read_text(encoding="ascii").strip())
+        else:
+            approval_key = secrets.token_bytes(32)
+            key_path.write_text(approval_key.hex(), encoding="ascii")
+        approval_service = ApprovalCredentialService(
+            HmacKeyringSigner.single_key(approval_key),
+            SQLiteApprovalLedger(
+                checkpoint_path.with_suffix(checkpoint_path.suffix + ".approval.sqlite")
+            ),
+        )
+    opa = OpaClient(project_root)
     connection = sqlite3.connect(str(checkpoint_path), check_same_thread=False)
     checkpointer = SqliteSaver(connection)
 
@@ -169,8 +193,21 @@ def build_workflow(
             review = {"decision": "reject", "reason": "审批返回格式无效"}
 
         review_decision = str(review.get("decision", "reject")).lower()
-        approver_id = str(review.get("approver_id", "approver-001"))
-        approver_roles = list(review.get("approver_roles", ["business_approver"]))
+        authentication_error = ""
+        try:
+            if approver_authenticator is None:
+                raise PermissionError("审批工作流未配置可信审批人身份认证器")
+            authenticated_approver = approver_authenticator(review)
+            approver_id = str(authenticated_approver.get("id", ""))
+            approver_roles = list(authenticated_approver.get("roles", []))
+            if not approver_id or not approver_roles:
+                raise PermissionError("审批人身份缺少ID或角色")
+        except Exception as exc:
+            authentication_error = type(exc).__name__
+            approver_id = "unauthenticated"
+            approver_roles = []
+            if review_decision in {"approve", "edit"}:
+                review_decision = "reject"
 
         if review_decision == "edit":
             edited = review.get("edited_parameters", {})
@@ -186,6 +223,7 @@ def build_workflow(
                 approver_id=approver_id,
                 approver_roles=approver_roles,
                 status=approval_status,
+                credential_service=approval_service,
             )
             # 仅用于安全测试：先签发绑定原动作的凭证，再模拟审批后参数被篡改。
             tamper_parameters = review.get("tamper_parameters", {})
@@ -197,7 +235,10 @@ def build_workflow(
             "decision": review_decision,
             "approver_id": approver_id,
             "reason": str(review.get("reason", "")),
+            "identity_source": "verified_authenticator" if not authentication_error else "rejected",
         }
+        if authentication_error:
+            history_item["authentication_error"] = authentication_error
         return {
             "request": request,
             "status": f"review_{review_decision}",
@@ -237,6 +278,33 @@ def build_workflow(
                     }
                 ],
             }
+        approval = request.get("approval", {})
+        if isinstance(approval, Mapping) and approval.get("approval_id"):
+            try:
+                validated = approval_service.validate(
+                    approval,
+                    str(request.get("task_id", "")),
+                    str(decision.get("action_digest", "")),
+                )
+                approval_service.consume(validated)
+            except Exception as exc:
+                return {
+                    "status": "blocked",
+                    "execution_receipts": [],
+                    "audit_events": [
+                        {
+                            "event": "approval_credential_blocked",
+                            "status": "blocked",
+                            "reason_code": str(
+                                getattr(
+                                    exc,
+                                    "code",
+                                    "G010_APPROVAL_CREDENTIAL_INVALID",
+                                )
+                            ),
+                        }
+                    ],
+                }
         receipt = {
             "receipt_id": f"sim-{uuid.uuid4().hex[:16]}",
             "task_id": request["task_id"],
