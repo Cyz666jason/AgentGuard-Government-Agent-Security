@@ -1,0 +1,98 @@
+{
+  "agent_guard": {
+    "policy_name": "政企智能体工具调用安全策略",
+    "policy_version": "0.1.0",
+    "data_levels": {
+      "public": 0,
+      "internal": 1,
+      "confidential": 2,
+      "secret": 3
+    },
+    "risk_scores": {
+      "low": 20,
+      "medium": 45,
+      "high": 70,
+      "critical": 90
+    },
+    "approval_amount_threshold": 500,
+    "bulk_item_limit": 1000,
+    "anomaly_repeat_limit": 5,
+    "approver_roles": [
+      "business_approver",
+      "security_approver"
+    ],
+    "approval_operations": [
+      "write",
+      "delete",
+      "transfer",
+      "send_external",
+      "execute",
+      "export",
+      "deploy"
+    ],
+    "sandbox_required_tools": [
+      "shell.execute",
+      "browser.automate",
+      "plugin.run"
+    ],
+    "approved_sandbox_profiles": [
+      "gvisor-restricted",
+      "firecracker-high",
+      "wasm-capability"
+    ],
+    "network_tools": [
+      "email.send",
+      "browser.automate",
+      "api.call"
+    ],
+    "allowed_external_hosts": [
+      "api.gov.cn",
+      "services.xiongan.cn",
+      "mail.partner.example"
+    ],
+    "protected_resource_prefixes": [
+      "/etc/",
+      "/var/run/",
+      "c:\\windows\\system32",
+      "db://security/audit",
+      "db://identity/admin"
+    ],
+    "dangerous_command_patterns": [
+      "(?i).*rm\\s+-rf\\s+[/~].*",
+      "(?i).*format\\s+[a-z]:.*",
+      "(?i).*shutdown(\\.exe)?\\s+.*",
+      "(?i).*stop-computer.*",
+      "(?i).*del\\s+/[sq].*",
+      "(?i).*remove-item.*-recurse.*"
+    ],
+    "tools": {
+      "database.query": {"enabled": true, "category": "data"},
+      "file.read": {"enabled": true, "category": "file"},
+      "file.write": {"enabled": true, "category": "file"},
+      "email.send": {"enabled": true, "category": "communication"},
+      "payment.transfer": {"enabled": true, "category": "finance"},
+      "shell.execute": {"enabled": true, "category": "system"},
+      "browser.automate": {"enabled": true, "category": "browser"},
+      "api.call": {"enabled": true, "category": "network"},
+      "plugin.run": {"enabled": false, "category": "extension"}
+    },
+    "permissions": [
+      {"role": "office_user", "tool": "database.query", "operations": ["query"]},
+      {"role": "office_user", "tool": "file.read", "operations": ["read"]},
+      {"role": "office_user", "tool": "email.send", "operations": ["send_internal", "send_external"]},
+      {"role": "records_admin", "tool": "database.query", "operations": ["query", "export"]},
+      {"role": "records_admin", "tool": "file.read", "operations": ["read"]},
+      {"role": "records_admin", "tool": "file.write", "operations": ["write", "delete"]},
+      {"role": "finance_operator", "tool": "payment.transfer", "operations": ["transfer"]},
+      {"role": "ops_engineer", "tool": "shell.execute", "operations": ["execute"]},
+      {"role": "ops_engineer", "tool": "browser.automate", "operations": ["browse", "submit"]},
+      {"role": "ops_engineer", "tool": "api.call", "operations": ["invoke", "deploy"]},
+      {"role": "security_admin", "tool": "database.query", "operations": ["query", "export"]},
+      {"role": "security_admin", "tool": "file.read", "operations": ["read"]},
+      {"role": "security_admin", "tool": "file.write", "operations": ["write", "delete"]},
+      {"role": "security_admin", "tool": "shell.execute", "operations": ["execute"]},
+      {"role": "security_admin", "tool": "browser.automate", "operations": ["browse", "submit"]},
+      {"role": "security_admin", "tool": "api.call", "operations": ["invoke", "deploy"]}
+    ]
+  }
+}

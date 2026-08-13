@@ -1,0 +1,111 @@
+{
+  "realm": "agentguard",
+  "enabled": true,
+  "displayName": "AgentGuard OIDC Test Realm",
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": false,
+  "roles": {
+    "realm": [
+      {"name": "office_user"},
+      {"name": "finance_operator"},
+      {"name": "business_approver"},
+      {"name": "security_approver"}
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "agentguard",
+      "name": "AgentGuard prototype",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "protocol": "openid-connect",
+      "redirectUris": ["http://127.0.0.1/*"],
+      "webOrigins": ["http://127.0.0.1"],
+      "protocolMappers": [
+        {
+          "name": "agentguard-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "agentguard",
+            "access.token.claim": "true"
+          }
+        },
+        {
+          "name": "department",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "department",
+            "claim.name": "department",
+            "jsonType.label": "String",
+            "access.token.claim": "true",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "clearance",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "clearance",
+            "claim.name": "clearance",
+            "jsonType.label": "long",
+            "access.token.claim": "true",
+            "id.token.claim": "true"
+          }
+        },
+        {
+          "name": "mfa-test-proof",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-hardcoded-claim-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "mfa",
+            "claim.value": "true",
+            "jsonType.label": "boolean",
+            "access.token.claim": "true",
+            "id.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "office-test",
+      "enabled": true,
+      "email": "office-test@agentguard.local",
+      "emailVerified": true,
+      "firstName": "Office",
+      "lastName": "Tester",
+      "attributes": {"department": ["综合办公室"], "clearance": ["1"]},
+      "requiredActions": [],
+      "realmRoles": ["office_user"],
+      "credentials": [
+        {"type": "password", "value": "Office-Test-2026!", "temporary": false}
+      ]
+    },
+    {
+      "username": "finance-test",
+      "enabled": true,
+      "email": "finance-test@agentguard.local",
+      "emailVerified": true,
+      "firstName": "Finance",
+      "lastName": "Tester",
+      "attributes": {"department": ["财务部"], "clearance": ["2"]},
+      "requiredActions": [],
+      "realmRoles": ["finance_operator"],
+      "credentials": [
+        {"type": "password", "value": "Finance-Test-2026!", "temporary": false}
+      ]
+    }
+  ]
+}

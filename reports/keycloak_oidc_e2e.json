@@ -1,0 +1,122 @@
+{
+  "generated_at": "2026-08-13T19:01:51.095634+00:00",
+  "issuer": "http://127.0.0.1:18080/realms/agentguard",
+  "audience": "agentguard",
+  "checks": {
+    "real_keycloak_office_token_verified": true,
+    "untrusted_json_subject_overwritten": true,
+    "missing_token_blocked": true,
+    "tampered_token_blocked": true,
+    "finance_token_payment_recorded": true
+  },
+  "passed": 5,
+  "total": 5,
+  "query_result": {
+    "status": "executed_isolated",
+    "http_status": 200,
+    "reason_code": "G000_EXECUTED",
+    "policy_effect": "allow",
+    "receipt": {
+      "receipt_id": "iso-06075da2c55f44f6",
+      "task_id": "task-demo-001",
+      "action_digest": "7c7ce2215b25aae9b9f596c4699365a5178b539b7add7d2da1b32db0b927586e",
+      "ticket_jti": "08f66d53a4d8492aa77d2593d9155b1e",
+      "tool": "database.query",
+      "operation": "query",
+      "result": "local_test_business_operation",
+      "sandbox": {
+        "module": "database_query.wat",
+        "entry": "run",
+        "wasi_enabled": false,
+        "host_imports_allowed": false,
+        "fuel_limit": 100000,
+        "memory_limit_bytes": 2097152,
+        "status": "executed_isolated",
+        "reason_code": "K000_OK",
+        "output": 20,
+        "fuel_consumed": 2,
+        "duration_ms": 2.588
+      },
+      "business_result": {
+        "adapter": "sqlite_notice_query",
+        "database": "notices.sqlite",
+        "row_count": 3,
+        "rows": [
+          {
+            "id": 1,
+            "title": "政务服务系统维护通知",
+            "department": "信息中心",
+            "published_at": "2026-08-01"
+          },
+          {
+            "id": 2,
+            "title": "第三季度材料归档安排",
+            "department": "综合办公室",
+            "published_at": "2026-08-03"
+          },
+          {
+            "id": 3,
+            "title": "安全培训报名通知",
+            "department": "人力资源部",
+            "published_at": "2026-08-05"
+          }
+        ],
+        "side_effect": false
+      }
+    }
+  },
+  "missing_token_result": {
+    "status": "blocked",
+    "http_status": 401,
+    "reason_code": "I004_TOKEN_MISSING",
+    "message": "缺少 Bearer 访问令牌",
+    "policy_effect": "identity_rejected",
+    "receipt": null
+  },
+  "tampered_token_result": {
+    "status": "blocked",
+    "http_status": 401,
+    "reason_code": "I008_TOKEN_INVALID",
+    "message": "访问令牌签名或声明无效",
+    "policy_effect": "identity_rejected",
+    "receipt": null
+  },
+  "payment_result": {
+    "status": "executed_isolated",
+    "http_status": 200,
+    "reason_code": "G000_EXECUTED",
+    "policy_effect": "allow",
+    "receipt": {
+      "receipt_id": "iso-0a214e94d89845f9",
+      "task_id": "task-approved-01-oidc-605734bd",
+      "action_digest": "3ddf81ca3b729b2f1a0db9bcfc8abb8a53a968b1c0361c14f363a838d84c0dc5",
+      "ticket_jti": "f1944829fad846cb9ed32d8e4740bdb7",
+      "tool": "payment.transfer",
+      "operation": "transfer",
+      "result": "local_test_business_operation",
+      "sandbox": {
+        "module": "payment_transfer.wat",
+        "entry": "run",
+        "wasi_enabled": false,
+        "host_imports_allowed": false,
+        "fuel_limit": 100000,
+        "memory_limit_bytes": 2097152,
+        "status": "executed_isolated",
+        "reason_code": "K000_OK",
+        "output": 5000,
+        "fuel_consumed": 2,
+        "duration_ms": 1.344
+      },
+      "business_result": {
+        "adapter": "sqlite_test_payment_ledger",
+        "database": "payment_ledger.sqlite",
+        "payment_id": 9,
+        "task_id": "task-approved-01-oidc-605734bd",
+        "amount_cents": 500000,
+        "currency": "CNY",
+        "status": "recorded_test_only",
+        "side_effect": true
+      }
+    }
+  }
+}

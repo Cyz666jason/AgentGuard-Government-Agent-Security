@@ -1,0 +1,19 @@
+﻿{
+  "scenario": "allow",
+  "thread_id": "demo-allow-cd89b9b9",
+  "initial_effect": "allow",
+  "paused": false,
+  "interrupt": null,
+  "final_status": "executed_simulated",
+  "final_effect": "allow",
+  "execution_receipts": [
+    {
+      "receipt_id": "sim-2ca04d8f33f84610",
+      "task_id": "task-demo-001",
+      "action_digest": "7c7ce2215b25aae9b9f596c4699365a5178b539b7add7d2da1b32db0b927586e",
+      "tool": "database.query",
+      "operation": "query",
+      "result": "simulated_only"
+    }
+  ]
+}

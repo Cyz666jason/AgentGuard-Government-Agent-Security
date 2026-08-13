@@ -1,0 +1,52 @@
+{
+  "request_id": "req-approved-01",
+  "task_id": "task-approved-01",
+  "timestamp": "2026-08-04T10:00:00Z",
+  "subject": {
+    "id": "finance-001",
+    "type": "user",
+    "department": "财务部",
+    "roles": [
+      "finance_operator"
+    ],
+    "clearance": 2,
+    "mfa": true
+  },
+  "action": {
+    "tool": "payment.transfer",
+    "operation": "transfer",
+    "resource": "erp://payments/supplier-A",
+    "parameters": {
+      "amount": 5000,
+      "currency": "CNY"
+    },
+    "risk_level": "high",
+    "data_level": "internal"
+  },
+  "context": {
+    "source": "mcp",
+    "destination_zone": "internal",
+    "enforcement_point": "gateway",
+    "business_hours": true,
+    "repeat_count": 0
+  },
+  "environment": {
+    "sandbox": {
+      "enabled": false,
+      "profile": ""
+    }
+  },
+  "approval": {
+    "approval_id": "approval-task-approved-01",
+    "status": "approved",
+    "approver_id": "approver-001",
+    "approver_roles": [
+      "business_approver"
+    ],
+    "task_id": "task-approved-01",
+    "action_digest": "32e277b0f1d12e97cc3bea75223ff5acaebab960c2f11953e1673df25e97cca6",
+    "expires_at": "2026-08-04T10:30:00Z",
+    "max_uses": 1,
+    "use_count": 0
+  }
+}

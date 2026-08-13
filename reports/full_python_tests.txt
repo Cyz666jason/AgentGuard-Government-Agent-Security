@@ -1,0 +1,51 @@
+﻿test_approval_resumes_and_executes_once (test_workflow.ApprovalWorkflowTests.test_approval_resumes_and_executes_once) ... ok
+test_cross_task_approval_reuse_is_blocked (test_workflow.ApprovalWorkflowTests.test_cross_task_approval_reuse_is_blocked) ... ok
+test_edit_clears_old_approval_and_pauses_again (test_workflow.ApprovalWorkflowTests.test_edit_clears_old_approval_and_pauses_again) ... ok
+test_high_risk_action_is_persistently_paused (test_workflow.ApprovalWorkflowTests.test_high_risk_action_is_persistently_paused) ... ok
+test_low_risk_action_executes_without_approval (test_workflow.ApprovalWorkflowTests.test_low_risk_action_executes_without_approval) ... ok
+test_new_process_graph_can_resume_same_thread (test_workflow.ApprovalWorkflowTests.test_new_process_graph_can_resume_same_thread) ... ok
+test_parameter_tampering_after_approval_is_blocked (test_workflow.ApprovalWorkflowTests.test_parameter_tampering_after_approval_is_blocked) ... ok
+test_rejection_never_executes (test_workflow.ApprovalWorkflowTests.test_rejection_never_executes) ... ok
+test_self_approval_is_blocked (test_workflow.ApprovalWorkflowTests.test_self_approval_is_blocked) ... ok
+test_unauthorized_approver_role_is_blocked (test_workflow.ApprovalWorkflowTests.test_unauthorized_approver_role_is_blocked) ... ok
+test_invalid_clearance_is_rejected (test_oidc.OidcClaimMappingTests.test_invalid_clearance_is_rejected) ... ok
+test_missing_mfa_is_rejected (test_oidc.OidcClaimMappingTests.test_missing_mfa_is_rejected) ... ok
+test_request_json_subject_is_overwritten (test_oidc.OidcClaimMappingTests.test_request_json_subject_is_overwritten) ... ok
+test_signature_tamper_changes_decoded_bytes (test_oidc.OidcClaimMappingTests.test_signature_tamper_changes_decoded_bytes) ... ok
+test_signed_claims_map_to_subject (test_oidc.OidcClaimMappingTests.test_signed_claims_map_to_subject) ... ok
+test_adapter_databases_are_confined_to_state_directory (test_business_adapters.LocalBusinessAdapterTests.test_adapter_databases_are_confined_to_state_directory) ... ok
+test_allowed_query_reads_real_sqlite_rows (test_business_adapters.LocalBusinessAdapterTests.test_allowed_query_reads_real_sqlite_rows) ... ok
+test_approved_payment_writes_exactly_one_ledger_row (test_business_adapters.LocalBusinessAdapterTests.test_approved_payment_writes_exactly_one_ledger_row) ... ok
+test_duplicate_business_task_is_blocked_without_second_row (test_business_adapters.LocalBusinessAdapterTests.test_duplicate_business_task_is_blocked_without_second_row) ... ok
+test_pending_approval_has_no_business_side_effect (test_business_adapters.LocalBusinessAdapterTests.test_pending_approval_has_no_business_side_effect) ... ok
+test_policy_denied_request_has_no_business_side_effect (test_business_adapters.LocalBusinessAdapterTests.test_policy_denied_request_has_no_business_side_effect) ... ok
+test_action_change_after_authorization_is_blocked (test_gateway.EnforcementGatewayTests.test_action_change_after_authorization_is_blocked) ... ok
+test_audit_log_redacts_secret_values (test_gateway.EnforcementGatewayTests.test_audit_log_redacts_secret_values) ... ok
+test_concurrent_ticket_consumption_executes_exactly_once (test_gateway.EnforcementGatewayTests.test_concurrent_ticket_consumption_executes_exactly_once) ... ok
+test_direct_backend_call_without_ticket_is_blocked (test_gateway.EnforcementGatewayTests.test_direct_backend_call_without_ticket_is_blocked) ... ok
+test_expired_ticket_is_blocked (test_gateway.EnforcementGatewayTests.test_expired_ticket_is_blocked) ... ok
+test_high_risk_without_approval_is_paused_not_executed (test_gateway.EnforcementGatewayTests.test_high_risk_without_approval_is_paused_not_executed) ... ok
+test_langgraph_approval_then_gateway_then_wasmtime_full_chain (test_gateway.EnforcementGatewayTests.test_langgraph_approval_then_gateway_then_wasmtime_full_chain) ... ok
+test_low_risk_allow_reaches_wasmtime_adapter (test_gateway.EnforcementGatewayTests.test_low_risk_allow_reaches_wasmtime_adapter) ... ok
+test_opa_allow_cannot_bypass_missing_adapter_registry (test_gateway.EnforcementGatewayTests.test_opa_allow_cannot_bypass_missing_adapter_registry) ... ok
+test_opa_outage_fails_closed (test_gateway.EnforcementGatewayTests.test_opa_outage_fails_closed) ... ok
+test_policy_deny_never_gets_a_ticket_or_receipt (test_gateway.EnforcementGatewayTests.test_policy_deny_never_gets_a_ticket_or_receipt) ... ok
+test_ticket_replay_is_blocked (test_gateway.EnforcementGatewayTests.test_ticket_replay_is_blocked) ... ok
+test_ticket_signature_tampering_is_blocked (test_gateway.EnforcementGatewayTests.test_ticket_signature_tampering_is_blocked) ... ok
+test_valid_approval_reaches_isolated_adapter (test_gateway.EnforcementGatewayTests.test_valid_approval_reaches_isolated_adapter) ... ok
+test_active_key_signs_and_old_key_still_verifies_after_rotation (test_signers.HmacKeyringSignerTests.test_active_key_signs_and_old_key_still_verifies_after_rotation) ... ok
+test_unknown_key_version_fails_closed (test_signers.HmacKeyringSignerTests.test_unknown_key_version_fails_closed) ... ok
+test_infinite_loop_is_stopped_by_fuel (test_sandbox.WasmSecurityKernelTests.test_infinite_loop_is_stopped_by_fuel) ... ok
+test_initial_memory_over_limit_is_blocked (test_sandbox.WasmSecurityKernelTests.test_initial_memory_over_limit_is_blocked) ... ok
+test_only_named_entry_can_execute (test_sandbox.WasmSecurityKernelTests.test_only_named_entry_can_execute) ... ok
+test_safe_module_runs_without_host_capabilities (test_sandbox.WasmSecurityKernelTests.test_safe_module_runs_without_host_capabilities) ... ok
+test_wasi_filesystem_import_is_forbidden (test_sandbox.WasmSecurityKernelTests.test_wasi_filesystem_import_is_forbidden) ... ok
+test_http_endpoint_is_rejected (test_integrations.ProductionIntegrationTests.test_http_endpoint_is_rejected) ... ok
+test_missing_credentials_fail_closed (test_integrations.ProductionIntegrationTests.test_missing_credentials_fail_closed) ... ok
+test_redaction_masks_secrets_and_pseudonymizes_identifiers (test_integrations.ProductionIntegrationTests.test_redaction_masks_secrets_and_pseudonymizes_identifiers) ... ok
+test_unexpected_business_adapter_failure_is_fail_closed (test_integrations.ProductionIntegrationTests.test_unexpected_business_adapter_failure_is_fail_closed) ... ok
+
+----------------------------------------------------------------------
+Ran 46 tests in 4.899s
+
+OK

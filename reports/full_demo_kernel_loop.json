@@ -1,0 +1,13 @@
+﻿{
+  "module": "infinite_loop.wat",
+  "entry": "run",
+  "wasi_enabled": false,
+  "host_imports_allowed": false,
+  "fuel_limit": 20000,
+  "memory_limit_bytes": 2097152,
+  "status": "sandbox_blocked",
+  "reason_code": "K006_CPU_BUDGET_EXCEEDED",
+  "error": "error while executing at wasm backtrace:",
+  "fuel_consumed": 20000,
+  "duration_ms": 3.129
+}

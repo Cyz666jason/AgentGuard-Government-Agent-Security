@@ -1,0 +1,8 @@
+﻿{
+  "status": "pending_approval",
+  "http_status": 202,
+  "reason_code": "G003_APPROVAL_PENDING",
+  "policy_effect": "require_approval",
+  "action_digest": "45038a9c228a7385f793bbc3c9acb9ad4692959f4205eadcaa5b44b08364f8de",
+  "receipt": null
+}

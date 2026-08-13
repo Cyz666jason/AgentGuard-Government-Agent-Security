@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/agent-guard/decision-output.schema.json",
+  "title": "OPA 智能体工具调用决策",
+  "type": "object",
+  "required": ["effect", "allow", "approval_required", "risk_score", "reason_codes", "reasons", "required_controls", "action_digest", "policy_version", "audit"],
+  "properties": {
+    "effect": {"enum": ["allow", "require_approval", "deny"]},
+    "allow": {"type": "boolean"},
+    "approval_required": {"type": "boolean"},
+    "risk_score": {"type": "integer", "minimum": 0, "maximum": 100},
+    "reason_codes": {"type": "array", "items": {"type": "string"}},
+    "reasons": {"type": "array", "items": {"type": "string"}},
+    "required_controls": {"type": "array", "items": {"type": "string"}},
+    "action_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "policy_version": {"type": "string"},
+    "audit": {
+      "type": "object",
+      "required": ["request_id", "task_id", "subject_id", "tool", "operation", "resource", "timestamp", "effect", "risk_score"]
+    }
+  },
+  "additionalProperties": false
+}

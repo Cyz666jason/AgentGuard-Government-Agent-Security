@@ -1,0 +1,5 @@
+AgentGuard-OPA synthetic dataset is licensed under the Creative Commons
+Attribution 4.0 International License (CC BY 4.0).
+
+License: https://creativecommons.org/licenses/by/4.0/
+Attribution: AgentGuard-OPA 政企智能体工具调用安全评测集, version 0.1.0.

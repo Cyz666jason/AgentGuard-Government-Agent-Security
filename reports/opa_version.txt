@@ -1,0 +1,8 @@
+﻿Version: 1.19.0
+Build Commit: 1e32c796e8979b1bda2f768138500b1deb95ff24-dirty
+Build Timestamp: 2026-07-30T19:38:54Z
+Build Hostname:
+Go Version: go1.26.5
+Platform: windows/amd64
+Rego Version: v1
+WebAssembly: available

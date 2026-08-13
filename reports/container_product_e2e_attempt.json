@@ -1,0 +1,10 @@
+﻿{
+    "generated_at":  "2026-08-14T01:50:15.1931763+08:00",
+    "attempt":  "QEMU Alpine Live Docker host",
+    "linux_guest_booted":  true,
+    "ssh_port_reachable":  true,
+    "docker_install_completed":  false,
+    "reason":  "Windows未启用WSL/Hyper-V，仅能使用QEMU TCG；两次Alpine Live尝试均已成功启动Linux并建立回环端口转发，但Docker/SSH服务未在限定时间内到达就绪标志，虚拟机均已停止。",
+    "opa_envoy_container_e2e":  false,
+    "toolhive_container_e2e":  false
+}

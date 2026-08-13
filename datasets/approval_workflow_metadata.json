@@ -1,0 +1,20 @@
+{
+  "name": "AgentGuard 人工审批与任务恢复评测集",
+  "version": "0.2.0",
+  "generated_at": "2026-08-04",
+  "license": "CC BY 4.0",
+  "total_cases": 9,
+  "categories": [
+    "low_risk_allow",
+    "human_approve",
+    "human_reject",
+    "post_approval_tamper",
+    "edit_requires_reapproval",
+    "cross_task_replay",
+    "restart_recovery",
+    "self_approval",
+    "unauthorized_approver"
+  ],
+  "contains_personal_data": false,
+  "real_world_actions": false
+}

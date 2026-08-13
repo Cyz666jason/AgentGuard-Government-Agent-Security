@@ -1,0 +1,30 @@
+{
+  "name": "AgentGuard OPA + LangGraph 审批工作流实测",
+  "generated_at": "2026-08-04",
+  "versions": {
+    "langgraph": "1.2.10",
+    "langgraph-checkpoint-sqlite": "3.1.1",
+    "opa": "1.19.0"
+  },
+  "unit_tests": {
+    "passed": 10,
+    "total": 10
+  },
+  "scenario_checks": {
+    "低风险免审批放行": true,
+    "高风险动作持久化暂停": true,
+    "合法审批后恢复执行": true,
+    "人工拒绝后阻断": true,
+    "审批后参数篡改阻断": true,
+    "修改参数后清空旧凭证并重新审批": true,
+    "发起人自批阻断": true,
+    "无审批角色阻断": true,
+    "跨任务复用阻断": true,
+    "重启后从持久化暂停点恢复": true
+  },
+  "scenario_passed": 10,
+  "scenario_total": 10,
+  "unsafe_execution_count": 0,
+  "real_tool_execution": false,
+  "note": "所有执行均为 simulated_only，不触发真实转账、删除或系统命令。"
+}

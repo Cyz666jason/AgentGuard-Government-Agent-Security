@@ -1,0 +1,20 @@
+flowchart TD
+    A[用户 / Agent / 服务账号] --> B[候选动作标准化 JSON Schema]
+    B --> C[OPA / Rego 策略决策点]
+    C -->|allow| D[强制网关签发短时 HMAC 执行票据]
+    C -->|require_approval| E[LangGraph interrupt 持久化暂停]
+    E --> K[SQLite 保存 thread_id 与检查点]
+    K --> E
+    E --> F[人工审批并绑定 task_id 与完整动作摘要]
+    F --> C
+    C -->|deny| G[网关立即阻断]
+    D --> L[安全工具适配器原子核销一次性票据]
+    L --> H[Wasmtime 无 WASI / 有限燃料 / 2 MiB 内存]
+    H --> I[安全模拟工具结果]
+    L -.Linux 生产扩展.-> M[gVisor / Kata / Firecracker]
+    M -.受控接入.-> N[真实文件 / 数据库 / 浏览器 / 命令 / API]
+    C --> J[决策日志与审计证据]
+    G --> J
+    H --> J
+    G --> O[稳定阻断码]
+    O --> J

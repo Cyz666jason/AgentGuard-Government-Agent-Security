@@ -1,0 +1,16 @@
+﻿{
+  "module": "wasi_fs_attempt.wat",
+  "entry": "run",
+  "wasi_enabled": false,
+  "host_imports_allowed": false,
+  "fuel_limit": 20000,
+  "memory_limit_bytes": 2097152,
+  "status": "sandbox_blocked",
+  "reason_code": "K002_HOST_IMPORT_FORBIDDEN",
+  "error": "模块请求了未授权的主机能力",
+  "fuel_consumed": null,
+  "duration_ms": 2.798,
+  "requested_imports": [
+    "wasi_snapshot_preview1.fd_write"
+  ]
+}

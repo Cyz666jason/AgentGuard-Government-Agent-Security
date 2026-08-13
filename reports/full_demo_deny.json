@@ -1,0 +1,11 @@
+﻿{
+  "status": "blocked",
+  "http_status": 403,
+  "reason_code": "G002_POLICY_DENY",
+  "message": "OPA 策略拒绝工具调用",
+  "policy_effect": "deny",
+  "receipt": null,
+  "policy_reason_codes": [
+    "D007_DANGEROUS_COMMAND"
+  ]
+}

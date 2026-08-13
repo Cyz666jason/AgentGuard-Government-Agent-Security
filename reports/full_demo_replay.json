@@ -1,0 +1,39 @@
+﻿{
+  "first": {
+    "status": "executed_isolated",
+    "http_status": 200,
+    "reason_code": "G000_EXECUTED",
+    "policy_effect": "allow",
+    "receipt": {
+      "receipt_id": "iso-1c116922f8fa4e10",
+      "task_id": "task-demo-001",
+      "action_digest": "7c7ce2215b25aae9b9f596c4699365a5178b539b7add7d2da1b32db0b927586e",
+      "ticket_jti": "30e9c0d68050452988ac7946f34f7c23",
+      "tool": "database.query",
+      "operation": "query",
+      "result": "wasmtime_isolated_simulation",
+      "sandbox": {
+        "module": "database_query.wat",
+        "entry": "run",
+        "wasi_enabled": false,
+        "host_imports_allowed": false,
+        "fuel_limit": 100000,
+        "memory_limit_bytes": 2097152,
+        "status": "executed_isolated",
+        "reason_code": "K000_OK",
+        "output": 20,
+        "fuel_consumed": 2,
+        "duration_ms": 2.577
+      },
+      "business_result": null
+    }
+  },
+  "replay": {
+    "status": "blocked",
+    "http_status": 403,
+    "reason_code": "G206_TICKET_REPLAY",
+    "message": "一次性执行票据已被使用",
+    "policy_effect": "ticket_validation",
+    "receipt": null
+  }
+}

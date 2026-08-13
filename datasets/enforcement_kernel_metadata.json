@@ -1,0 +1,11 @@
+{
+  "name": "AgentGuard 强制阻断与安全内核评测集",
+  "version": "0.3.0",
+  "generated_at": "2026-08-07",
+  "license": "CC BY 4.0",
+  "total_cases": 19,
+  "gateway_cases": 14,
+  "kernel_cases": 5,
+  "contains_personal_data": false,
+  "real_business_execution": false
+}

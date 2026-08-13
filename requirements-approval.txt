@@ -1,0 +1,4 @@
+langgraph==1.2.10
+langgraph-checkpoint-sqlite==3.1.1
+# 显式固定可兼容版本，避免部分镜像源在首次解析时回溯失败。
+langsmith==0.10.15

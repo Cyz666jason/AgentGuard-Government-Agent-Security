@@ -1,0 +1,6 @@
+{
+  "generated_at": "2026-08-14T01:56:37.592449+08:00",
+  "status": "skipped_missing_authorized_credentials",
+  "credentials_recorded": false,
+  "reason": "未提供单位批准的预生产BASE_URL、TOKEN和ALLOWED_HOSTS。"
+}

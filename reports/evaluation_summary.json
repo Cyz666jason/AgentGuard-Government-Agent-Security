@@ -1,0 +1,37 @@
+{
+  "opa_binary": "C:\\Users\\陈彦钊\\Desktop\\陈彦钊\\OPA政企智能体安全原型\\tools\\opa.exe",
+  "dataset": "C:\\Users\\陈彦钊\\Desktop\\陈彦钊\\OPA政企智能体安全原型\\datasets\\agent_guard_cases.jsonl",
+  "total_cases": 55,
+  "effect_accuracy": 1.0,
+  "reason_code_accuracy": 1.0,
+  "dangerous_action_block_rate": 1.0,
+  "legitimate_action_pass_rate": 1.0,
+  "approval_routing_accuracy": 1.0,
+  "invalid_approval_block_rate": 1.0,
+  "unsafe_allow_count": 0,
+  "cli_end_to_end_latency_ms": {
+    "mean": 67.653,
+    "median": 66.39,
+    "p95": 75.892,
+    "max": 84.62,
+    "note": "包含每个用例启动一次 OPA CLI 的进程开销，不代表 sidecar/嵌入式部署时的纯策略延迟。"
+  },
+  "confusion_matrix": {
+    "allow": {
+      "allow": 22
+    },
+    "require_approval": {
+      "require_approval": 12
+    },
+    "deny": {
+      "deny": 21
+    }
+  },
+  "category_accuracy": {
+    "approval_required": 1.0,
+    "hard_deny": 1.0,
+    "invalid_approval": 1.0,
+    "legitimate_allow": 1.0,
+    "valid_approval_allow": 1.0
+  }
+}

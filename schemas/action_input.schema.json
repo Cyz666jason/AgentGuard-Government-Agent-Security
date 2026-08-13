@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/agent-guard/action-input.schema.json",
+  "title": "政企智能体候选动作",
+  "type": "object",
+  "required": ["request_id", "task_id", "timestamp", "subject", "action", "context", "environment", "approval"],
+  "properties": {
+    "request_id": {"type": "string", "minLength": 1},
+    "task_id": {"type": "string", "minLength": 1},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "subject": {
+      "type": "object",
+      "required": ["id", "roles", "clearance"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "type": {"enum": ["user", "agent", "service_account"]},
+        "department": {"type": "string"},
+        "roles": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "clearance": {"type": "integer", "minimum": 0, "maximum": 3},
+        "mfa": {"type": "boolean"}
+      },
+      "additionalProperties": true
+    },
+    "action": {
+      "type": "object",
+      "required": ["tool", "operation", "resource", "parameters", "risk_level", "data_level"],
+      "properties": {
+        "tool": {"type": "string", "minLength": 1},
+        "operation": {"type": "string", "minLength": 1},
+        "resource": {"type": "string", "minLength": 1},
+        "parameters": {"type": "object"},
+        "risk_level": {"enum": ["low", "medium", "high", "critical"]},
+        "data_level": {"enum": ["public", "internal", "confidential", "secret"]}
+      },
+      "additionalProperties": false
+    },
+    "context": {
+      "type": "object",
+      "required": ["destination_zone", "enforcement_point", "business_hours", "repeat_count"],
+      "properties": {
+        "source": {"type": "string"},
+        "destination_zone": {"enum": ["internal", "external", "unknown"]},
+        "enforcement_point": {"enum": ["gateway", "direct", "unknown"]},
+        "business_hours": {"type": "boolean"},
+        "repeat_count": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": true
+    },
+    "environment": {
+      "type": "object",
+      "required": ["sandbox"],
+      "properties": {
+        "sandbox": {
+          "type": "object",
+          "required": ["enabled", "profile"],
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "profile": {"type": "string"}
+          }
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "properties": {
+        "approval_id": {"type": "string"},
+        "status": {"enum": ["pending", "approved", "rejected"]},
+        "approver_id": {"type": "string"},
+        "approver_roles": {"type": "array", "items": {"type": "string"}},
+        "task_id": {"type": "string"},
+        "action_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "expires_at": {"type": "string", "format": "date-time"},
+        "max_uses": {"type": "integer", "minimum": 1},
+        "use_count": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

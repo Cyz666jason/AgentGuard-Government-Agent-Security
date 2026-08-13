@@ -1,0 +1,15 @@
+﻿test_approval_resumes_and_executes_once (test_workflow.ApprovalWorkflowTests.test_approval_resumes_and_executes_once) ... ok
+test_cross_task_approval_reuse_is_blocked (test_workflow.ApprovalWorkflowTests.test_cross_task_approval_reuse_is_blocked) ... ok
+test_edit_clears_old_approval_and_pauses_again (test_workflow.ApprovalWorkflowTests.test_edit_clears_old_approval_and_pauses_again) ... ok
+test_high_risk_action_is_persistently_paused (test_workflow.ApprovalWorkflowTests.test_high_risk_action_is_persistently_paused) ... ok
+test_low_risk_action_executes_without_approval (test_workflow.ApprovalWorkflowTests.test_low_risk_action_executes_without_approval) ... ok
+test_new_process_graph_can_resume_same_thread (test_workflow.ApprovalWorkflowTests.test_new_process_graph_can_resume_same_thread) ... ok
+test_parameter_tampering_after_approval_is_blocked (test_workflow.ApprovalWorkflowTests.test_parameter_tampering_after_approval_is_blocked) ... ok
+test_rejection_never_executes (test_workflow.ApprovalWorkflowTests.test_rejection_never_executes) ... ok
+test_self_approval_is_blocked (test_workflow.ApprovalWorkflowTests.test_self_approval_is_blocked) ... ok
+test_unauthorized_approver_role_is_blocked (test_workflow.ApprovalWorkflowTests.test_unauthorized_approver_role_is_blocked) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 1.681s
+
+OK

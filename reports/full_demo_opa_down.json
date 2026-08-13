@@ -1,0 +1,8 @@
+﻿{
+  "status": "blocked",
+  "http_status": 503,
+  "reason_code": "G001_OPA_UNAVAILABLE_FAIL_CLOSED",
+  "message": "OPA 不可用，默认拒绝：RuntimeError",
+  "policy_effect": "error",
+  "receipt": null
+}

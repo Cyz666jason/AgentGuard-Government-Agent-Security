@@ -1,0 +1,58 @@
+static_resources:
+  listeners:
+    - name: tool_gateway_listener
+      address:
+        socket_address: { address: 0.0.0.0, port_value: 8081 }
+      filter_chains:
+        - filters:
+            - name: envoy.filters.network.http_connection_manager
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                stat_prefix: agentguard_gateway
+                route_config:
+                  name: backend_route
+                  virtual_hosts:
+                    - name: tool_backend
+                      domains: ["*"]
+                      routes:
+                        - match: { prefix: "/internal/tool-adapter/" }
+                          route: { cluster: tool_backend }
+                http_filters:
+                  - name: envoy.filters.http.ext_authz
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz
+                      transport_api_version: V3
+                      failure_mode_allow: false
+                      grpc_service:
+                        envoy_grpc:
+                          cluster_name: opa_envoy
+                        timeout: 0.5s
+                  - name: envoy.filters.http.router
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+  clusters:
+    - name: opa_envoy
+      connect_timeout: 0.25s
+      type: STATIC
+      typed_extension_protocol_options:
+        envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+          "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+          explicit_http_config:
+            http2_protocol_options: {}
+      load_assignment:
+        cluster_name: opa_envoy
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address: { address: 127.0.0.1, port_value: 9191 }
+    - name: tool_backend
+      connect_timeout: 0.25s
+      type: STATIC
+      load_assignment:
+        cluster_name: tool_backend
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address: { address: 127.0.0.1, port_value: 8080 }

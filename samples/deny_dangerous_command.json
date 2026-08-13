@@ -1,0 +1,32 @@
+{
+  "request_id": "req-demo-003",
+  "task_id": "task-demo-003",
+  "timestamp": "2026-08-04T10:10:00Z",
+  "subject": {
+    "id": "ops-001",
+    "type": "user",
+    "department": "运维部",
+    "roles": ["ops_engineer"],
+    "clearance": 3,
+    "mfa": true
+  },
+  "action": {
+    "tool": "shell.execute",
+    "operation": "execute",
+    "resource": "host://prod-app-01",
+    "parameters": {"command": "rm -rf /", "item_count": 1},
+    "risk_level": "critical",
+    "data_level": "internal"
+  },
+  "context": {
+    "source": "mcp",
+    "destination_zone": "internal",
+    "enforcement_point": "gateway",
+    "business_hours": true,
+    "repeat_count": 0
+  },
+  "environment": {
+    "sandbox": {"enabled": true, "profile": "gvisor-restricted"}
+  },
+  "approval": {}
+}

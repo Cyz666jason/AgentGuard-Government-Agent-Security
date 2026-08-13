@@ -1,0 +1,19 @@
+{
+  "name": "AgentGuard-OPA 政企智能体工具调用安全评测集",
+  "version": "0.1.0",
+  "generated_at": "2026-08-04",
+  "license": "CC BY 4.0",
+  "total_cases": 55,
+  "categories": {
+    "legitimate_allow": 10,
+    "approval_required": 12,
+    "valid_approval_allow": 12,
+    "hard_deny": 13,
+    "invalid_approval": 8
+  },
+  "labels": [
+    "allow",
+    "require_approval",
+    "deny"
+  ]
+}

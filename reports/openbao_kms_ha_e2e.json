@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-08-14T03:02:15.339334+08:00",
+  "service": "OpenBao Transit + KV v2",
+  "address": "http://127.0.0.1:18200",
+  "secret_material_in_report": false,
+  "checks": {
+    "transit_key_created_and_externalized": true,
+    "transit_key_rotated": true,
+    "pre_rotation_ticket_valid_after_rotation": true,
+    "post_rotation_ticket_executes": true,
+    "two_gateway_instances_share_one_ledger": true,
+    "concurrent_replay_blocked": true,
+    "signer_outage_fails_closed": true
+  },
+  "passed": 7,
+  "total": 7,
+  "concurrency": {
+    "attempts": 32,
+    "executed": 1,
+    "replay_blocked": 31,
+    "gateway_instances": 2
+  },
+  "boundary": "本报告证明外部密钥服务、轮换和共享CAS核销；本机dev server不是多节点生产OpenBao集群。"
+}

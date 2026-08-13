@@ -1,0 +1,42 @@
+﻿{
+  "scenario": "tamper",
+  "thread_id": "demo-tamper-068a423e",
+  "initial_effect": "require_approval",
+  "paused": true,
+  "interrupt": {
+    "type": "approval_required",
+    "task_id": "task-demo-002",
+    "request_id": "req-demo-002",
+    "subject_id": "finance-001",
+    "action": {
+      "tool": "payment.transfer",
+      "operation": "transfer",
+      "resource": "erp://payments/supplier-A",
+      "parameters": {
+        "amount": 5000,
+        "currency": "CNY",
+        "payee": "供应商A"
+      },
+      "risk_level": "high",
+      "data_level": "internal"
+    },
+    "action_digest": "45038a9c228a7385f793bbc3c9acb9ad4692959f4205eadcaa5b44b08364f8de",
+    "reasons": [
+      "动作风险等级为高或严重",
+      "操作 transfer 属于关键操作",
+      "金额超过免审批阈值 500 元"
+    ],
+    "allowed_decisions": [
+      "approve",
+      "reject",
+      "edit"
+    ],
+    "message": "该高风险操作已持久化暂停，等待人工审批。"
+  },
+  "final_status": "blocked",
+  "final_effect": "deny",
+  "reason_codes": [
+    "D103_APPROVAL_ACTION_TAMPERED"
+  ],
+  "execution_receipts": []
+}

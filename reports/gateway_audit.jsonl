@@ -1,0 +1,3 @@
+{"effect": "allow", "operation": "query", "request_id": "req-demo-001", "resource": "db://public/notices", "risk_score": 20, "subject_id": "user-001", "task_id": "task-demo-001", "timestamp": "2026-08-04T10:00:00Z", "tool": "database.query"}
+{"effect": "require_approval", "operation": "transfer", "request_id": "req-demo-002", "resource": "erp://payments/supplier-A", "risk_score": 70, "subject_id": "finance-001", "task_id": "task-demo-002", "timestamp": "2026-08-04T10:05:00Z", "tool": "payment.transfer"}
+{"effect": "deny", "operation": "execute", "request_id": "req-demo-003", "resource": "host://prod-app-01", "risk_score": 90, "subject_id": "ops-001", "task_id": "task-demo-003", "timestamp": "2026-08-04T10:10:00Z", "tool": "shell.execute"}

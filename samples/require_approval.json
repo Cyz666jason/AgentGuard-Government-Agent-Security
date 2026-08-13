@@ -1,0 +1,32 @@
+{
+  "request_id": "req-demo-002",
+  "task_id": "task-demo-002",
+  "timestamp": "2026-08-04T10:05:00Z",
+  "subject": {
+    "id": "finance-001",
+    "type": "user",
+    "department": "财务部",
+    "roles": ["finance_operator"],
+    "clearance": 2,
+    "mfa": true
+  },
+  "action": {
+    "tool": "payment.transfer",
+    "operation": "transfer",
+    "resource": "erp://payments/supplier-A",
+    "parameters": {"amount": 5000, "currency": "CNY", "payee": "供应商A"},
+    "risk_level": "high",
+    "data_level": "internal"
+  },
+  "context": {
+    "source": "api",
+    "destination_zone": "internal",
+    "enforcement_point": "gateway",
+    "business_hours": true,
+    "repeat_count": 0
+  },
+  "environment": {
+    "sandbox": {"enabled": false, "profile": ""}
+  },
+  "approval": {}
+}

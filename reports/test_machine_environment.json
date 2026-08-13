@@ -1,0 +1,30 @@
+﻿{
+  "tested_at": "2026-08-14T03:02:11+08:00",
+  "hostname": "LAPTOP-JBJSO312",
+  "os": "Windows-11-10.0.26200-SP0",
+  "architecture": "AMD64",
+  "processor": "AMD64 Family 25 Model 97 Stepping 2, AuthenticAMD",
+  "logical_processors": 32,
+  "memory_gb": 15.7,
+  "python": "3.12.13",
+  "components": {
+    "opa": "1.19.0",
+    "langgraph": "1.2.10",
+    "langgraph-checkpoint-sqlite": "3.1.1",
+    "wasmtime": "47.0.1",
+    "pyjwt": "2.10.1",
+    "keycloak_portable": "26.7.1 (OIDC E2E tested)",
+    "toolhive_portable": "0.28.3 (CLI/checksum tested)",
+    "openbao": "2.6.1 (Transit/KV E2E tested)",
+    "qemu": "11.1.0 (Linux guest kernel E2E tested)"
+  },
+  "container_environment": {
+    "docker_cli_available": false,
+    "wsl_command_available": true,
+    "linux_distribution_available": false,
+    "opa_envoy_end_to_end_tested": false,
+    "toolhive_container_tested": false,
+    "native_http_policy_enforcement_e2e_tested": true,
+    "reason": "本测试机未安装 Docker，WSL 命令存在但没有 Linux 发行版。"
+  }
+}

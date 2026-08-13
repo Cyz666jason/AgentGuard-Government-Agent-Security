@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-08-14T03:03:09.848708+08:00",
+  "runtime": "QEMU full-system emulation",
+  "qemu_version": "QEMU emulator version 11.1.0 (v11.1.0-12130-ge470268ff4)",
+  "guest_image": "alpine-virt-3.24.1-x86_64.iso",
+  "guest_image_sha256": "e73a6241bd5f3c5c2d4d38c02cc52c378c0415a7c888bd292066bf36e0f41a39",
+  "guest_kernel_sha256": "1e6bf9027720c75c3ed0d79171f21b5791ee40ca9795d07c7c6e04dc5ea2ae90",
+  "guest_initramfs_sha256": "6d80a739fedeeb6cd63e24dd208845e22199c41a5fb2054941ef61ec30264fa9",
+  "command_security_profile": {
+    "machine": "q35",
+    "acceleration": "tcg software emulation",
+    "vcpus": 1,
+    "memory_mib": 256,
+    "network": "none",
+    "host_filesystem_share": "none",
+    "display": "none",
+    "writable_disk": "none; verified boot files only"
+  },
+  "checks": {
+    "qemu_binary_available": true,
+    "guest_iso_checksum_verified": true,
+    "separate_linux_guest_kernel_booted": true,
+    "guest_userspace_reached": true,
+    "one_vcpu_configured": true,
+    "memory_cap_256_mib_configured": true,
+    "network_device_disabled": true,
+    "no_host_filesystem_share_configured": true,
+    "headless_noninteractive_execution": true
+  },
+  "passed": 9,
+  "total": 9,
+  "timed_out_after_evidence_collection": true,
+  "process_exit_code": null,
+  "guest_memory_log_seen": true,
+  "log_excerpt": "[    0.000000] Linux version 6.18.35-0-virt (buildozer@build-3-24-x86_64) (cc (Alpine 15.2.0) 15.2.0, GNU ld (GNU Binutils) 2.45.1) #1-Alpine SMP PREEMPT_DYNAMIC 2026-06-09 12:34:47\n[    1.816952] Loaded X.509 cert 'alpinelinux.org: Alpine Linux kernel key: d76a695f66ad9cd28f5c22a8508f36e91f521f7a'\n[    6.097133] Alpine Init 3.14.0-r0\nAlpine Init 3.14.0-r0",
+  "boundary": "已证明独立Linux guest kernel和受限QEMU配置；这不是Kata/Firecracker产品E2E，也未启用KVM硬件加速。"
+}

@@ -1,0 +1,36 @@
+name: OPA policy tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install OPA 1.19.0
+        run: |
+          curl -L -o opa https://github.com/open-policy-agent/opa/releases/download/v1.19.0/opa_linux_amd64_static
+          curl -L -o opa.sha256 https://github.com/open-policy-agent/opa/releases/download/v1.19.0/opa_linux_amd64_static.sha256
+          echo "$(cut -d ' ' -f 1 opa.sha256)  opa" | sha256sum -c -
+          chmod +x opa
+      - name: Generate dataset
+        run: python scripts/generate_dataset.py
+      - name: Format and strict check
+        run: |
+          ./opa fmt --fail policy/*.rego tests/*.rego > /dev/null
+          ./opa check --strict policy tests data
+      - name: Unit tests and coverage
+        run: |
+          ./opa test policy tests data --fail-on-empty
+          ./opa test policy tests data --coverage --format=json > reports/coverage.json
+      - name: Batch evaluation
+        run: python scripts/evaluate.py --opa ./opa
+      - name: Install Python security dependencies
+        run: pip install -r requirements-full.txt
+      - name: Python security and integration tests
+        run: python -m enforcement.run_tests

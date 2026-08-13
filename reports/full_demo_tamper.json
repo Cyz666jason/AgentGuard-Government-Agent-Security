@@ -1,0 +1,8 @@
+﻿{
+  "status": "blocked",
+  "http_status": 403,
+  "reason_code": "G205_TICKET_BINDING_MISMATCH",
+  "message": "执行票据与当前任务或动作不一致",
+  "policy_effect": "ticket_validation",
+  "receipt": null
+}

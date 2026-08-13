@@ -1,0 +1,259 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-08-14T03:07:41+08:00",
+  "project": "AgentGuard 政企智能体权限、审批、阻断与安全内核",
+  "contest_focus": "面向工具调用和任务执行的安全约束与审批控制",
+  "overall": {
+    "automated_regression_passed": true,
+    "dataset_counts_consistent": true,
+    "unsafe_execution_count": 0,
+    "current_machine_scope_passed": true,
+    "production_ready": false,
+    "production_ready_reason": "仍缺OPA-Envoy/ToolHive产品容器E2E、多节点KMS/HA故障切换、真实业务凭据、获批真实数据和远程GitHub认证。"
+  },
+  "route": [
+    {
+      "stage": "1 赛题解读",
+      "status": "completed",
+      "evidence": "docs/开源路线自动推进总览_20260813.md#2-赛题解读题目怎样转化为工程任务",
+      "next": "后续实现继续映射到感知—决策—调用—执行和赛题评分项"
+    },
+    {
+      "stage": "2 开源技术路线与选型",
+      "status": "completed",
+      "evidence": "Keycloak + OPA + LangGraph + 强制网关 + Wasmtime",
+      "next": "生产分支补OPA-Envoy、ToolHive、KMS/HA与原生隔离"
+    },
+    {
+      "stage": "3 复现效果与问题",
+      "status": "completed_with_gaps",
+      "evidence": "reports/full_security_evaluation_summary.json；reports/复现问题台账_20260813.md",
+      "next": "补产品级容器E2E、并发、故障注入和真实业务适配器"
+    },
+    {
+      "stage": "4 相关评估与数据支撑",
+      "status": "partial",
+      "evidence": "三层83条合成定义；各类测试分母独立统计",
+      "next": "取得授权后加入脱敏日志、盲测集、红队和生产回放"
+    },
+    {
+      "stage": "5 整体大图与清晰语言",
+      "status": "completed",
+      "evidence": "docs/整体开源技术路线图_20260813.mmd",
+      "next": "所有后续材料复用同一架构语言和边界表述"
+    }
+  ],
+  "test_metrics": [
+    {
+      "name": "OPA/Rego单元测试",
+      "passed": 31,
+      "total": 31,
+      "pass_rate": 1.0,
+      "status": "passed",
+      "evidence": "reports/full_opa_tests.txt"
+    },
+    {
+      "name": "OPA-Envoy前置策略测试",
+      "passed": 4,
+      "total": 4,
+      "pass_rate": 1.0,
+      "status": "passed",
+      "evidence": "reports/opa_envoy_policy_tests.txt"
+    },
+    {
+      "name": "三态策略数据集",
+      "passed": 55,
+      "total": 55,
+      "pass_rate": 1.0,
+      "status": "passed",
+      "evidence": "reports/evaluation_summary.json"
+    },
+    {
+      "name": "身份/审批/网关/内核Python测试",
+      "passed": 46,
+      "total": 46,
+      "pass_rate": 1.0,
+      "status": "passed",
+      "evidence": "reports/full_python_tests.txt"
+    },
+    {
+      "name": "常驻OPA REST网络链路",
+      "passed": 5,
+      "total": 5,
+      "pass_rate": 1.0,
+      "status": "passed",
+      "evidence": "reports/network_enforcement_e2e.json"
+    },
+    {
+      "name": "Keycloak/OIDC真实链路",
+      "passed": 5,
+      "total": 5,
+      "pass_rate": 1.0,
+      "status": "passed",
+      "evidence": "reports/keycloak_oidc_e2e.json"
+    },
+    {
+      "name": "完整链路演示检查",
+      "passed": 17,
+      "total": 17,
+      "pass_rate": 1.0,
+      "status": "passed",
+      "evidence": "reports/full_security_evaluation_summary.json"
+    },
+    {
+      "name": "OpenBao外部密钥与共享票据核销",
+      "passed": 7,
+      "total": 7,
+      "pass_rate": 1.0,
+      "status": "passed",
+      "evidence": "reports/openbao_kms_ha_e2e.json"
+    },
+    {
+      "name": "QEMU独立Linux来宾内核隔离",
+      "passed": 9,
+      "total": 9,
+      "pass_rate": 1.0,
+      "status": "passed",
+      "evidence": "reports/qemu_native_isolation_e2e.json"
+    }
+  ],
+  "policy_effect_metrics": {
+    "effect_accuracy": 1.0,
+    "reason_code_accuracy": 1.0,
+    "dangerous_action_block_rate": 1.0,
+    "legitimate_action_pass_rate": 1.0,
+    "approval_routing_accuracy": 1.0,
+    "invalid_approval_block_rate": 1.0,
+    "unsafe_allow_count": 0,
+    "cli_end_to_end_latency_ms": {
+      "mean": 67.653,
+      "median": 66.39,
+      "p95": 75.892,
+      "max": 84.62,
+      "note": "包含每个用例启动一次 OPA CLI 的进程开销，不代表 sidecar/嵌入式部署时的纯策略延迟。"
+    },
+    "rego_total_coverage": 99.6063
+  },
+  "data_support": {
+    "datasets": [
+      {
+        "layer": "策略决策",
+        "file": "datasets/agent_guard_cases.jsonl",
+        "actual_cases": 55,
+        "declared_cases": 55,
+        "count_consistent": true,
+        "contains_personal_data": false
+      },
+      {
+        "layer": "审批流程",
+        "file": "datasets/approval_workflow_cases.jsonl",
+        "actual_cases": 9,
+        "declared_cases": 9,
+        "count_consistent": true,
+        "contains_personal_data": false
+      },
+      {
+        "layer": "强制执行与安全内核",
+        "file": "datasets/enforcement_kernel_cases.jsonl",
+        "actual_cases": 19,
+        "declared_cases": 19,
+        "count_consistent": true,
+        "contains_personal_data": false
+      }
+    ],
+    "total_layered_case_definitions": 83,
+    "data_type": "synthetic",
+    "warning": "83是三层测试定义数量，不是可以相加后称为83/83的单一准确率分母。"
+  },
+  "environment": {
+    "tested_at": "2026-08-14T03:02:11+08:00",
+    "os": "Windows-11-10.0.26200-SP0",
+    "logical_processors": 32,
+    "memory_gb": 15.7,
+    "python": "3.12.13",
+    "components": {
+      "opa": "1.19.0",
+      "langgraph": "1.2.10",
+      "langgraph-checkpoint-sqlite": "3.1.1",
+      "wasmtime": "47.0.1",
+      "pyjwt": "2.10.1",
+      "keycloak_portable": "26.7.1 (OIDC E2E tested)",
+      "toolhive_portable": "0.28.3 (CLI/checksum tested)",
+      "openbao": "2.6.1 (Transit/KV E2E tested)",
+      "qemu": "11.1.0 (Linux guest kernel E2E tested)"
+    },
+    "native_http_policy_enforcement_e2e_tested": true,
+    "opa_envoy_product_e2e_tested": false,
+    "toolhive_container_tested": false,
+    "environment_blocker": "本测试机未安装 Docker，WSL 命令存在但没有 Linux 发行版。"
+  },
+  "known_gaps": [
+    {
+      "severity": "中",
+      "item": "Envoy/ToolHive 指定产品的容器部署未启动",
+      "reason": "本机没有 Docker/Podman/Linux；已用等价的双端口 HTTP PEP 完成核心强制链路 5/5 实测，ToolHive v0.28.3 CLI 与官方校验和已验证",
+      "next": "在具备容器运行时的 Linux 预生产机复用 deployment/ 配置，补产品级 ext_authz、mTLS、NetworkPolicy 和 MCP 容器证据"
+    },
+    {
+      "severity": "中",
+      "item": "Keycloak 当前为本机开发模式测试域",
+      "reason": "真实 Keycloak 26.7.1、JWT 签名、issuer、audience、角色、部门、密级和 MFA 声明已 5/5 实测，但测试域使用 HTTP 和固定测试声明",
+      "next": "生产改用 HTTPS、组织目录联邦、真实 OTP/WebAuthn 认证流程和密钥轮换，删除测试用户与固定 MFA mapper"
+    },
+    {
+      "severity": "中",
+      "item": "尚未连接真实外部业务系统",
+      "reason": "HTTPS、CA、主机白名单、幂等键、审批检查和fail-closed适配器已经实现；未获得单位批准的预生产URL、令牌和CA",
+      "next": "获得合法测试凭据后运行真实API E2E；不得生成、猜测或把本地模拟凭据称为真实凭据"
+    },
+    {
+      "severity": "中",
+      "item": "生产级KMS/HA仍需多节点集群",
+      "reason": "OpenBao Transit密钥外置/轮换和KV CAS双网关核销7/7已完成，但本机dev server仍是单服务进程",
+      "next": "在预生产部署多节点OpenBao Raft或云KMS加高可用数据库，补leader切换和灾难恢复"
+    },
+    {
+      "severity": "中",
+      "item": "Kata/Firecracker产品隔离尚未运行",
+      "reason": "QEMU独立Linux来宾内核9/9已验证无网络、无宿主目录和资源限制，但当前为TCG软件模拟",
+      "next": "在Linux/KVM测试机运行Kata或Firecracker产品E2E和性能测试"
+    },
+    {
+      "severity": "中",
+      "item": "默认演示仍保留 OPA CLI 调用",
+      "reason": "网络端到端测试已使用常驻 OPA REST；部分旧演示为便于单文件复现仍逐次启动 CLI",
+      "next": "生产统一切换至 OPA sidecar/OPA-Envoy/Go SDK 或 Wasm 常驻求值，并做压力测试"
+    },
+    {
+      "severity": "中",
+      "item": "数据仍以合成场景为主",
+      "reason": "确定性去标识、秘密删除、IP泛化和哈希报告流水线已实现，但未获得单位批准的真实日志",
+      "next": "获得数据许可后运行脱敏脚本，隔离训练/调参与盲测数据并开展回放"
+    },
+    {
+      "severity": "中",
+      "item": "远程GitHub仓库尚未发布",
+      "reason": "GitHub CLI已安装、本地Git仓库和敏感文件扫描已完成，但命令行和网页均未登录",
+      "next": "用户登录GitHub后创建私有仓库并推送；不得代替用户生成账号或凭据"
+    }
+  ],
+  "resolved_regression": {
+    "id": "P-20260813-01",
+    "summary": "修复JWT篡改用例可能只改变Base64url未使用填充位的问题；现改为翻转真实签名字节。",
+    "evidence": [
+      "identity/run_keycloak_e2e.py",
+      "identity/tests/test_oidc.py",
+      "reports/keycloak_oidc_e2e.json"
+    ],
+    "status": "resolved"
+  },
+  "official_sources": {
+    "OPA": "https://www.openpolicyagent.org/docs",
+    "Keycloak": "https://www.keycloak.org/securing-apps/oidc-layers",
+    "LangGraph": "https://langchain-ai.github.io/langgraph/concepts/breakpoints/",
+    "Wasmtime": "https://docs.wasmtime.dev/api/wasmtime/struct.Store.html",
+    "ToolHive": "https://github.com/stacklok/toolhive",
+    "OpenBao": "https://openbao.org/docs/",
+    "QEMU": "https://www.qemu.org/docs/master/system/introduction.html"
+  }
+}

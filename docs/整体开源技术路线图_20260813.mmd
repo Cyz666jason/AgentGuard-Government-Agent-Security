@@ -1,0 +1,14 @@
+flowchart LR
+    A[赛题：感知-决策-调用-执行] --> B[风险输入：伪造身份/越权/审批绕过/重放/危险代码/第三方工具]
+    B --> C[Keycloak：可信 OIDC 身份]
+    C --> D[OPA/Rego：allow / require_approval / deny]
+    D -->|allow| F[强制网关 PEP]
+    D -->|require_approval| E[LangGraph：暂停/审批/恢复]
+    D -->|deny| X[阻断 + 原因码 + 审计]
+    E -->|动作摘要绑定，恢复后复核| D
+    F --> G[30 秒一次性执行票据：绑定 task_id + action_digest]
+    G --> H[Wasmtime / 隔离适配器：限制能力、内存与燃料]
+    H --> I[回执 + 审计 + 真实测试副作用]
+    I --> J[Data Support：55策略 + 9审批 + 19执行定义]
+    J --> K[当前实测：31/31；55/55；46/46；网络5/5；OIDC 5/5；OpenBao 7/7；QEMU 9/9]
+    K --> L[生产路线：OPA-Envoy / ToolHive / 多节点KMS+HA / Kata或Firecracker / 真实日志回放]

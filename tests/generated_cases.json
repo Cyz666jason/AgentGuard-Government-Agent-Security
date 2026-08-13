@@ -1,0 +1,2782 @@
+{
+  "agent_guard_test_cases": [
+    {
+      "case_id": "ALLOW_01",
+      "name": "办公人员查询内部公告",
+      "category": "legitimate_allow",
+      "expected_effect": "allow",
+      "expected_reason_code": "L001_LOW_RISK_ALLOWED",
+      "input": {
+        "request_id": "req-allow-01",
+        "task_id": "task-allow-01",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "user-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "office_user"
+          ],
+          "clearance": 1,
+          "mfa": true
+        },
+        "action": {
+          "tool": "database.query",
+          "operation": "query",
+          "resource": "db://public/notices",
+          "parameters": {
+            "limit": 20,
+            "item_count": 20
+          },
+          "risk_level": "low",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "ALLOW_02",
+      "name": "办公人员读取内部文件",
+      "category": "legitimate_allow",
+      "expected_effect": "allow",
+      "expected_reason_code": "L001_LOW_RISK_ALLOWED",
+      "input": {
+        "request_id": "req-allow-02",
+        "task_id": "task-allow-02",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "user-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "office_user"
+          ],
+          "clearance": 1,
+          "mfa": true
+        },
+        "action": {
+          "tool": "file.read",
+          "operation": "read",
+          "resource": "/workspace/notices/a.txt",
+          "parameters": {},
+          "risk_level": "low",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "ALLOW_03",
+      "name": "办公人员发送内部邮件",
+      "category": "legitimate_allow",
+      "expected_effect": "allow",
+      "expected_reason_code": "L001_LOW_RISK_ALLOWED",
+      "input": {
+        "request_id": "req-allow-03",
+        "task_id": "task-allow-03",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "user-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "office_user"
+          ],
+          "clearance": 1,
+          "mfa": true
+        },
+        "action": {
+          "tool": "email.send",
+          "operation": "send_internal",
+          "resource": "mailto:team@internal",
+          "parameters": {},
+          "risk_level": "low",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "ALLOW_04",
+      "name": "档案管理员查询普通档案",
+      "category": "legitimate_allow",
+      "expected_effect": "allow",
+      "expected_reason_code": "L001_LOW_RISK_ALLOWED",
+      "input": {
+        "request_id": "req-allow-04",
+        "task_id": "task-allow-04",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "records-001",
+          "type": "user",
+          "department": "档案部",
+          "roles": [
+            "records_admin"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "database.query",
+          "operation": "query",
+          "resource": "db://records/general",
+          "parameters": {
+            "limit": 20,
+            "item_count": 20
+          },
+          "risk_level": "low",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "ALLOW_05",
+      "name": "档案管理员读取工作目录",
+      "category": "legitimate_allow",
+      "expected_effect": "allow",
+      "expected_reason_code": "L001_LOW_RISK_ALLOWED",
+      "input": {
+        "request_id": "req-allow-05",
+        "task_id": "task-allow-05",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "records-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "records_admin"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "file.read",
+          "operation": "read",
+          "resource": "/workspace/records/index.txt",
+          "parameters": {},
+          "risk_level": "low",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "ALLOW_06",
+      "name": "运维人员调用内部健康检查接口",
+      "category": "legitimate_allow",
+      "expected_effect": "allow",
+      "expected_reason_code": "L001_LOW_RISK_ALLOWED",
+      "input": {
+        "request_id": "req-allow-06",
+        "task_id": "task-allow-06",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "ops-001",
+          "type": "user",
+          "department": "运维部",
+          "roles": [
+            "ops_engineer"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "api.call",
+          "operation": "invoke",
+          "resource": "https://service.internal/health",
+          "parameters": {
+            "host": "service.internal"
+          },
+          "risk_level": "low",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "ALLOW_07",
+      "name": "运维人员浏览内部状态页",
+      "category": "legitimate_allow",
+      "expected_effect": "allow",
+      "expected_reason_code": "L001_LOW_RISK_ALLOWED",
+      "input": {
+        "request_id": "req-allow-07",
+        "task_id": "task-allow-07",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "ops-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "ops_engineer"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "browser.automate",
+          "operation": "browse",
+          "resource": "https://status.internal",
+          "parameters": {
+            "host": "status.internal"
+          },
+          "risk_level": "low",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "ALLOW_08",
+      "name": "安全管理员读取受保护配置",
+      "category": "legitimate_allow",
+      "expected_effect": "allow",
+      "expected_reason_code": "L001_LOW_RISK_ALLOWED",
+      "input": {
+        "request_id": "req-allow-08",
+        "task_id": "task-allow-08",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "sec-001",
+          "type": "user",
+          "department": "安全部",
+          "roles": [
+            "security_admin"
+          ],
+          "clearance": 3,
+          "mfa": true
+        },
+        "action": {
+          "tool": "file.read",
+          "operation": "read",
+          "resource": "/etc/hosts",
+          "parameters": {},
+          "risk_level": "low",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "ALLOW_09",
+      "name": "安全管理员查询审计索引",
+      "category": "legitimate_allow",
+      "expected_effect": "allow",
+      "expected_reason_code": "L001_LOW_RISK_ALLOWED",
+      "input": {
+        "request_id": "req-allow-09",
+        "task_id": "task-allow-09",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "sec-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "security_admin"
+          ],
+          "clearance": 3,
+          "mfa": true
+        },
+        "action": {
+          "tool": "database.query",
+          "operation": "query",
+          "resource": "db://security/audit/index",
+          "parameters": {
+            "limit": 20,
+            "item_count": 20
+          },
+          "risk_level": "low",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "ALLOW_10",
+      "name": "查询数量恰好达到免审批上限",
+      "category": "legitimate_allow",
+      "expected_effect": "allow",
+      "expected_reason_code": "L001_LOW_RISK_ALLOWED",
+      "input": {
+        "request_id": "req-allow-10",
+        "task_id": "task-allow-10",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "user-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "office_user"
+          ],
+          "clearance": 1,
+          "mfa": true
+        },
+        "action": {
+          "tool": "database.query",
+          "operation": "query",
+          "resource": "db://public/notices",
+          "parameters": {
+            "limit": 1000,
+            "item_count": 1000
+          },
+          "risk_level": "low",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "APPROVAL_01",
+      "name": "大额对公付款",
+      "category": "approval_required",
+      "expected_effect": "require_approval",
+      "expected_reason_code": "A001_HIGH_RISK",
+      "input": {
+        "request_id": "req-approval-01",
+        "task_id": "task-approval-01",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "finance-001",
+          "type": "user",
+          "department": "财务部",
+          "roles": [
+            "finance_operator"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "payment.transfer",
+          "operation": "transfer",
+          "resource": "erp://payments/supplier-A",
+          "parameters": {
+            "amount": 5000,
+            "currency": "CNY"
+          },
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "APPROVAL_02",
+      "name": "小额付款仍需关键操作确认",
+      "category": "approval_required",
+      "expected_effect": "require_approval",
+      "expected_reason_code": "A002_SENSITIVE_OPERATION",
+      "input": {
+        "request_id": "req-approval-02",
+        "task_id": "task-approval-02",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "finance-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "finance_operator"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "payment.transfer",
+          "operation": "transfer",
+          "resource": "erp://payments/supplier-B",
+          "parameters": {
+            "amount": 100,
+            "currency": "CNY"
+          },
+          "risk_level": "medium",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "APPROVAL_03",
+      "name": "写入档案文件",
+      "category": "approval_required",
+      "expected_effect": "require_approval",
+      "expected_reason_code": "A001_HIGH_RISK",
+      "input": {
+        "request_id": "req-approval-03",
+        "task_id": "task-approval-03",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "records-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "records_admin"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "file.write",
+          "operation": "write",
+          "resource": "/workspace/records/a.txt",
+          "parameters": {
+            "content_length": 200
+          },
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "APPROVAL_04",
+      "name": "删除档案文件",
+      "category": "approval_required",
+      "expected_effect": "require_approval",
+      "expected_reason_code": "A001_HIGH_RISK",
+      "input": {
+        "request_id": "req-approval-04",
+        "task_id": "task-approval-04",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "records-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "records_admin"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "file.write",
+          "operation": "delete",
+          "resource": "/workspace/records/old.txt",
+          "parameters": {},
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "APPROVAL_05",
+      "name": "向合作方发送内部数据",
+      "category": "approval_required",
+      "expected_effect": "require_approval",
+      "expected_reason_code": "A001_HIGH_RISK",
+      "input": {
+        "request_id": "req-approval-05",
+        "task_id": "task-approval-05",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "user-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "office_user"
+          ],
+          "clearance": 1,
+          "mfa": true
+        },
+        "action": {
+          "tool": "email.send",
+          "operation": "send_external",
+          "resource": "mailto:partner@example",
+          "parameters": {
+            "host": "mail.partner.example"
+          },
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "external",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "APPROVAL_06",
+      "name": "导出机密档案",
+      "category": "approval_required",
+      "expected_effect": "require_approval",
+      "expected_reason_code": "A001_HIGH_RISK",
+      "input": {
+        "request_id": "req-approval-06",
+        "task_id": "task-approval-06",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "records-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "records_admin"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "database.query",
+          "operation": "export",
+          "resource": "db://records/confidential",
+          "parameters": {
+            "item_count": 500
+          },
+          "risk_level": "high",
+          "data_level": "confidential"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "APPROVAL_07",
+      "name": "在沙箱中执行安全运维命令",
+      "category": "approval_required",
+      "expected_effect": "require_approval",
+      "expected_reason_code": "A001_HIGH_RISK",
+      "input": {
+        "request_id": "req-approval-07",
+        "task_id": "task-approval-07",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "ops-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "ops_engineer"
+          ],
+          "clearance": 3,
+          "mfa": true
+        },
+        "action": {
+          "tool": "shell.execute",
+          "operation": "execute",
+          "resource": "host://prod-app-01",
+          "parameters": {
+            "command": "Get-Service"
+          },
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": true,
+            "profile": "gvisor-restricted"
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "APPROVAL_08",
+      "name": "部署内部接口配置",
+      "category": "approval_required",
+      "expected_effect": "require_approval",
+      "expected_reason_code": "A001_HIGH_RISK",
+      "input": {
+        "request_id": "req-approval-08",
+        "task_id": "task-approval-08",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "ops-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "ops_engineer"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "api.call",
+          "operation": "deploy",
+          "resource": "https://deploy.internal/v1",
+          "parameters": {
+            "host": "deploy.internal"
+          },
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "APPROVAL_09",
+      "name": "在隔离浏览器提交外部表单",
+      "category": "approval_required",
+      "expected_effect": "require_approval",
+      "expected_reason_code": "A001_HIGH_RISK",
+      "input": {
+        "request_id": "req-approval-09",
+        "task_id": "task-approval-09",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "ops-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "ops_engineer"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "browser.automate",
+          "operation": "submit",
+          "resource": "https://api.gov.cn/form",
+          "parameters": {
+            "host": "api.gov.cn"
+          },
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "external",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": true,
+            "profile": "gvisor-restricted"
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "APPROVAL_10",
+      "name": "非工作时段的中风险查询",
+      "category": "approval_required",
+      "expected_effect": "require_approval",
+      "expected_reason_code": "A005_OUT_OF_HOURS",
+      "input": {
+        "request_id": "req-approval-10",
+        "task_id": "task-approval-10",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "user-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "office_user"
+          ],
+          "clearance": 1,
+          "mfa": true
+        },
+        "action": {
+          "tool": "database.query",
+          "operation": "query",
+          "resource": "db://public/notices",
+          "parameters": {
+            "limit": 20,
+            "item_count": 20
+          },
+          "risk_level": "medium",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": false,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "APPROVAL_11",
+      "name": "超过上限的批量查询",
+      "category": "approval_required",
+      "expected_effect": "require_approval",
+      "expected_reason_code": "A006_BULK_OPERATION",
+      "input": {
+        "request_id": "req-approval-11",
+        "task_id": "task-approval-11",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "user-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "office_user"
+          ],
+          "clearance": 1,
+          "mfa": true
+        },
+        "action": {
+          "tool": "database.query",
+          "operation": "query",
+          "resource": "db://public/notices",
+          "parameters": {
+            "limit": 5000,
+            "item_count": 5000
+          },
+          "risk_level": "low",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "APPROVAL_12",
+      "name": "读取机密档案",
+      "category": "approval_required",
+      "expected_effect": "require_approval",
+      "expected_reason_code": "A004_SENSITIVE_DATA",
+      "input": {
+        "request_id": "req-approval-12",
+        "task_id": "task-approval-12",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "records-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "records_admin"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "file.read",
+          "operation": "read",
+          "resource": "/workspace/records/confidential.txt",
+          "parameters": {},
+          "risk_level": "medium",
+          "data_level": "confidential"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "APPROVED_01",
+      "name": "有效审批后一次性执行：大额对公付款",
+      "category": "valid_approval_allow",
+      "expected_effect": "allow",
+      "expected_reason_code": "L002_VALID_APPROVAL",
+      "input": {
+        "request_id": "req-approved-01",
+        "task_id": "task-approved-01",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "finance-001",
+          "type": "user",
+          "department": "财务部",
+          "roles": [
+            "finance_operator"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "payment.transfer",
+          "operation": "transfer",
+          "resource": "erp://payments/supplier-A",
+          "parameters": {
+            "amount": 5000,
+            "currency": "CNY"
+          },
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {
+          "approval_id": "approval-task-approved-01",
+          "status": "approved",
+          "approver_id": "approver-001",
+          "approver_roles": [
+            "business_approver"
+          ],
+          "task_id": "task-approved-01",
+          "action_digest": "32e277b0f1d12e97cc3bea75223ff5acaebab960c2f11953e1673df25e97cca6",
+          "expires_at": "2026-08-04T10:30:00Z",
+          "max_uses": 1,
+          "use_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "APPROVED_02",
+      "name": "有效审批后一次性执行：小额付款仍需关键操作确认",
+      "category": "valid_approval_allow",
+      "expected_effect": "allow",
+      "expected_reason_code": "L002_VALID_APPROVAL",
+      "input": {
+        "request_id": "req-approved-02",
+        "task_id": "task-approved-02",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "finance-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "finance_operator"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "payment.transfer",
+          "operation": "transfer",
+          "resource": "erp://payments/supplier-B",
+          "parameters": {
+            "amount": 100,
+            "currency": "CNY"
+          },
+          "risk_level": "medium",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {
+          "approval_id": "approval-task-approved-02",
+          "status": "approved",
+          "approver_id": "approver-001",
+          "approver_roles": [
+            "business_approver"
+          ],
+          "task_id": "task-approved-02",
+          "action_digest": "8f6b90d09dc3cf0203380fe59dda8a31aaa3fe91785deb457f03522b5263a8b5",
+          "expires_at": "2026-08-04T10:30:00Z",
+          "max_uses": 1,
+          "use_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "APPROVED_03",
+      "name": "有效审批后一次性执行：写入档案文件",
+      "category": "valid_approval_allow",
+      "expected_effect": "allow",
+      "expected_reason_code": "L002_VALID_APPROVAL",
+      "input": {
+        "request_id": "req-approved-03",
+        "task_id": "task-approved-03",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "records-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "records_admin"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "file.write",
+          "operation": "write",
+          "resource": "/workspace/records/a.txt",
+          "parameters": {
+            "content_length": 200
+          },
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {
+          "approval_id": "approval-task-approved-03",
+          "status": "approved",
+          "approver_id": "approver-001",
+          "approver_roles": [
+            "business_approver"
+          ],
+          "task_id": "task-approved-03",
+          "action_digest": "9d32d4f3b51ae55ad48f605e7079a3bb9108d023d3327023fb3208112e89067e",
+          "expires_at": "2026-08-04T10:30:00Z",
+          "max_uses": 1,
+          "use_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "APPROVED_04",
+      "name": "有效审批后一次性执行：删除档案文件",
+      "category": "valid_approval_allow",
+      "expected_effect": "allow",
+      "expected_reason_code": "L002_VALID_APPROVAL",
+      "input": {
+        "request_id": "req-approved-04",
+        "task_id": "task-approved-04",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "records-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "records_admin"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "file.write",
+          "operation": "delete",
+          "resource": "/workspace/records/old.txt",
+          "parameters": {},
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {
+          "approval_id": "approval-task-approved-04",
+          "status": "approved",
+          "approver_id": "approver-001",
+          "approver_roles": [
+            "business_approver"
+          ],
+          "task_id": "task-approved-04",
+          "action_digest": "b380918932db8fe4cb51d800d046fa3a53cd71b3e9aa141989f5cd3154040b61",
+          "expires_at": "2026-08-04T10:30:00Z",
+          "max_uses": 1,
+          "use_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "APPROVED_05",
+      "name": "有效审批后一次性执行：向合作方发送内部数据",
+      "category": "valid_approval_allow",
+      "expected_effect": "allow",
+      "expected_reason_code": "L002_VALID_APPROVAL",
+      "input": {
+        "request_id": "req-approved-05",
+        "task_id": "task-approved-05",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "user-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "office_user"
+          ],
+          "clearance": 1,
+          "mfa": true
+        },
+        "action": {
+          "tool": "email.send",
+          "operation": "send_external",
+          "resource": "mailto:partner@example",
+          "parameters": {
+            "host": "mail.partner.example"
+          },
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "external",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {
+          "approval_id": "approval-task-approved-05",
+          "status": "approved",
+          "approver_id": "approver-001",
+          "approver_roles": [
+            "business_approver"
+          ],
+          "task_id": "task-approved-05",
+          "action_digest": "d2eaf27db828db304f9bce6a85c1b132746d1a2317eb3f32d2e9008b17553d6f",
+          "expires_at": "2026-08-04T10:30:00Z",
+          "max_uses": 1,
+          "use_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "APPROVED_06",
+      "name": "有效审批后一次性执行：导出机密档案",
+      "category": "valid_approval_allow",
+      "expected_effect": "allow",
+      "expected_reason_code": "L002_VALID_APPROVAL",
+      "input": {
+        "request_id": "req-approved-06",
+        "task_id": "task-approved-06",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "records-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "records_admin"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "database.query",
+          "operation": "export",
+          "resource": "db://records/confidential",
+          "parameters": {
+            "item_count": 500
+          },
+          "risk_level": "high",
+          "data_level": "confidential"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {
+          "approval_id": "approval-task-approved-06",
+          "status": "approved",
+          "approver_id": "approver-001",
+          "approver_roles": [
+            "business_approver"
+          ],
+          "task_id": "task-approved-06",
+          "action_digest": "32a6de4962e51976c6f29fac8dc0455dc982f00665532e451bbe0140cca42946",
+          "expires_at": "2026-08-04T10:30:00Z",
+          "max_uses": 1,
+          "use_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "APPROVED_07",
+      "name": "有效审批后一次性执行：在沙箱中执行安全运维命令",
+      "category": "valid_approval_allow",
+      "expected_effect": "allow",
+      "expected_reason_code": "L002_VALID_APPROVAL",
+      "input": {
+        "request_id": "req-approved-07",
+        "task_id": "task-approved-07",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "ops-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "ops_engineer"
+          ],
+          "clearance": 3,
+          "mfa": true
+        },
+        "action": {
+          "tool": "shell.execute",
+          "operation": "execute",
+          "resource": "host://prod-app-01",
+          "parameters": {
+            "command": "Get-Service"
+          },
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": true,
+            "profile": "gvisor-restricted"
+          }
+        },
+        "approval": {
+          "approval_id": "approval-task-approved-07",
+          "status": "approved",
+          "approver_id": "approver-001",
+          "approver_roles": [
+            "business_approver"
+          ],
+          "task_id": "task-approved-07",
+          "action_digest": "32ba92a15b73378bffcc155a6fabbc169f5cc78506eefc773226543d336f38f9",
+          "expires_at": "2026-08-04T10:30:00Z",
+          "max_uses": 1,
+          "use_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "APPROVED_08",
+      "name": "有效审批后一次性执行：部署内部接口配置",
+      "category": "valid_approval_allow",
+      "expected_effect": "allow",
+      "expected_reason_code": "L002_VALID_APPROVAL",
+      "input": {
+        "request_id": "req-approved-08",
+        "task_id": "task-approved-08",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "ops-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "ops_engineer"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "api.call",
+          "operation": "deploy",
+          "resource": "https://deploy.internal/v1",
+          "parameters": {
+            "host": "deploy.internal"
+          },
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {
+          "approval_id": "approval-task-approved-08",
+          "status": "approved",
+          "approver_id": "approver-001",
+          "approver_roles": [
+            "business_approver"
+          ],
+          "task_id": "task-approved-08",
+          "action_digest": "5c17adf986f8315c52d08dbd9555ac394f9324427552e71b74d61158a5c116c3",
+          "expires_at": "2026-08-04T10:30:00Z",
+          "max_uses": 1,
+          "use_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "APPROVED_09",
+      "name": "有效审批后一次性执行：在隔离浏览器提交外部表单",
+      "category": "valid_approval_allow",
+      "expected_effect": "allow",
+      "expected_reason_code": "L002_VALID_APPROVAL",
+      "input": {
+        "request_id": "req-approved-09",
+        "task_id": "task-approved-09",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "ops-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "ops_engineer"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "browser.automate",
+          "operation": "submit",
+          "resource": "https://api.gov.cn/form",
+          "parameters": {
+            "host": "api.gov.cn"
+          },
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "external",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": true,
+            "profile": "gvisor-restricted"
+          }
+        },
+        "approval": {
+          "approval_id": "approval-task-approved-09",
+          "status": "approved",
+          "approver_id": "approver-001",
+          "approver_roles": [
+            "business_approver"
+          ],
+          "task_id": "task-approved-09",
+          "action_digest": "d6b1da2c4d786d74ef7a7af548f9e6b9625ea805dc01032bb46ddf16f49d2692",
+          "expires_at": "2026-08-04T10:30:00Z",
+          "max_uses": 1,
+          "use_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "APPROVED_10",
+      "name": "有效审批后一次性执行：非工作时段的中风险查询",
+      "category": "valid_approval_allow",
+      "expected_effect": "allow",
+      "expected_reason_code": "L002_VALID_APPROVAL",
+      "input": {
+        "request_id": "req-approved-10",
+        "task_id": "task-approved-10",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "user-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "office_user"
+          ],
+          "clearance": 1,
+          "mfa": true
+        },
+        "action": {
+          "tool": "database.query",
+          "operation": "query",
+          "resource": "db://public/notices",
+          "parameters": {
+            "limit": 20,
+            "item_count": 20
+          },
+          "risk_level": "medium",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": false,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {
+          "approval_id": "approval-task-approved-10",
+          "status": "approved",
+          "approver_id": "approver-001",
+          "approver_roles": [
+            "business_approver"
+          ],
+          "task_id": "task-approved-10",
+          "action_digest": "d2d13a5720e4d4d639ac5b87717ab759476ad65bdd43a995723ed89d39cd43b4",
+          "expires_at": "2026-08-04T10:30:00Z",
+          "max_uses": 1,
+          "use_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "APPROVED_11",
+      "name": "有效审批后一次性执行：超过上限的批量查询",
+      "category": "valid_approval_allow",
+      "expected_effect": "allow",
+      "expected_reason_code": "L002_VALID_APPROVAL",
+      "input": {
+        "request_id": "req-approved-11",
+        "task_id": "task-approved-11",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "user-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "office_user"
+          ],
+          "clearance": 1,
+          "mfa": true
+        },
+        "action": {
+          "tool": "database.query",
+          "operation": "query",
+          "resource": "db://public/notices",
+          "parameters": {
+            "limit": 5000,
+            "item_count": 5000
+          },
+          "risk_level": "low",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {
+          "approval_id": "approval-task-approved-11",
+          "status": "approved",
+          "approver_id": "approver-001",
+          "approver_roles": [
+            "business_approver"
+          ],
+          "task_id": "task-approved-11",
+          "action_digest": "c1616fd9ea040ddc886a77517dcf0fb97268f72971e79a4637b1473cd02165fd",
+          "expires_at": "2026-08-04T10:30:00Z",
+          "max_uses": 1,
+          "use_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "APPROVED_12",
+      "name": "有效审批后一次性执行：读取机密档案",
+      "category": "valid_approval_allow",
+      "expected_effect": "allow",
+      "expected_reason_code": "L002_VALID_APPROVAL",
+      "input": {
+        "request_id": "req-approved-12",
+        "task_id": "task-approved-12",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "records-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "records_admin"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "file.read",
+          "operation": "read",
+          "resource": "/workspace/records/confidential.txt",
+          "parameters": {},
+          "risk_level": "medium",
+          "data_level": "confidential"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {
+          "approval_id": "approval-task-approved-12",
+          "status": "approved",
+          "approver_id": "approver-001",
+          "approver_roles": [
+            "business_approver"
+          ],
+          "task_id": "task-approved-12",
+          "action_digest": "111bf48ec90baa77bf69cb89833d933b91e1815daf0916078453635efbaea15c",
+          "expires_at": "2026-08-04T10:30:00Z",
+          "max_uses": 1,
+          "use_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "DENY_01",
+      "name": "未知工具",
+      "category": "hard_deny",
+      "expected_effect": "deny",
+      "expected_reason_code": "D002_UNTRUSTED_TOOL",
+      "input": {
+        "request_id": "req-deny-01",
+        "task_id": "task-deny-01",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "user-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "office_user"
+          ],
+          "clearance": 1,
+          "mfa": true
+        },
+        "action": {
+          "tool": "unknown.tool",
+          "operation": "query",
+          "resource": "db://public/notices",
+          "parameters": {
+            "limit": 20,
+            "item_count": 20
+          },
+          "risk_level": "low",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "DENY_02",
+      "name": "停用的第三方插件",
+      "category": "hard_deny",
+      "expected_effect": "deny",
+      "expected_reason_code": "D002_UNTRUSTED_TOOL",
+      "input": {
+        "request_id": "req-deny-02",
+        "task_id": "task-deny-02",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "user-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "office_user"
+          ],
+          "clearance": 1,
+          "mfa": true
+        },
+        "action": {
+          "tool": "plugin.run",
+          "operation": "execute",
+          "resource": "db://public/notices",
+          "parameters": {
+            "limit": 20,
+            "item_count": 20
+          },
+          "risk_level": "low",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "DENY_03",
+      "name": "办公人员越权付款",
+      "category": "hard_deny",
+      "expected_effect": "deny",
+      "expected_reason_code": "D003_ROLE_FORBIDDEN",
+      "input": {
+        "request_id": "req-deny-03",
+        "task_id": "task-deny-03",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "user-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "office_user"
+          ],
+          "clearance": 1,
+          "mfa": true
+        },
+        "action": {
+          "tool": "payment.transfer",
+          "operation": "transfer",
+          "resource": "erp://payments/A",
+          "parameters": {
+            "amount": 1000
+          },
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "DENY_04",
+      "name": "密级不足读取秘密数据",
+      "category": "hard_deny",
+      "expected_effect": "deny",
+      "expected_reason_code": "D004_CLEARANCE_INSUFFICIENT",
+      "input": {
+        "request_id": "req-deny-04",
+        "task_id": "task-deny-04",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "user-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "office_user"
+          ],
+          "clearance": 1,
+          "mfa": true
+        },
+        "action": {
+          "tool": "database.query",
+          "operation": "query",
+          "resource": "db://public/notices",
+          "parameters": {
+            "limit": 20,
+            "item_count": 20
+          },
+          "risk_level": "low",
+          "data_level": "secret"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "DENY_05",
+      "name": "普通用户读取系统保护文件",
+      "category": "hard_deny",
+      "expected_effect": "deny",
+      "expected_reason_code": "D005_PROTECTED_RESOURCE",
+      "input": {
+        "request_id": "req-deny-05",
+        "task_id": "task-deny-05",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "user-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "office_user"
+          ],
+          "clearance": 1,
+          "mfa": true
+        },
+        "action": {
+          "tool": "file.read",
+          "operation": "read",
+          "resource": "/etc/shadow",
+          "parameters": {},
+          "risk_level": "low",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "DENY_06",
+      "name": "秘密数据外发",
+      "category": "hard_deny",
+      "expected_effect": "deny",
+      "expected_reason_code": "D006_SENSITIVE_EXTERNAL_TRANSFER",
+      "input": {
+        "request_id": "req-deny-06",
+        "task_id": "task-deny-06",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "user-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "office_user"
+          ],
+          "clearance": 3,
+          "mfa": true
+        },
+        "action": {
+          "tool": "email.send",
+          "operation": "send_external",
+          "resource": "mailto:partner@example",
+          "parameters": {
+            "host": "mail.partner.example"
+          },
+          "risk_level": "high",
+          "data_level": "secret"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "external",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "DENY_07",
+      "name": "Linux 破坏性删除命令",
+      "category": "hard_deny",
+      "expected_effect": "deny",
+      "expected_reason_code": "D007_DANGEROUS_COMMAND",
+      "input": {
+        "request_id": "req-deny-07",
+        "task_id": "task-deny-07",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "ops-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "ops_engineer"
+          ],
+          "clearance": 3,
+          "mfa": true
+        },
+        "action": {
+          "tool": "shell.execute",
+          "operation": "execute",
+          "resource": "host://prod",
+          "parameters": {
+            "command": "rm -rf /"
+          },
+          "risk_level": "critical",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": true,
+            "profile": "gvisor-restricted"
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "DENY_08",
+      "name": "PowerShell 递归删除命令",
+      "category": "hard_deny",
+      "expected_effect": "deny",
+      "expected_reason_code": "D007_DANGEROUS_COMMAND",
+      "input": {
+        "request_id": "req-deny-08",
+        "task_id": "task-deny-08",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "ops-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "ops_engineer"
+          ],
+          "clearance": 3,
+          "mfa": true
+        },
+        "action": {
+          "tool": "shell.execute",
+          "operation": "execute",
+          "resource": "host://prod",
+          "parameters": {
+            "command": "Remove-Item C:\\data -Recurse -Force"
+          },
+          "risk_level": "critical",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": true,
+            "profile": "gvisor-restricted"
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "DENY_09",
+      "name": "高风险命令未进入沙箱",
+      "category": "hard_deny",
+      "expected_effect": "deny",
+      "expected_reason_code": "D008_SANDBOX_REQUIRED",
+      "input": {
+        "request_id": "req-deny-09",
+        "task_id": "task-deny-09",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "ops-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "ops_engineer"
+          ],
+          "clearance": 3,
+          "mfa": true
+        },
+        "action": {
+          "tool": "shell.execute",
+          "operation": "execute",
+          "resource": "host://prod",
+          "parameters": {
+            "command": "Get-Service"
+          },
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "DENY_10",
+      "name": "绕过统一网关直接调用",
+      "category": "hard_deny",
+      "expected_effect": "deny",
+      "expected_reason_code": "D009_GATEWAY_BYPASS",
+      "input": {
+        "request_id": "req-deny-10",
+        "task_id": "task-deny-10",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "user-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "office_user"
+          ],
+          "clearance": 1,
+          "mfa": true
+        },
+        "action": {
+          "tool": "database.query",
+          "operation": "query",
+          "resource": "db://public/notices",
+          "parameters": {
+            "limit": 20,
+            "item_count": 20
+          },
+          "risk_level": "low",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "direct",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "DENY_11",
+      "name": "任务链异常重复执行",
+      "category": "hard_deny",
+      "expected_effect": "deny",
+      "expected_reason_code": "D010_ANOMALOUS_REPEAT",
+      "input": {
+        "request_id": "req-deny-11",
+        "task_id": "task-deny-11",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "user-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "office_user"
+          ],
+          "clearance": 1,
+          "mfa": true
+        },
+        "action": {
+          "tool": "database.query",
+          "operation": "query",
+          "resource": "db://public/notices",
+          "parameters": {
+            "limit": 20,
+            "item_count": 20
+          },
+          "risk_level": "low",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 5
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "DENY_12",
+      "name": "访问未列入白名单的外部主机",
+      "category": "hard_deny",
+      "expected_effect": "deny",
+      "expected_reason_code": "D011_EGRESS_NOT_ALLOWED",
+      "input": {
+        "request_id": "req-deny-12",
+        "task_id": "task-deny-12",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "ops-001",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "ops_engineer"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "api.call",
+          "operation": "invoke",
+          "resource": "https://evil.example/api",
+          "parameters": {
+            "host": "evil.example"
+          },
+          "risk_level": "medium",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "external",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "DENY_13",
+      "name": "请求缺少主体标识",
+      "category": "hard_deny",
+      "expected_effect": "deny",
+      "expected_reason_code": "D001_MISSING_FIELD",
+      "input": {
+        "request_id": "req-deny-13",
+        "task_id": "task-deny-13",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "",
+          "type": "user",
+          "department": "综合办公室",
+          "roles": [
+            "office_user"
+          ],
+          "clearance": 1,
+          "mfa": true
+        },
+        "action": {
+          "tool": "database.query",
+          "operation": "query",
+          "resource": "db://public/notices",
+          "parameters": {
+            "limit": 20,
+            "item_count": 20
+          },
+          "risk_level": "low",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {}
+      }
+    },
+    {
+      "case_id": "INVALID_01",
+      "name": "审批后篡改付款金额",
+      "category": "invalid_approval",
+      "expected_effect": "deny",
+      "expected_reason_code": "D103_APPROVAL_ACTION_TAMPERED",
+      "input": {
+        "request_id": "req-invalid_01",
+        "task_id": "task-invalid-base",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "finance-001",
+          "type": "user",
+          "department": "财务部",
+          "roles": [
+            "finance_operator"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "payment.transfer",
+          "operation": "transfer",
+          "resource": "erp://payments/supplier-A",
+          "parameters": {
+            "amount": 50000,
+            "currency": "CNY"
+          },
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {
+          "approval_id": "approval-task-invalid-base",
+          "status": "approved",
+          "approver_id": "approver-001",
+          "approver_roles": [
+            "business_approver"
+          ],
+          "task_id": "task-invalid-base",
+          "action_digest": "7e2128a641bd1dceaafb147e6ec4941da707c36bfc7cddee346c9eed1939e8f8",
+          "expires_at": "2026-08-04T10:30:00Z",
+          "max_uses": 1,
+          "use_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "INVALID_02",
+      "name": "跨任务复用审批",
+      "category": "invalid_approval",
+      "expected_effect": "deny",
+      "expected_reason_code": "D102_APPROVAL_TASK_MISMATCH",
+      "input": {
+        "request_id": "req-invalid_02",
+        "task_id": "task-other",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "finance-001",
+          "type": "user",
+          "department": "财务部",
+          "roles": [
+            "finance_operator"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "payment.transfer",
+          "operation": "transfer",
+          "resource": "erp://payments/supplier-A",
+          "parameters": {
+            "amount": 5000,
+            "currency": "CNY"
+          },
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {
+          "approval_id": "approval-task-invalid-base",
+          "status": "approved",
+          "approver_id": "approver-001",
+          "approver_roles": [
+            "business_approver"
+          ],
+          "task_id": "task-invalid-base",
+          "action_digest": "7e2128a641bd1dceaafb147e6ec4941da707c36bfc7cddee346c9eed1939e8f8",
+          "expires_at": "2026-08-04T10:30:00Z",
+          "max_uses": 1,
+          "use_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "INVALID_03",
+      "name": "使用过期审批",
+      "category": "invalid_approval",
+      "expected_effect": "deny",
+      "expected_reason_code": "D104_APPROVAL_EXPIRED",
+      "input": {
+        "request_id": "req-invalid_03",
+        "task_id": "task-invalid-base",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "finance-001",
+          "type": "user",
+          "department": "财务部",
+          "roles": [
+            "finance_operator"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "payment.transfer",
+          "operation": "transfer",
+          "resource": "erp://payments/supplier-A",
+          "parameters": {
+            "amount": 5000,
+            "currency": "CNY"
+          },
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {
+          "approval_id": "approval-task-invalid-base",
+          "status": "approved",
+          "approver_id": "approver-001",
+          "approver_roles": [
+            "business_approver"
+          ],
+          "task_id": "task-invalid-base",
+          "action_digest": "7e2128a641bd1dceaafb147e6ec4941da707c36bfc7cddee346c9eed1939e8f8",
+          "expires_at": "2026-08-04T09:59:59Z",
+          "max_uses": 1,
+          "use_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "INVALID_04",
+      "name": "发起人自我审批",
+      "category": "invalid_approval",
+      "expected_effect": "deny",
+      "expected_reason_code": "D105_SELF_APPROVAL",
+      "input": {
+        "request_id": "req-invalid_04",
+        "task_id": "task-invalid-base",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "finance-001",
+          "type": "user",
+          "department": "财务部",
+          "roles": [
+            "finance_operator"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "payment.transfer",
+          "operation": "transfer",
+          "resource": "erp://payments/supplier-A",
+          "parameters": {
+            "amount": 5000,
+            "currency": "CNY"
+          },
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {
+          "approval_id": "approval-task-invalid-base",
+          "status": "approved",
+          "approver_id": "finance-001",
+          "approver_roles": [
+            "business_approver"
+          ],
+          "task_id": "task-invalid-base",
+          "action_digest": "7e2128a641bd1dceaafb147e6ec4941da707c36bfc7cddee346c9eed1939e8f8",
+          "expires_at": "2026-08-04T10:30:00Z",
+          "max_uses": 1,
+          "use_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "INVALID_05",
+      "name": "无审批权限人员批准",
+      "category": "invalid_approval",
+      "expected_effect": "deny",
+      "expected_reason_code": "D106_APPROVER_FORBIDDEN",
+      "input": {
+        "request_id": "req-invalid_05",
+        "task_id": "task-invalid-base",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "finance-001",
+          "type": "user",
+          "department": "财务部",
+          "roles": [
+            "finance_operator"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "payment.transfer",
+          "operation": "transfer",
+          "resource": "erp://payments/supplier-A",
+          "parameters": {
+            "amount": 5000,
+            "currency": "CNY"
+          },
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {
+          "approval_id": "approval-task-invalid-base",
+          "status": "approved",
+          "approver_id": "approver-001",
+          "approver_roles": [
+            "office_user"
+          ],
+          "task_id": "task-invalid-base",
+          "action_digest": "7e2128a641bd1dceaafb147e6ec4941da707c36bfc7cddee346c9eed1939e8f8",
+          "expires_at": "2026-08-04T10:30:00Z",
+          "max_uses": 1,
+          "use_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "INVALID_06",
+      "name": "一次性审批被重复使用",
+      "category": "invalid_approval",
+      "expected_effect": "deny",
+      "expected_reason_code": "D107_APPROVAL_REUSED",
+      "input": {
+        "request_id": "req-invalid_06",
+        "task_id": "task-invalid-base",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "finance-001",
+          "type": "user",
+          "department": "财务部",
+          "roles": [
+            "finance_operator"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "payment.transfer",
+          "operation": "transfer",
+          "resource": "erp://payments/supplier-A",
+          "parameters": {
+            "amount": 5000,
+            "currency": "CNY"
+          },
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {
+          "approval_id": "approval-task-invalid-base",
+          "status": "approved",
+          "approver_id": "approver-001",
+          "approver_roles": [
+            "business_approver"
+          ],
+          "task_id": "task-invalid-base",
+          "action_digest": "7e2128a641bd1dceaafb147e6ec4941da707c36bfc7cddee346c9eed1939e8f8",
+          "expires_at": "2026-08-04T10:30:00Z",
+          "max_uses": 1,
+          "use_count": 1
+        }
+      }
+    },
+    {
+      "case_id": "INVALID_07",
+      "name": "提交被拒绝的审批",
+      "category": "invalid_approval",
+      "expected_effect": "deny",
+      "expected_reason_code": "D101_APPROVAL_STATUS",
+      "input": {
+        "request_id": "req-invalid_07",
+        "task_id": "task-invalid-base",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "finance-001",
+          "type": "user",
+          "department": "财务部",
+          "roles": [
+            "finance_operator"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "payment.transfer",
+          "operation": "transfer",
+          "resource": "erp://payments/supplier-A",
+          "parameters": {
+            "amount": 5000,
+            "currency": "CNY"
+          },
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {
+          "approval_id": "approval-task-invalid-base",
+          "status": "rejected",
+          "approver_id": "approver-001",
+          "approver_roles": [
+            "business_approver"
+          ],
+          "task_id": "task-invalid-base",
+          "action_digest": "7e2128a641bd1dceaafb147e6ec4941da707c36bfc7cddee346c9eed1939e8f8",
+          "expires_at": "2026-08-04T10:30:00Z",
+          "max_uses": 1,
+          "use_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "INVALID_08",
+      "name": "将一次性审批改成多次使用",
+      "category": "invalid_approval",
+      "expected_effect": "deny",
+      "expected_reason_code": "D107_APPROVAL_REUSED",
+      "input": {
+        "request_id": "req-invalid_08",
+        "task_id": "task-invalid-base",
+        "timestamp": "2026-08-04T10:00:00Z",
+        "subject": {
+          "id": "finance-001",
+          "type": "user",
+          "department": "财务部",
+          "roles": [
+            "finance_operator"
+          ],
+          "clearance": 2,
+          "mfa": true
+        },
+        "action": {
+          "tool": "payment.transfer",
+          "operation": "transfer",
+          "resource": "erp://payments/supplier-A",
+          "parameters": {
+            "amount": 5000,
+            "currency": "CNY"
+          },
+          "risk_level": "high",
+          "data_level": "internal"
+        },
+        "context": {
+          "source": "mcp",
+          "destination_zone": "internal",
+          "enforcement_point": "gateway",
+          "business_hours": true,
+          "repeat_count": 0
+        },
+        "environment": {
+          "sandbox": {
+            "enabled": false,
+            "profile": ""
+          }
+        },
+        "approval": {
+          "approval_id": "approval-task-invalid-base",
+          "status": "approved",
+          "approver_id": "approver-001",
+          "approver_roles": [
+            "business_approver"
+          ],
+          "task_id": "task-invalid-base",
+          "action_digest": "7e2128a641bd1dceaafb147e6ec4941da707c36bfc7cddee346c9eed1939e8f8",
+          "expires_at": "2026-08-04T10:30:00Z",
+          "max_uses": 2,
+          "use_count": 0
+        }
+      }
+    }
+  ]
+}

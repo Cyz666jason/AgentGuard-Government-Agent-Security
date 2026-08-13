@@ -1,0 +1,4 @@
+-r requirements-approval.txt
+wasmtime==47.0.1
+PyJWT[crypto]==2.10.1
+pycdlib==1.14.0

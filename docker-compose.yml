@@ -1,0 +1,19 @@
+services:
+  opa:
+    image: openpolicyagent/opa:1.19.0-static
+    command:
+      - run
+      - --server
+      - --addr=0.0.0.0:8181
+      - --config-file=/config/opa.yaml
+      - /policy
+      - /data
+    ports:
+      - "8181:8181"
+    volumes:
+      - ./policy:/policy:ro
+      - ./data:/data:ro
+      - ./config:/config:ro
+    read_only: true
+    security_opt:
+      - no-new-privileges:true

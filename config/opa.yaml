@@ -1,0 +1,8 @@
+labels:
+  app: agent-guard
+  scenario: government-enterprise-agent
+
+decision_logs:
+  console: true
+
+default_decision: /agent/guard/decision
