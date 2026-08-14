@@ -34,3 +34,4 @@ reports/*console*
 reports/automation_*
 reports/*stdout.log
 reports/*stderr.log
+reports/python_dependency_install.json
