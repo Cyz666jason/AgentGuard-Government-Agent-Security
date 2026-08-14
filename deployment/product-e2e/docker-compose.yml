@@ -53,8 +53,11 @@ services:
     depends_on:
       - backend
       - opa-envoy
-    networks: [agentguard-internal]
+    # Only Envoy is dual-homed: the edge network makes the localhost-published
+    # test port reachable, while OPA and the backend remain internal-only.
+    networks: [agentguard-edge, agentguard-internal]
 
 networks:
+  agentguard-edge:
   agentguard-internal:
     internal: true

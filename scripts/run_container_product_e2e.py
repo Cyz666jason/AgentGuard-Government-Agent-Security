@@ -105,10 +105,12 @@ def wait_for_envoy() -> None:
     raise RuntimeError("Envoy did not become reachable")
 
 
-def raw_docker_up(runtime: str, run_id: str, environment: dict[str, str]) -> tuple[str, str]:
+def raw_docker_up(runtime: str, run_id: str, environment: dict[str, str]) -> str:
     network = f"agentguard-internal-{run_id}"
+    edge_network = f"agentguard-edge-{run_id}"
     backend_image = f"agentguard-product-backend:{run_id}"
     run([runtime, "network", "create", "--internal", network], env=environment)
+    run([runtime, "network", "create", edge_network], env=environment)
     run(
         [
             runtime,
@@ -189,13 +191,16 @@ def raw_docker_up(runtime: str, run_id: str, environment: dict[str, str]) -> tup
         ],
         env=environment,
     )
-    return network, backend_image
+    # Give only Envoy a route to the host-facing published port.  OPA and the
+    # protected backend stay exclusively on the internal network.
+    run([runtime, "network", "connect", edge_network, CONTAINERS[2]], env=environment)
+    return backend_image
 
 
-def raw_docker_down(runtime: str, network: str, backend_image: str, environment) -> None:
+def raw_docker_down(runtime: str, networks: list[str], backend_image: str, environment) -> None:
     for container in reversed(CONTAINERS):
         run([runtime, "rm", "-f", container], check=False, env=environment)
-    if network:
+    for network in networks:
         run([runtime, "network", "rm", network], check=False, env=environment)
     if backend_image:
         run([runtime, "image", "rm", backend_image], check=False, env=environment)
@@ -233,7 +238,7 @@ def main() -> int:
     ticket_secret = secrets.token_bytes(32)
     environment = os.environ.copy()
     environment["AGENTGUARD_CONTAINER_TICKET_SECRET"] = ticket_secret.hex()
-    raw_network = ""
+    raw_networks: list[str] = []
     raw_backend_image = ""
     failure: dict[str, object] | None = None
     container_diagnostics: dict[str, dict[str, object]] = {}
@@ -241,9 +246,11 @@ def main() -> int:
         if compose_available:
             run([*compose, "up", "-d", "--build"], env=environment)
         else:
-            raw_network = f"agentguard-internal-{run_id}"
-            raw_backend_image = f"agentguard-product-backend:{run_id}"
-            raw_docker_up(runtime, run_id, environment)
+            raw_networks = [
+                f"agentguard-internal-{run_id}",
+                f"agentguard-edge-{run_id}",
+            ]
+            raw_backend_image = raw_docker_up(runtime, run_id, environment)
         wait_for_envoy()
         denied_status, _ = request()
         forged_status, _ = request("container-e2e-forged-ticket")
@@ -361,7 +368,7 @@ def main() -> int:
             )
         else:
             raw_docker_down(
-                runtime, raw_network, raw_backend_image, environment
+                runtime, raw_networks, raw_backend_image, environment
             )
 
     report = {
