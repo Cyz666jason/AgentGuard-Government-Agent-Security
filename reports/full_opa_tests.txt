@@ -1,64 +1,64 @@
-﻿tests\agent_guard_test.rego:255:
-data.agent.guard_test.test_decision_log_masks_password: PASS (2.6078ms)
-tests\agent_guard_test.rego:260:
-data.agent.guard_test.test_decision_log_masks_token: PASS (2.6078ms)
-tests\agent_guard_test.rego:103:
-data.agent.guard_test.test_empty_input_detects_all_required_fields: PASS (5.5483ms)
-tests\agent_guard_test.rego:265:
-data.agent.guard_test.test_decision_log_masks_api_key: PASS (4.6914ms)
-tests\agent_guard_test.rego:270:
-data.agent.guard_test.test_decision_log_masks_approval_digest: PASS (3.1178ms)
-tests\agent_guard_test.rego:136:
-data.agent.guard_test.test_protected_resource_is_denied: PASS (15.5435ms)
-tests\agent_guard_test.rego:174:
-data.agent.guard_test.test_repeated_task_chain_is_denied: PASS (16.3057ms)
-tests\agent_guard_test.rego:121:
-data.agent.guard_test.test_disabled_plugin_is_denied: PASS (17.9262ms)
-tests\agent_guard_test.rego:95:
-data.agent.guard_test.test_low_risk_query_is_allowed: PASS (17.9262ms)
-tests\agent_guard_test.rego:169:
-data.agent.guard_test.test_gateway_bypass_is_denied: PASS (16.5492ms)
-tests\agent_guard_test.rego:232:
-data.agent.guard_test.test_audit_record_contains_core_fields: PASS (17.3114ms)
-tests\agent_guard_test.rego:141:
-data.agent.guard_test.test_sensitive_external_transfer_is_denied: PASS (18.9393ms)
-tests\agent_guard_test.rego:99:
-data.agent.guard_test.test_low_risk_query_does_not_need_approval: PASS (18.9393ms)
-tests\agent_guard_test.rego:179:
-data.agent.guard_test.test_unknown_external_host_is_denied: PASS (17.5623ms)
-tests\agent_guard_test.rego:240:
-data.agent.guard_test.test_high_risk_output_requests_defence_in_depth: PASS (16.513ms)
-tests\agent_guard_test.rego:222:
-data.agent.guard_test.test_reused_approval_is_denied: PASS (15.9887ms)
-tests\agent_guard_test.rego:116:
-data.agent.guard_test.test_untrusted_tool_is_denied: PASS (18.9393ms)
-tests\agent_guard_test.rego:164:
-data.agent.guard_test.test_high_risk_shell_without_sandbox_is_denied: PASS (21.3435ms)
-tests\agent_guard_test.rego:126:
-data.agent.guard_test.test_role_violation_is_denied: PASS (20.5813ms)
-tests\agent_guard_test.rego:108:
-data.agent.guard_test.test_high_risk_payment_pauses_for_approval: PASS (21.9583ms)
-tests\agent_guard_test.rego:131:
-data.agent.guard_test.test_clearance_violation_is_denied: PASS (19.0077ms)
-tests\agent_guard_test.rego:202:
-data.agent.guard_test.test_approval_cannot_cross_task: PASS (20.5813ms)
-tests\agent_guard_test.rego:227:
-data.agent.guard_test.test_rejected_approval_is_denied: PASS (23.8662ms)
-tests\agent_guard_test.rego:112:
-data.agent.guard_test.test_valid_bound_approval_allows_once: PASS (24.481ms)
-tests\agent_guard_test.rego:217:
-data.agent.guard_test.test_unauthorized_approver_is_denied: PASS (23.8662ms)
-tests\agent_guard_test.rego:207:
-data.agent.guard_test.test_expired_approval_is_denied: PASS (23.104ms)
-tests\agent_guard_test.rego:212:
-data.agent.guard_test.test_self_approval_is_denied: PASS (24.481ms)
-tests\agent_guard_test.rego:248:
-data.agent.guard_test.test_action_digest_changes_when_parameters_change: PASS (25.8686ms)
-tests\agent_guard_test.rego:157:
-data.agent.guard_test.test_dangerous_command_cannot_be_approved: PASS (24.5806ms)
-tests\agent_guard_test.rego:195:
-data.agent.guard_test.test_changed_amount_after_approval_is_denied: PASS (26.6131ms)
-tests\agent_guard_test.rego:287:
-data.agent.guard_test.test_generated_dataset_all_cases: PASS (290.3905ms)
+﻿tests\agent_guard_test.rego:256:
+data.agent.guard_test.test_decision_log_masks_password: PASS (6.9064ms)
+tests\agent_guard_test.rego:266:
+data.agent.guard_test.test_decision_log_masks_api_key: PASS (8.1218ms)
+tests\agent_guard_test.rego:271:
+data.agent.guard_test.test_decision_log_masks_approval_digest: PASS (10.1537ms)
+tests\agent_guard_test.rego:104:
+data.agent.guard_test.test_empty_input_detects_all_required_fields: PASS (10.6832ms)
+tests\agent_guard_test.rego:261:
+data.agent.guard_test.test_decision_log_masks_token: PASS (3.8256ms)
+tests\agent_guard_test.rego:117:
+data.agent.guard_test.test_untrusted_tool_is_denied: PASS (17.2482ms)
+tests\agent_guard_test.rego:96:
+data.agent.guard_test.test_low_risk_query_is_allowed: PASS (23.3188ms)
+tests\agent_guard_test.rego:132:
+data.agent.guard_test.test_clearance_violation_is_denied: PASS (23.8669ms)
+tests\agent_guard_test.rego:137:
+data.agent.guard_test.test_protected_resource_is_denied: PASS (23.8701ms)
+tests\agent_guard_test.rego:100:
+data.agent.guard_test.test_low_risk_query_does_not_need_approval: PASS (23.8701ms)
+tests\agent_guard_test.rego:122:
+data.agent.guard_test.test_disabled_plugin_is_denied: PASS (24.9378ms)
+tests\agent_guard_test.rego:165:
+data.agent.guard_test.test_high_risk_shell_without_sandbox_is_denied: PASS (24.9225ms)
+tests\agent_guard_test.rego:233:
+data.agent.guard_test.test_audit_record_contains_core_fields: PASS (25.4492ms)
+tests\agent_guard_test.rego:175:
+data.agent.guard_test.test_repeated_task_chain_is_denied: PASS (25.9787ms)
+tests\agent_guard_test.rego:180:
+data.agent.guard_test.test_unknown_external_host_is_denied: PASS (17.9067ms)
+tests\agent_guard_test.rego:170:
+data.agent.guard_test.test_gateway_bypass_is_denied: PASS (26.0285ms)
+tests\agent_guard_test.rego:142:
+data.agent.guard_test.test_sensitive_external_transfer_is_denied: PASS (26.5506ms)
+tests\agent_guard_test.rego:213:
+data.agent.guard_test.test_self_approval_is_denied: PASS (26.5506ms)
+tests\agent_guard_test.rego:127:
+data.agent.guard_test.test_role_violation_is_denied: PASS (27.0801ms)
+tests\agent_guard_test.rego:109:
+data.agent.guard_test.test_high_risk_payment_pauses_for_approval: PASS (27.0801ms)
+tests\agent_guard_test.rego:241:
+data.agent.guard_test.test_high_risk_output_requests_defence_in_depth: PASS (27.0777ms)
+tests\agent_guard_test.rego:113:
+data.agent.guard_test.test_valid_bound_approval_allows_once: PASS (28.1309ms)
+tests\agent_guard_test.rego:228:
+data.agent.guard_test.test_rejected_approval_is_denied: PASS (27.6014ms)
+tests\agent_guard_test.rego:203:
+data.agent.guard_test.test_approval_cannot_cross_task: PASS (27.6014ms)
+tests\agent_guard_test.rego:218:
+data.agent.guard_test.test_unauthorized_approver_is_denied: PASS (20.695ms)
+tests\agent_guard_test.rego:223:
+data.agent.guard_test.test_reused_approval_is_denied: PASS (27.6014ms)
+tests\agent_guard_test.rego:208:
+data.agent.guard_test.test_expired_approval_is_denied: PASS (21.211ms)
+tests\agent_guard_test.rego:249:
+data.agent.guard_test.test_action_digest_changes_when_parameters_change: PASS (28.6362ms)
+tests\agent_guard_test.rego:158:
+data.agent.guard_test.test_dangerous_command_cannot_be_approved: PASS (29.6861ms)
+tests\agent_guard_test.rego:196:
+data.agent.guard_test.test_changed_amount_after_approval_is_denied: PASS (30.7325ms)
+tests\agent_guard_test.rego:288:
+data.agent.guard_test.test_generated_dataset_all_cases: PASS (290.0246ms)
 --------------------------------------------------------------------------------
 PASS: 31/31

@@ -1,36 +1,37 @@
 {
-  "generated_at": "2026-08-14T03:09:41.294719+08:00",
+  "run_id": "standalone",
+  "generated_at": "2026-08-14T06:19:13.742936+08:00",
   "all_production_items_completed": false,
   "items": [
     {
       "item": "OPA-Envoy产品容器E2E",
       "status": "blocked_external_environment",
-      "evidence": "策略4/4；QEMU Linux启动=True；容器E2E=False",
-      "blocker": "Windows未启用WSL/Hyper-V，且无Docker/Podman运行时"
+      "evidence": "策略4/4；容器E2E=False；run_id=403cfd8e1f22；fresh=True",
+      "blocker": "当前机器无Docker/Podman；脚本已就绪，有运行时会真实启动并做故障注入"
     },
     {
       "item": "ToolHive MCP容器E2E",
       "status": "blocked_external_environment",
-      "evidence": "CLI/checksum=True；container=False",
+      "evidence": "CLI/checksum=True；container=False；run_id=403cfd8e1f22",
       "blocker": "ToolHive doctor确认没有Docker/Podman/Kubernetes"
     },
     {
       "item": "外部密钥与共享票据状态",
-      "status": "completed_test_environment",
-      "evidence": "OpenBao Transit+KV 7/7",
-      "blocker": "本机dev server不是多节点OpenBao生产集群"
+      "status": "completed_ha_test_environment",
+      "evidence": "OpenBao Transit+KV 10/10 run_id=403cfd8e1f22；三节点Raft故障切换 8/8 run_id=403cfd8e1f22",
+      "blocker": "本机三进程已验证HA；正式生产仍需跨故障域、TLS、自动解封、备份恢复和容量压测"
     },
     {
       "item": "原生程序独立来宾内核隔离",
       "status": "completed_test_environment",
-      "evidence": "QEMU guest kernel 9/9",
+      "evidence": "QEMU guest kernel 11/11；run_id=403cfd8e1f22；fresh=True",
       "blocker": "不是Kata/Firecracker，当前为TCG软件模拟且无KVM"
     },
     {
       "item": "真实业务系统凭据与E2E",
       "status": "ready_for_credentials",
-      "evidence": "HTTPS、主机白名单、CA、幂等键、审批检查和fail-closed适配器已实现",
-      "blocker": "未提供单位批准的预生产URL、令牌和CA，不会生成或猜测真实凭据"
+      "evidence": "HTTPS、主机白名单、CA、幂等键、双确认写门、可信OIDC审批与对账状态已实现；报告=skipped_missing_authorized_credentials",
+      "blocker": "未提供单位批准的预生产URL、令牌、CA和审批人OIDC令牌，不会生成或猜测真实凭据"
     },
     {
       "item": "脱敏生产数据",

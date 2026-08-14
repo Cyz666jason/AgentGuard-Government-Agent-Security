@@ -7,8 +7,10 @@ import json
 import os
 import sys
 import tempfile
+import time
 import urllib.error
 import urllib.request
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from pathlib import Path
@@ -19,6 +21,7 @@ SCRIPT_ROOT = Path(__file__).resolve().parents[1]
 if str(SCRIPT_ROOT) not in sys.path:
     sys.path.insert(0, str(SCRIPT_ROOT))
 
+from approval import ApprovalCredentialService, OpenBaoKvApprovalLedger
 from approval.workflow import PROJECT_ROOT
 from enforcement import (
     OpenBaoKvTicketLedger,
@@ -69,16 +72,25 @@ def ensure_mount(address: str, token: str, name: str, mount_type: str) -> None:
     )
     if status not in {200, 204, 400}:
         raise RuntimeError(f"enable mount {name} failed: HTTP {status}")
+    # A newly enabled KV v2 mount briefly returns HTTP 400 while OpenBao
+    # finishes its internal versioned-storage upgrade.  Probe an inert key so
+    # the E2E does not race the first real ticket write.
+    if mount_type == "kv" and status in {200, 204}:
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline:
+            probe_status, _ = api_request(
+                address, token, "GET", f"{name}/data/__agentguard_readiness__"
+            )
+            if probe_status in {200, 404}:
+                return
+            time.sleep(0.2)
+        raise RuntimeError(f"KV v2 mount {name} did not become ready")
 
 
-def main() -> int:
-    address = os.environ.get("AGENTGUARD_BAO_ADDR", "http://127.0.0.1:18200")
-    token = os.environ.get("AGENTGUARD_BAO_TOKEN", "")
-    if not token:
-        raise RuntimeError("缺少 AGENTGUARD_BAO_TOKEN")
-
+def run_e2e(address: str, token: str, report_path: Path) -> dict[str, Any]:
     ensure_mount(address, token, "transit", "transit")
     ensure_mount(address, token, "agentguard-tickets", "kv")
+    ensure_mount(address, token, "agentguard-approvals", "kv")
     create_status, _ = api_request(
         address,
         token,
@@ -88,12 +100,28 @@ def main() -> int:
     )
     if create_status not in {200, 204}:
         raise RuntimeError(f"create transit key failed: HTTP {create_status}")
+    approval_key_status, _ = api_request(
+        address,
+        token,
+        "POST",
+        "transit/keys/agentguard-approval",
+        {"type": "aes256-gcm96", "derived": False},
+    )
+    if approval_key_status not in {200, 204}:
+        raise RuntimeError(
+            f"create approval transit key failed: HTTP {approval_key_status}"
+        )
 
     signer = OpenBaoTransitSigner(address, token)
     ledger = OpenBaoKvTicketLedger(address, token)
+    approval_service = ApprovalCredentialService(
+        OpenBaoTransitSigner(address, token, key_name="agentguard-approval"),
+        OpenBaoKvApprovalLedger(address, token),
+    )
     sample = json.loads(
         (PROJECT_ROOT / "samples" / "allow_low_risk.json").read_text(encoding="utf-8")
     )
+    run_id = uuid.uuid4().hex[:12]
 
     with tempfile.TemporaryDirectory() as raw_state:
         state = Path(raw_state)
@@ -102,17 +130,25 @@ def main() -> int:
             signer=signer,
             ledger=ledger,
             opa_client=AlwaysAllowOpa(),
+            approval_service=approval_service,
         )
         gateway_b = build_gateway(
             state / "gateway-b",
             signer=signer,
             ledger=ledger,
             opa_client=AlwaysAllowOpa(),
+            approval_service=approval_service,
         )
 
         old_request = copy.deepcopy(sample)
-        old_request["task_id"] = "openbao-before-rotation"
-        old_ticket = gateway_a.authorize(old_request)["ticket"]
+        old_request["task_id"] = f"openbao-before-rotation-{run_id}"
+        old_authorization = gateway_a.authorize(old_request)
+        if old_authorization.get("status") != "authorized":
+            raise RuntimeError(
+                "OpenBao ticket authorization failed: "
+                + json.dumps(old_authorization, ensure_ascii=False)
+            )
+        old_ticket = old_authorization["ticket"]
 
         rotate_status, _ = api_request(
             address, token, "POST", "transit/keys/agentguard-ticket/rotate", {}
@@ -121,11 +157,11 @@ def main() -> int:
         old_after_rotation = gateway_b.dispatch(old_request, old_ticket)
 
         new_request = copy.deepcopy(sample)
-        new_request["task_id"] = "openbao-after-rotation"
+        new_request["task_id"] = f"openbao-after-rotation-{run_id}"
         new_result = gateway_b.invoke(new_request)
 
         race_request = copy.deepcopy(sample)
-        race_request["task_id"] = "openbao-two-gateway-race"
+        race_request["task_id"] = f"openbao-two-gateway-race-{run_id}"
         race_ticket = gateway_a.authorize(race_request)["ticket"]
 
         def consume(index: int) -> dict[str, Any]:
@@ -139,6 +175,34 @@ def main() -> int:
             item for item in race_results if item["reason_code"] == "G206_TICKET_REPLAY"
         ]
 
+        approval_request = json.loads(
+            (PROJECT_ROOT / "samples" / "require_approval.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        approval_request["task_id"] = f"openbao-approval-race-{run_id}"
+        approval_request["approval"] = approval_service.issue(
+            approval_request,
+            compute_action_digest(approval_request),
+            "openbao-approver",
+            ["business_approver"],
+        )
+
+        def authorize_approval(index: int) -> dict[str, Any]:
+            gateway = gateway_a if index % 2 == 0 else gateway_b
+            return gateway.authorize(copy.deepcopy(approval_request))
+
+        with ThreadPoolExecutor(max_workers=16) as pool:
+            approval_race = list(pool.map(authorize_approval, range(32)))
+        approval_authorized = [
+            item for item in approval_race if item.get("status") == "authorized"
+        ]
+        approval_replayed = [
+            item
+            for item in approval_race
+            if item.get("reason_code") == "G012_APPROVAL_REPLAY"
+        ]
+
         outage_signer = OpenBaoTransitSigner(
             "http://127.0.0.1:1", "unreachable", timeout_seconds=0.2
         )
@@ -149,21 +213,25 @@ def main() -> int:
             opa_client=AlwaysAllowOpa(),
         )
         outage_request = copy.deepcopy(sample)
-        outage_request["task_id"] = "openbao-outage"
+        outage_request["task_id"] = f"openbao-outage-{run_id}"
         outage_result = outage_gateway.invoke(outage_request)
 
     checks = {
         "transit_key_created_and_externalized": create_status in {200, 204},
+        "separate_approval_transit_key_created": approval_key_status in {200, 204},
         "transit_key_rotated": rotated,
         "pre_rotation_ticket_valid_after_rotation": old_after_rotation["status"]
         == "executed_isolated",
         "post_rotation_ticket_executes": new_result["status"] == "executed_isolated",
         "two_gateway_instances_share_one_ledger": len(executed) == 1,
         "concurrent_replay_blocked": len(replayed) == 31,
+        "two_gateways_share_atomic_approval_ledger": len(approval_authorized) == 1,
+        "concurrent_approval_reuse_blocked": len(approval_replayed) == 31,
         "signer_outage_fails_closed": outage_result.get("reason_code")
         == "G208_TICKET_SIGNER_UNAVAILABLE",
     }
     report = {
+        "run_id": os.environ.get("AGENTGUARD_RUN_ID", "standalone"),
         "generated_at": datetime.now().astimezone().isoformat(),
         "service": "OpenBao Transit + KV v2",
         "address": address,
@@ -176,15 +244,27 @@ def main() -> int:
             "executed": len(executed),
             "replay_blocked": len(replayed),
             "gateway_instances": 2,
+            "approval_attempts": len(approval_race),
+            "approval_authorized": len(approval_authorized),
+            "approval_replay_blocked": len(approval_replayed),
         },
-        "boundary": "本报告证明外部密钥服务、轮换和共享CAS核销；本机dev server不是多节点生产OpenBao集群。",
+        "boundary": "本报告证明票据与审批分别使用外部密钥、轮换和共享CAS核销；本机dev server不是多节点生产OpenBao集群。",
     }
-    report_path = PROJECT_ROOT / "reports" / "openbao_kms_ha_e2e.json"
     report_path.write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
+    return report
+
+
+def main() -> int:
+    address = os.environ.get("AGENTGUARD_BAO_ADDR", "http://127.0.0.1:18200")
+    token = os.environ.get("AGENTGUARD_BAO_TOKEN", "")
+    if not token:
+        raise RuntimeError("缺少 AGENTGUARD_BAO_TOKEN")
+    report_path = PROJECT_ROOT / "reports" / "openbao_kms_ha_e2e.json"
+    report = run_e2e(address, token, report_path)
     print(json.dumps({"passed": report["passed"], "total": report["total"]}))
-    return 0 if all(checks.values()) else 1
+    return 0 if report["passed"] == report["total"] else 1
 
 
 if __name__ == "__main__":

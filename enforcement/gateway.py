@@ -3,19 +3,25 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import secrets
 import uuid
 from pathlib import Path
 from typing import Any, Mapping
 
 from approval.workflow import OpaClient, PROJECT_ROOT
+from approval.credentials import (
+    ApprovalCredentialError,
+    ApprovalCredentialService,
+    SQLiteApprovalLedger,
+)
 from identity import OidcIdentityError, OidcVerifier
 from security_kernel import WasmSecurityKernel
 
 from .audit import AuditLogger
 from .adapters import BusinessAdapterError, LocalTestBusinessAdapters
 from .tickets import ExecutionTicketStore, TicketError, compute_action_digest
-from .signers import TicketSigner
+from .signers import OpenBaoTransitSigner, TicketSigner
 from .ledgers import TicketLedger
 
 
@@ -43,6 +49,7 @@ class EnforcementGateway:
         module_dir: Path | str,
         registry: Mapping[tuple[str, str], Mapping[str, str]] | None = None,
         business_adapters: Any | None = None,
+        approval_service: ApprovalCredentialService | None = None,
     ) -> None:
         self.opa = opa_client
         self.tickets = ticket_store
@@ -51,6 +58,7 @@ class EnforcementGateway:
         self.module_dir = Path(module_dir)
         self.registry = dict(DEFAULT_REGISTRY if registry is None else registry)
         self.business_adapters = business_adapters
+        self.approvals = approval_service
 
     def authorize(self, request: Mapping[str, Any], ttl_seconds: int = 30) -> dict[str, Any]:
         safe_request = copy.deepcopy(dict(request))
@@ -111,6 +119,29 @@ class EnforcementGateway:
                 "OPA 摘要与网关独立计算结果不一致",
                 policy_effect=effect,
             )
+        approval = safe_request.get("approval", {})
+        validated_approval = None
+        if isinstance(approval, Mapping) and approval.get("approval_id"):
+            if self.approvals is None:
+                return self._block(
+                    safe_request,
+                    "G010_APPROVAL_CREDENTIAL_INVALID",
+                    "网关没有配置可信审批凭证服务",
+                    policy_effect="approval_validation",
+                )
+            try:
+                validated_approval = self.approvals.validate(
+                    approval,
+                    str(safe_request.get("task_id", "")),
+                    current_digest,
+                )
+            except ApprovalCredentialError as exc:
+                return self._block(
+                    safe_request,
+                    exc.code,
+                    str(exc),
+                    policy_effect="approval_validation",
+                )
         try:
             token = self.tickets.issue(
                 str(safe_request.get("task_id", "")), current_digest, ttl_seconds=ttl_seconds
@@ -123,6 +154,16 @@ class EnforcementGateway:
                 policy_effect="ticket_signing_error",
                 http_status=503,
             )
+        if validated_approval is not None:
+            try:
+                self.approvals.consume(validated_approval)
+            except ApprovalCredentialError as exc:
+                return self._block(
+                    safe_request,
+                    exc.code,
+                    str(exc),
+                    policy_effect="approval_validation",
+                )
         result = {
             "status": "authorized",
             "http_status": 200,
@@ -187,6 +228,27 @@ class EnforcementGateway:
             try:
                 business_result = self.business_adapters.execute(safe_request)
             except Exception as exc:
+                if getattr(exc, "outcome_unknown", False):
+                    result = {
+                        "status": "reconciliation_required",
+                        "http_status": 202,
+                        "reason_code": "G015_BUSINESS_OUTCOME_UNKNOWN",
+                        "message": "远端写操作结果未知；不得重试，必须先按幂等键对账",
+                        "policy_effect": "allowed_then_reconciliation_required",
+                        "receipt": {
+                            "task_id": safe_request.get("task_id", ""),
+                            "action_digest": digest,
+                            "ticket_jti": ticket_payload["jti"],
+                            "reconciliation": {
+                                "idempotency_key": getattr(exc, "idempotency_key", ""),
+                                "endpoint_host": getattr(exc, "endpoint_host", ""),
+                                "automatic_retry_allowed": False,
+                            },
+                            "sandbox": sandbox_result,
+                        },
+                    }
+                    self._audit(safe_request, result)
+                    return result
                 return self._block(
                     safe_request,
                     "G009_BUSINESS_ADAPTER_FAILED",
@@ -295,16 +357,58 @@ def build_gateway(
     signer: TicketSigner | None = None,
     ledger: TicketLedger | None = None,
     business_adapter: Any | None = None,
+    approval_service: ApprovalCredentialService | None = None,
 ) -> EnforcementGateway:
     root = Path(project_root)
     state = Path(state_dir)
     state.mkdir(parents=True, exist_ok=True)
+    if signer is None:
+        ticket_secret = bytes(secret or secrets.token_bytes(32))
+        ticket_signer = None
+        if approval_service is None:
+            from .signers import HmacKeyringSigner
+
+            approval_secret = hashlib.sha256(
+                b"agentguard-approval-v1\0" + ticket_secret
+            ).digest()
+            approval_service = ApprovalCredentialService(
+                HmacKeyringSigner.single_key(approval_secret),
+                SQLiteApprovalLedger(state / "approval_credentials.sqlite"),
+            )
+    else:
+        ticket_secret = None
+        ticket_signer = signer
+        if approval_service is None:
+            if isinstance(signer, OpenBaoTransitSigner):
+                from approval.credentials import OpenBaoKvApprovalLedger
+
+                approval_service = ApprovalCredentialService(
+                    OpenBaoTransitSigner(
+                        signer.address,
+                        signer.token,
+                        key_name="agentguard-approval",
+                        mount=signer.mount,
+                        namespace=signer.namespace,
+                        timeout_seconds=signer.timeout_seconds,
+                    ),
+                    OpenBaoKvApprovalLedger(
+                        signer.address,
+                        signer.token,
+                        namespace=signer.namespace,
+                        timeout_seconds=signer.timeout_seconds,
+                    ),
+                )
+            else:
+                approval_service = ApprovalCredentialService(
+                    signer,
+                    SQLiteApprovalLedger(state / "approval_credentials.sqlite"),
+                )
     return EnforcementGateway(
         opa_client=opa_client or OpaClient(root),
         ticket_store=ExecutionTicketStore(
             state / "execution_tickets.sqlite",
-            secret=(secret or secrets.token_bytes(32)) if signer is None else None,
-            signer=signer,
+            secret=ticket_secret,
+            signer=ticket_signer,
             ledger=ledger,
         ),
         kernel=WasmSecurityKernel(),
@@ -316,4 +420,5 @@ def build_gateway(
             if business_adapter is not None
             else (LocalTestBusinessAdapters(state) if enable_local_adapters else None)
         ),
+        approval_service=approval_service,
     )

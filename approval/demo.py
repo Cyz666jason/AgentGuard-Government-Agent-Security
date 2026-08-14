@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import secrets
 import sys
 import uuid
 from pathlib import Path
@@ -41,7 +42,20 @@ def main() -> int:
     request = json.loads((PROJECT_ROOT / "samples" / sample_name).read_text(encoding="utf-8"))
     thread_id = f"demo-{args.scenario}-{uuid.uuid4().hex[:8]}"
     config = {"configurable": {"thread_id": thread_id}}
-    graph, connection = build_workflow(args.checkpoint)
+    demo_token = secrets.token_urlsafe(24)
+
+    def demo_authenticator(review: dict[str, Any]) -> dict[str, Any]:
+        if not secrets.compare_digest(str(review.get("demo_auth_token", "")), demo_token):
+            raise PermissionError("演示审批身份验证失败")
+        return {
+            "id": "manager-001",
+            "roles": ["business_approver"],
+            "identity_source": "local_demo_authenticator",
+        }
+
+    graph, connection = build_workflow(
+        args.checkpoint, approver_authenticator=demo_authenticator
+    )
     try:
         first = graph.invoke({"request": request}, config=config)
         summary: dict[str, Any] = {
@@ -57,6 +71,7 @@ def main() -> int:
                 "approver_id": "manager-001",
                 "approver_roles": ["business_approver"],
                 "reason": "演示审批",
+                "demo_auth_token": demo_token,
             }
             if args.scenario == "tamper":
                 review["tamper_parameters"] = {"amount": 500000}

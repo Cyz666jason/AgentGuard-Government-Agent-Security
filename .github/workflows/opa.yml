@@ -4,33 +4,68 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: security-tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
       - name: Install OPA 1.19.0
         run: |
-          curl -L -o opa https://github.com/open-policy-agent/opa/releases/download/v1.19.0/opa_linux_amd64_static
-          curl -L -o opa.sha256 https://github.com/open-policy-agent/opa/releases/download/v1.19.0/opa_linux_amd64_static.sha256
-          echo "$(cut -d ' ' -f 1 opa.sha256)  opa" | sha256sum -c -
-          chmod +x opa
+          mkdir -p tools
+          curl -L -o tools/opa https://github.com/open-policy-agent/opa/releases/download/v1.19.0/opa_linux_amd64_static
+          curl -L -o tools/opa.sha256 https://github.com/open-policy-agent/opa/releases/download/v1.19.0/opa_linux_amd64_static.sha256
+          echo "$(cut -d ' ' -f 1 tools/opa.sha256)  tools/opa" | sha256sum -c -
+          chmod +x tools/opa
       - name: Generate dataset
         run: python scripts/generate_dataset.py
       - name: Format and strict check
         run: |
-          ./opa fmt --fail policy/*.rego tests/*.rego > /dev/null
-          ./opa check --strict policy tests data
+          ./tools/opa fmt --fail policy/*.rego tests/*.rego > /dev/null
+          ./tools/opa check --strict policy tests data
+          ./tools/opa check --strict deployment/opa-envoy
       - name: Unit tests and coverage
         run: |
-          ./opa test policy tests data --fail-on-empty
-          ./opa test policy tests data --coverage --format=json > reports/coverage.json
+          ./tools/opa test policy tests data --fail-on-empty
+          ./tools/opa test deployment/opa-envoy --fail-on-empty
+          ./tools/opa test policy tests data --coverage --format=json > reports/coverage.json
       - name: Batch evaluation
-        run: python scripts/evaluate.py --opa ./opa
+        run: python scripts/evaluate.py --opa ./tools/opa
       - name: Install Python security dependencies
-        run: pip install -r requirements-full.txt
+        run: |
+          pip install --require-hashes --report reports/python_dependency_install.json -r requirements-lock.txt
+          pip check
       - name: Python security and integration tests
         run: python -m enforcement.run_tests
+      - name: Compile automation entrypoints
+        run: python -m py_compile scripts/*.py enforcement/*.py integrations/*.py deployment/product-e2e/backend/server.py
+      - name: Refuse committed secrets and runtime state
+        run: python scripts/prepublish_security_check.py
+      - name: Validate product container configuration
+        run: AGENTGUARD_CONTAINER_TICKET_SECRET=$(openssl rand -hex 32) docker compose -f deployment/product-e2e/docker-compose.yml config --quiet
+      - name: Install checksum-verified ToolHive 0.28.3
+        run: |
+          curl -fsSLO https://github.com/stacklok/toolhive/releases/download/v0.28.3/toolhive_0.28.3_linux_amd64.tar.gz
+          echo "6b6b1533cdb1b5840fd65792a8dc6e73547f28043e3e8fc111f7d9e557a96a78  toolhive_0.28.3_linux_amd64.tar.gz" | sha256sum -c -
+          tar -xzf toolhive_0.28.3_linux_amd64.tar.gz
+          chmod +x thv
+          echo "AGENTGUARD_THV_PATH=$PWD/thv" >> "$GITHUB_ENV"
+      - name: OPA-Envoy and ToolHive container E2E
+        run: python scripts/run_container_product_e2e.py
+      - name: Upload product evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: agentguard-security-evidence
+          path: reports/
+          if-no-files-found: error

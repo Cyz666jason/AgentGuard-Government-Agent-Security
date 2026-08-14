@@ -148,12 +148,16 @@ class OpenBaoKvTicketLedger:
             ) from exc
 
     def issue(self, payload: dict[str, Any]) -> None:
-        status, _ = self._request(
+        status, body = self._request(
             "POST", payload["jti"], {"options": {"cas": 0}, "data": payload}
         )
         if status not in {200, 204}:
+            errors = body.get("errors") if isinstance(body, dict) else None
+            detail = "; ".join(str(item) for item in errors or [])
             raise TicketLedgerError(
-                "G209_TICKET_LEDGER_UNAVAILABLE", f"OpenBao KV写入失败：HTTP {status}"
+                "G209_TICKET_LEDGER_UNAVAILABLE",
+                f"OpenBao KV写入失败：HTTP {status}"
+                + (f"（{detail}）" if detail else ""),
             )
 
     def _read(self, jti: str) -> tuple[dict[str, Any], int]:

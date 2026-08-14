@@ -60,14 +60,17 @@ OPA 负责“算出决定”，网关负责“执行决定”。只有 OPA 而�
 | 两个生产策略文件覆盖率 | 100% |
 | 全部 Rego 文件覆盖率（包含测试代码） | 99.61% |
 | OPA 纯策略基准 | 约 0.35-0.36 ms/次 |
-| 身份/审批/网关/内核/生产接入 Python 测试 | 46/46 通过 |
+| 身份/审批/网关/内核/生产接入 Python 测试 | 60/60 通过 |
 | OPA-Envoy 网络前置策略测试 | 4/4 通过 |
-| 完整链路关键演示与实服检查 | 17/17 通过 |
-| Keycloak/OIDC 真实端到端 | 5/5 通过 |
+| 完整链路关键演示与实服检查 | 21/21 通过 |
+| Keycloak/OIDC 真实端到端 | 7/7 通过 |
 | 常驻 OPA REST 网络强制链路 | 5/5 通过 |
 | 真实本地业务适配器 | 6/6 通过 |
-| OpenBao Transit + 共享KV票据核销 | 7/7 通过 |
-| QEMU 独立 Linux 来宾内核隔离 | 9/9 通过 |
+| OpenBao Transit + 共享KV票据/审批核销 | 10/10 通过 |
+| OpenBao 三节点Raft选主、复制与主节点故障切换 | 8/8 通过 |
+| QEMU 独立 Linux 来宾内核隔离 | 11/11 通过 |
+
+Python完整依赖已写入 `requirements-lock.txt` 并包含包哈希；CI 使用 `--require-hashes` 安装。GitHub Actions 与产品容器镜像均固定到提交或 SHA-256 摘要。
 | 阻断或沙箱攻击误执行次数 | 0 |
 
 批量评测脚本逐条启动 OPA CLI，耗时会随机器负载波动，最新均值与 P95 以 `reports/open_source_route_progress.md` 自动看板为准；该值主要包含进程启动和策略加载，不是 sidecar、Wasm 或 Go SDK 常驻部署的纯决策延迟。
@@ -159,8 +162,8 @@ OPA→LangGraph→强制网关→Wasmtime 的完整审批链路已经实际跑�
 - `enforcement/http_stack.py`：常驻 OPA REST→HTTP 网关→一次性票据→受保护 HTTP 后端，网络端到端 5/5。
 - `enforcement/adapters.py`：受限于状态目录的真实 SQLite 查询与付款测试账本，6/6。
 - `third_party/README.md`：Keycloak、Java 与 ToolHive 官方下载、版本和校验和。ToolHive CLI 已验证；因本机无容器运行时，产品级 MCP 容器仍是中优先级环境项。
-- `enforcement/signers.py`、`enforcement/ledgers.py`：OpenBao Transit密钥外置、版本轮换和KV v2 CAS共享核销，实服7/7。
-- `scripts/run_qemu_native_isolation_e2e.py`：QEMU独立Linux guest kernel隔离，实测9/9。
+- `enforcement/signers.py`、`enforcement/ledgers.py`、`approval/credentials.py`：OpenBao Transit票据/审批密钥外置、版本轮换和KV v2 CAS共享核销，实服10/10；三节点Raft选主、复制与leader故障切换8/8。
+- `scripts/run_qemu_native_isolation_e2e.py`：QEMU独立Linux guest kernel、Alpine用户态与只读校验启动介质隔离，实测11/11。
 - `integrations/`：获批真实API与真实数据的安全接入入口；未提供凭据或数据时默认跳过并明确报告。
 
 ## 作为 OPA 服务运行
@@ -201,9 +204,9 @@ docs/         可直接用于技术报告、PPT和答辩的中文内容
 ## 工程边界
 
 - OPA 不执行真实命令，也不保存长流程状态；本原型已用 LangGraph + SQLite 实现暂停/恢复，生产环境可换用 PostgreSQL 检查点或 Temporal。
-- OpenBao Transit密钥外置/轮换和KV v2 CAS双网关共享核销已7/7实测；生产仍需多节点OpenBao/云KMS与数据库故障切换。
+- OpenBao票据/审批独立Transit密钥和KV v2 CAS双网关共享核销已10/10实测，三节点Raft选主、复制和leader故障切换已8/8实测；生产仍需跨故障域、TLS、自动解封、备份恢复和容量压测。
 - 常驻 OPA REST 与双端口 HTTP 强制链路已经端到端实测；OPA-Envoy 与 ToolHive 指定产品的容器运行仍因本机没有 Docker/Linux 而未标记完成。
-- Wasmtime已限制WebAssembly工具；QEMU独立Linux来宾内核已9/9验证。Kata/Firecracker产品E2E仍需Linux/KVM测试机。
+- Wasmtime已限制WebAssembly工具；QEMU独立Linux来宾内核/用户态/只读启动介质已11/11验证。Kata/Firecracker产品E2E仍需Linux/KVM测试机。
 - 工具适配器已经真实读写隔离 SQLite 测试业务库，但不会调用真实银行、ERP、生产文件或系统命令。
 - 当前 55 个样例是合成的政企安全测试数据，不包含真实个人信息，部署前应结合单位制度、资源目录和密级规则扩充。
 - 真实业务URL、令牌、CA和单位日志没有被提供，因此只完成安全接入代码和自动预检，不能把测试样例表述成生产E2E。
@@ -232,6 +235,19 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\publish_privat
 ```
 
 状态总表为 `reports/productionization_status.md`；外部凭据、获批数据和远程登录缺失时脚本会明确跳过或失败关闭，不会伪造完成。
+
+需要反复检查并自动续跑全部剩余项时，可使用统一入口：
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_remaining_automatically.ps1
+```
+
+完成一次 GitHub 授权后，加 `-PublishGitHub` 即可自动创建并推送默认私有仓库：
+
+```powershell
+gh auth login --web --git-protocol https
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_remaining_automatically.ps1 -PublishGitHub
+```
 
 ## 官方资料
 

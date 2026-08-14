@@ -10,13 +10,23 @@ from pathlib import Path
 from langgraph.types import Command
 
 from approval.workflow import PROJECT_ROOT, OpaClient, build_workflow, issue_approval
+from approval.credentials import ApprovalCredentialService, SQLiteApprovalLedger
+from enforcement.signers import HmacKeyringSigner
 
 
 class ApprovalWorkflowTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temp_dir = tempfile.TemporaryDirectory()
         self.checkpoint = Path(self.temp_dir.name) / "checkpoint.sqlite"
-        self.graph, self.connection = build_workflow(self.checkpoint)
+        self.approval_service = ApprovalCredentialService(
+            HmacKeyringSigner.single_key(b"A" * 32),
+            SQLiteApprovalLedger(Path(self.temp_dir.name) / "approvals.sqlite"),
+        )
+        self.graph, self.connection = build_workflow(
+            self.checkpoint,
+            approval_service=self.approval_service,
+            approver_authenticator=self._test_approver_authenticator,
+        )
 
     def tearDown(self) -> None:
         self.connection.close()
@@ -27,6 +37,14 @@ class ApprovalWorkflowTests(unittest.TestCase):
 
     def config(self) -> dict:
         return {"configurable": {"thread_id": f"test-{uuid.uuid4().hex}"}}
+
+    @staticmethod
+    def _test_approver_authenticator(review: dict) -> dict:
+        return {
+            "id": str(review.get("approver_id", "")),
+            "roles": list(review.get("approver_roles", ["business_approver"])),
+            "identity_source": "test_only",
+        }
 
     def test_low_risk_action_executes_without_approval(self) -> None:
         result = self.graph.invoke(
@@ -160,7 +178,12 @@ class ApprovalWorkflowTests(unittest.TestCase):
         opa = OpaClient()
         original = self.sample("require_approval.json")
         digest = opa.decide(original)["action_digest"]
-        credential = issue_approval(original, digest, "manager-001")
+        credential = issue_approval(
+            original,
+            digest,
+            "manager-001",
+            credential_service=self.approval_service,
+        )
         replay = copy.deepcopy(original)
         replay["request_id"] = "req-replay"
         replay["task_id"] = "task-other"
@@ -178,7 +201,11 @@ class ApprovalWorkflowTests(unittest.TestCase):
         self.assertIn("__interrupt__", first)
         self.connection.close()
 
-        restarted_graph, restarted_connection = build_workflow(self.checkpoint)
+        restarted_graph, restarted_connection = build_workflow(
+            self.checkpoint,
+            approval_service=self.approval_service,
+            approver_authenticator=self._test_approver_authenticator,
+        )
         self.connection = restarted_connection
         final = restarted_graph.invoke(
             Command(
@@ -192,6 +219,30 @@ class ApprovalWorkflowTests(unittest.TestCase):
         )
         self.assertEqual("executed_simulated", final["status"])
         self.assertEqual(1, len(final["execution_receipts"]))
+
+    def test_approval_without_trusted_approver_authenticator_is_rejected(self) -> None:
+        isolated_checkpoint = Path(self.temp_dir.name) / "no-auth.sqlite"
+        graph, connection = build_workflow(
+            isolated_checkpoint,
+            approval_service=self.approval_service,
+        )
+        config = self.config()
+        try:
+            graph.invoke({"request": self.sample("require_approval.json")}, config=config)
+            final = graph.invoke(
+                Command(
+                    resume={
+                        "decision": "approve",
+                        "approver_id": "forged-manager",
+                        "approver_roles": ["business_approver"],
+                    }
+                ),
+                config=config,
+            )
+        finally:
+            connection.close()
+        self.assertEqual("blocked", final["status"])
+        self.assertIn("D101_APPROVAL_STATUS", final["policy_decision"]["reason_codes"])
 
 
 if __name__ == "__main__":

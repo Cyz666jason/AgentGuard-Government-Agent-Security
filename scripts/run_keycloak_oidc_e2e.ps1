@@ -40,11 +40,20 @@ if (Test-Path -LiteralPath $h2Dir) {
 }
 $importDir = Join-Path $keycloakHome "data\import"
 New-Item -ItemType Directory -Force -Path $importDir | Out-Null
-Copy-Item -LiteralPath (Join-Path $projectRoot "identity\keycloak\agentguard-realm.json") -Destination (Join-Path $importDir "agentguard-realm.json") -Force
+$officePassword = "Of-$([Guid]::NewGuid().ToString('N'))!9a"
+$financePassword = "Fi-$([Guid]::NewGuid().ToString('N'))!9a"
+$approverPassword = "Ap-$([Guid]::NewGuid().ToString('N'))!9a"
+$realmTemplate = Get-Content -LiteralPath (Join-Path $projectRoot "identity\keycloak\agentguard-realm.json") -Raw -Encoding UTF8
+$realmRuntime = $realmTemplate.Replace('__OFFICE_TEST_PASSWORD__', $officePassword).Replace('__FINANCE_TEST_PASSWORD__', $financePassword).Replace('__APPROVER_TEST_PASSWORD__', $approverPassword)
+$runtimeRealmPath = Join-Path $importDir "agentguard-realm.json"
+$realmRuntime | Set-Content -LiteralPath $runtimeRealmPath -Encoding UTF8
 
 $env:JAVA_HOME = $javaHome
 $env:KC_BOOTSTRAP_ADMIN_USERNAME = "agentguard-admin"
-$env:KC_BOOTSTRAP_ADMIN_PASSWORD = "AgentGuard-Admin-Test-2026!"
+$env:KC_BOOTSTRAP_ADMIN_PASSWORD = "Ad-$([Guid]::NewGuid().ToString('N'))!9a"
+$env:AGENTGUARD_KEYCLOAK_OFFICE_PASSWORD = $officePassword
+$env:AGENTGUARD_KEYCLOAK_FINANCE_PASSWORD = $financePassword
+$env:AGENTGUARD_KEYCLOAK_APPROVER_PASSWORD = $approverPassword
 $logDir = Join-Path $projectRoot "reports"
 $stdout = Join-Path $logDir "keycloak_stdout.log"
 $stderr = Join-Path $logDir "keycloak_stderr.log"
@@ -83,4 +92,11 @@ try {
         Stop-Process -Id $item.ProcessId -Force -ErrorAction SilentlyContinue
     }
     Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+    Remove-Item Env:AGENTGUARD_KEYCLOAK_OFFICE_PASSWORD -ErrorAction SilentlyContinue
+    Remove-Item Env:AGENTGUARD_KEYCLOAK_FINANCE_PASSWORD -ErrorAction SilentlyContinue
+    Remove-Item Env:AGENTGUARD_KEYCLOAK_APPROVER_PASSWORD -ErrorAction SilentlyContinue
+    Remove-Item Env:KC_BOOTSTRAP_ADMIN_PASSWORD -ErrorAction SilentlyContinue
+    if (Test-Path -LiteralPath $runtimeRealmPath) {
+        Remove-Item -LiteralPath $runtimeRealmPath -Force
+    }
 }

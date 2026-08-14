@@ -14,6 +14,9 @@ try {
     powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_openbao_kms_ha_e2e.ps1 -Python $venvPython
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+    & $venvPython .\scripts\run_openbao_raft_ha_e2e.py
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
     & $venvPython .\scripts\run_qemu_native_isolation_e2e.py
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 

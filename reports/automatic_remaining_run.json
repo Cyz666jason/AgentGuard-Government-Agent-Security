@@ -1,0 +1,64 @@
+﻿{
+    "run_id":  "403cfd8e1f22",
+    "run_started_at":  "2026-08-14T06:16:10.1330579+08:00",
+    "generated_at":  "2026-08-14T06:17:55.9226093+08:00",
+    "execution_engine_healthy":  true,
+    "all_requested_items_completed":  false,
+    "all_automatable_steps_succeeded":  false,
+    "items":  [
+                  {
+                      "item":  "OpenBao shared approval and ticket ledger",
+                      "status":  "completed",
+                      "detail":  "exit_code=0",
+                      "run_id":  "403cfd8e1f22"
+                  },
+                  {
+                      "item":  "OpenBao three-node Raft failover",
+                      "status":  "completed",
+                      "detail":  "exit_code=0",
+                      "run_id":  "403cfd8e1f22"
+                  },
+                  {
+                      "item":  "QEMU isolated Linux guest kernel",
+                      "status":  "completed",
+                      "detail":  "exit_code=0",
+                      "run_id":  "403cfd8e1f22"
+                  },
+                  {
+                      "item":  "OPA-Envoy/ToolHive product container E2E",
+                      "status":  "blocked_external_environment",
+                      "detail":  "Docker/Podman daemon is unavailable on this test machine",
+                      "run_id":  "403cfd8e1f22"
+                  },
+                  {
+                      "item":  "Authorized production data redaction",
+                      "status":  "skipped_missing_external_input",
+                      "detail":  "No approved source JSONL was supplied",
+                      "run_id":  "403cfd8e1f22"
+                  },
+                  {
+                      "item":  "Authorized business API credential-gated E2E",
+                      "status":  "skipped_missing_external_input",
+                      "detail":  "exit_code=2",
+                      "run_id":  "403cfd8e1f22"
+                  },
+                  {
+                      "item":  "Pre-publication secret scan",
+                      "status":  "completed",
+                      "detail":  "exit_code=0",
+                      "run_id":  "403cfd8e1f22"
+                  },
+                  {
+                      "item":  "Productionization status report",
+                      "status":  "completed",
+                      "detail":  "exit_code=0",
+                      "run_id":  "403cfd8e1f22"
+                  },
+                  {
+                      "item":  "GitHub private repository publication",
+                      "status":  "blocked_user_authentication",
+                      "detail":  "Run gh auth login --web --git-protocol https once, then rerun this script with -PublishGitHub",
+                      "run_id":  "403cfd8e1f22"
+                  }
+              ]
+}

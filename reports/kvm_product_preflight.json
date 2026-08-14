@@ -1,0 +1,29 @@
+{
+  "run_id": "standalone",
+  "generated_at": "2026-08-14T15:55:59.317863+08:00",
+  "host": {
+    "system": "Windows",
+    "release": "11",
+    "machine": "AMD64"
+  },
+  "target_versions": {
+    "kata_containers": "3.31.0",
+    "firecracker": "1.15.1"
+  },
+  "checks": {
+    "linux_host": false,
+    "dev_kvm_present": false,
+    "dev_kvm_read_write": false,
+    "container_runtime_available": false,
+    "kata_runtime_installed": false,
+    "firecracker_installed": false
+  },
+  "product_results": {},
+  "status": "blocked_missing_linux_kvm",
+  "product_e2e_completed": false,
+  "blocker": "Kata and Firecracker require a Linux host with readable/writable /dev/kvm; the current Windows/QEMU-TCG test machine cannot expose KVM.",
+  "official_sources": {
+    "kata_installation": "https://github.com/kata-containers/kata-containers/blob/main/docs/installation.md",
+    "firecracker_getting_started": "https://github.com/firecracker-microvm/firecracker/blob/main/docs/getting-started.md"
+  }
+}

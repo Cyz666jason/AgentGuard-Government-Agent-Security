@@ -6,7 +6,7 @@ import json
 import os
 import shutil
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +22,21 @@ def load_optional(name: str) -> dict[str, Any] | None:
     return json.loads(path.read_text(encoding="utf-8-sig"))
 
 
+def evidence_fresh(name: str, maximum_age_hours: float = 24.0) -> bool:
+    path = REPORTS / name
+    if not path.exists():
+        return False
+    age = datetime.now(timezone.utc).timestamp() - path.stat().st_mtime
+    return 0 <= age <= maximum_age_hours * 3600
+
+
+def evidence_current(report: dict[str, Any] | None, run_id: str) -> bool:
+    if not report:
+        return False
+    evidence_run = str(report.get("run_id", "missing"))
+    return run_id == "standalone" or evidence_run == run_id
+
+
 def command_available(name: str) -> bool:
     if shutil.which(name) is not None:
         return True
@@ -34,11 +49,14 @@ def command_available(name: str) -> bool:
 
 def main() -> int:
     openbao = load_optional("openbao_kms_ha_e2e.json")
+    openbao_raft = load_optional("openbao_raft_ha_e2e.json")
     qemu = load_optional("qemu_native_isolation_e2e.json")
     toolhive = load_optional("toolhive_environment_check.json") or {}
     redaction = load_optional("authorized_data_redaction.json")
     secret_scan = load_optional("prepublish_security_check.json") or {}
     container_attempt = load_optional("container_product_e2e_attempt.json") or {}
+    business_api = load_optional("authorized_business_api_e2e.json") or {}
+    run_id = os.environ.get("AGENTGUARD_RUN_ID", "standalone")
     credentials_present = all(
         os.environ.get(name)
         for name in (
@@ -63,49 +81,58 @@ def main() -> int:
     items = [
         {
             "item": "OPA-Envoy产品容器E2E",
-            "status": "blocked_external_environment",
-            "evidence": f"策略4/4；QEMU Linux启动={container_attempt.get('linux_guest_booted', False)}；容器E2E={container_attempt.get('opa_envoy_container_e2e', False)}",
-            "blocker": "Windows未启用WSL/Hyper-V，且无Docker/Podman运行时",
+            "status": "completed_test_environment" if container_attempt.get("opa_envoy_container_e2e") and evidence_fresh("container_product_e2e_attempt.json") and evidence_current(container_attempt, run_id) else "blocked_external_environment",
+            "evidence": f"策略4/4；容器E2E={container_attempt.get('opa_envoy_container_e2e', False)}；run_id={container_attempt.get('run_id', 'missing')}；fresh={evidence_fresh('container_product_e2e_attempt.json')}",
+            "blocker": "当前机器无Docker/Podman；脚本已就绪，有运行时会真实启动并做故障注入",
         },
         {
             "item": "ToolHive MCP容器E2E",
-            "status": "blocked_external_environment",
-            "evidence": f"CLI/checksum={toolhive.get('checksum_verified', False)}；container={container_attempt.get('toolhive_container_e2e', False)}",
+            "status": "completed_test_environment" if container_attempt.get("toolhive_container_e2e") and evidence_fresh("container_product_e2e_attempt.json") and evidence_current(container_attempt, run_id) else "blocked_external_environment",
+            "evidence": f"CLI/checksum={toolhive.get('checksum_verified', False)}；container={container_attempt.get('toolhive_container_e2e', False)}；run_id={container_attempt.get('run_id', 'missing')}",
             "blocker": "ToolHive doctor确认没有Docker/Podman/Kubernetes",
         },
         {
             "item": "外部密钥与共享票据状态",
             "status": (
-                "completed_test_environment"
-                if openbao and openbao.get("passed") == openbao.get("total")
+                "completed_ha_test_environment"
+                if openbao
+                and openbao.get("passed") == openbao.get("total")
+                and evidence_fresh("openbao_kms_ha_e2e.json")
+                and evidence_current(openbao, run_id)
+                and openbao_raft
+                and openbao_raft.get("passed") == openbao_raft.get("total")
+                and evidence_fresh("openbao_raft_ha_e2e.json")
+                and evidence_current(openbao_raft, run_id)
                 else "failed_or_missing"
             ),
             "evidence": (
-                f"OpenBao Transit+KV {openbao['passed']}/{openbao['total']}"
-                if openbao
+                f"OpenBao Transit+KV {openbao['passed']}/{openbao['total']} run_id={openbao.get('run_id', 'missing')}；三节点Raft故障切换 {openbao_raft['passed']}/{openbao_raft['total']} run_id={openbao_raft.get('run_id', 'missing')}"
+                if openbao and openbao_raft
                 else "未生成"
             ),
-            "blocker": "本机dev server不是多节点OpenBao生产集群",
+            "blocker": "本机三进程已验证HA；正式生产仍需跨故障域、TLS、自动解封、备份恢复和容量压测",
         },
         {
             "item": "原生程序独立来宾内核隔离",
             "status": (
                 "completed_test_environment"
                 if qemu and qemu.get("passed") == qemu.get("total")
+                and evidence_fresh("qemu_native_isolation_e2e.json")
+                and evidence_current(qemu, run_id)
                 else "failed_or_missing"
             ),
-            "evidence": f"QEMU guest kernel {qemu['passed']}/{qemu['total']}" if qemu else "未生成",
+            "evidence": f"QEMU guest kernel {qemu['passed']}/{qemu['total']}；run_id={qemu.get('run_id', 'missing')}；fresh={evidence_fresh('qemu_native_isolation_e2e.json')}" if qemu else "未生成",
             "blocker": "不是Kata/Firecracker，当前为TCG软件模拟且无KVM",
         },
         {
             "item": "真实业务系统凭据与E2E",
-            "status": "ready_for_credentials" if not credentials_present else "credentials_detected_not_yet_e2e",
-            "evidence": "HTTPS、主机白名单、CA、幂等键、审批检查和fail-closed适配器已实现",
-            "blocker": "未提供单位批准的预生产URL、令牌和CA，不会生成或猜测真实凭据",
+            "status": "completed_authorized_e2e" if business_api.get("status", "").startswith("passed") else ("ready_for_credentials" if not credentials_present else "credentials_detected_not_yet_e2e"),
+            "evidence": f"HTTPS、主机白名单、CA、幂等键、双确认写门、可信OIDC审批与对账状态已实现；报告={business_api.get('status', 'missing')}",
+            "blocker": "未提供单位批准的预生产URL、令牌、CA和审批人OIDC令牌，不会生成或猜测真实凭据",
         },
         {
             "item": "脱敏生产数据",
-            "status": "completed_authorized_data" if redaction and redaction.get("status") == "passed" else "ready_for_authorized_data",
+            "status": "completed_authorized_data" if redaction and redaction.get("status") == "passed" and evidence_fresh("authorized_data_redaction.json") and evidence_current(redaction, run_id) else "ready_for_authorized_data",
             "evidence": "确定性去标识、秘密字段删除、IP泛化和SHA-256报告已实现",
             "blocker": "未提供获批原始日志；测试样例不能冒充生产数据",
         },
@@ -117,6 +144,7 @@ def main() -> int:
         },
     ]
     report = {
+        "run_id": run_id,
         "generated_at": datetime.now().astimezone().isoformat(),
         "all_production_items_completed": all(item["status"] == "completed" for item in items),
         "items": items,
@@ -149,7 +177,7 @@ def main() -> int:
 
 ## 结论
 
-已经自动完成 OpenBao 外部密钥与共享票据状态验证、QEMU 独立 Linux 来宾内核隔离、本地 Git 仓库、真实业务 HTTPS 接入代码和生产数据脱敏流水线。需要管理员权限、单位授权数据、真实预生产凭据或用户 GitHub 登录的项目保留为外部阻塞，不能自动伪造为完成。
+已经自动完成 OpenBao 外部密钥与共享票据状态验证、三节点Raft选主/复制/主节点故障切换、QEMU 独立 Linux 来宾内核隔离、本地 Git 仓库、真实业务 HTTPS 接入代码和生产数据脱敏流水线。需要管理员权限、单位授权数据、真实预生产凭据或用户 GitHub 登录的项目保留为外部阻塞，不能自动伪造为完成。
 """
     (REPORTS / "productionization_status.md").write_text(markdown, encoding="utf-8")
     print(json.dumps({"items": len(items), "report": str(json_path)}, ensure_ascii=False))
