@@ -1,0 +1,38 @@
+{
+  "evidence_source": "github_actions",
+  "workflow_run_id": 31793116819,
+  "workflow_url": "https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819",
+  "commit": "167b2b0445ca9b93a980f44271dc15a8aebd7853",
+  "runner": "ubuntu-latest",
+  "generated_at": "2026-08-14T10:40:28.621959+00:00",
+  "status": "passed",
+  "checks": {
+    "request_without_ticket_denied": true,
+    "forged_nonempty_ticket_denied_by_backend": true,
+    "signed_bound_ticket_reaches_backend": true,
+    "ticket_replay_denied_by_backend": true,
+    "ticket_cannot_authorize_different_action": true,
+    "backend_has_no_host_port": true,
+    "opa_outage_fails_closed": true,
+    "resolved_external_image_digests_recorded": true,
+    "backend_base_image_pinned_in_dockerfile": true,
+    "toolhive_mcp_container_running": true
+  },
+  "passed": 10,
+  "total": 10,
+  "opa_envoy_container_e2e": true,
+  "toolhive_container_e2e": true,
+  "advisories": {
+    "toolhive_runtime_doctor_passed": false,
+    "explanation": "The ephemeral runner returned doctor=1, while thv run returned 0 and the named MCP workload container was observed running. Doctor is retained as an environment advisory, not used as the functional E2E verdict."
+  },
+  "image_repo_digests": {
+    "agentguard-product-opa-envoy": [
+      "openpolicyagent/opa@sha256:f854ba5a366b7ff25a6b4598b8e408606cf47a3e39b8c560e9f02b062dd580db"
+    ],
+    "agentguard-product-envoy": [
+      "envoyproxy/envoy@sha256:8146b97ee61a42cd216514709e4e3198af75f014974e3d9f310aef9c901fcbdf"
+    ]
+  },
+  "boundary": "The workflow proves the containerized OPA-Envoy enforcement path and ToolHive workload startup on a GitHub-hosted Linux runner. It does not prove Kata/Firecracker KVM isolation, cross-failure-domain OpenBao, or authorized production credentials and data."
+}
