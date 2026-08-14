@@ -234,6 +234,7 @@ def main() -> int:
     compose = [runtime, "compose", "-f", str(COMPOSE)] if compose_available else []
     checks: dict[str, bool] = {}
     image_digests: dict[str, list[str]] = {}
+    image_ids: dict[str, str] = {}
     toolhive_detail = "not_run"
     ticket_secret = secrets.token_bytes(32)
     environment = os.environ.copy()
@@ -292,10 +293,17 @@ def main() -> int:
         else:
             run([runtime, "start", CONTAINERS[1]], env=environment)
         for container in CONTAINERS:
-            raw = run(
-                [runtime, "inspect", container, "--format", "{{json .RepoDigests}}"]
+            image_id = run(
+                [runtime, "inspect", container, "--format", "{{.Image}}"]
             ).stdout.strip()
-            image_digests[container] = json.loads(raw) if raw not in {"", "null"} else []
+            image_ids[container] = image_id
+            raw = run(
+                [runtime, "image", "inspect", image_id, "--format", "{{json .RepoDigests}}"],
+                check=False,
+            ).stdout.strip()
+            image_digests[container] = (
+                json.loads(raw) if raw not in {"", "null"} else []
+            )
         checks["resolved_external_image_digests_recorded"] = all(
             image_digests.get(container)
             for container in (
@@ -390,6 +398,7 @@ def main() -> int:
             )
         ),
         "toolhive_container_e2e": checks.get("toolhive_mcp_container_running", False),
+        "image_content_ids": image_ids,
         "image_repo_digests": image_digests,
         "toolhive_detail": toolhive_detail,
         "orchestration": "docker_compose" if compose_available else "raw_docker_cli",
