@@ -22,6 +22,11 @@ ROOT = Path(__file__).resolve().parents[1]
 REPORT = ROOT / "reports" / "container_product_e2e_attempt.json"
 COMPOSE = ROOT / "deployment" / "product-e2e" / "docker-compose.yml"
 REQUEST_BODY = b"{}"
+CONTAINERS = (
+    "agentguard-product-backend",
+    "agentguard-product-opa-envoy",
+    "agentguard-product-envoy",
+)
 
 
 def run(command: list[str], *, check: bool = True, env=None) -> subprocess.CompletedProcess:
@@ -100,6 +105,102 @@ def wait_for_envoy() -> None:
     raise RuntimeError("Envoy did not become reachable")
 
 
+def raw_docker_up(runtime: str, run_id: str, environment: dict[str, str]) -> tuple[str, str]:
+    network = f"agentguard-internal-{run_id}"
+    backend_image = f"agentguard-product-backend:{run_id}"
+    run([runtime, "network", "create", "--internal", network], env=environment)
+    run(
+        [
+            runtime,
+            "build",
+            "-t",
+            backend_image,
+            str(ROOT / "deployment" / "product-e2e" / "backend"),
+        ],
+        env=environment,
+    )
+    common = [
+        "--network",
+        network,
+        "--read-only",
+        "--tmpfs",
+        "/tmp:noexec,nosuid,size=8m",
+        "--cap-drop",
+        "ALL",
+        "--security-opt",
+        "no-new-privileges:true",
+    ]
+    run(
+        [
+            runtime,
+            "run",
+            "-d",
+            "--name",
+            CONTAINERS[0],
+            "--network-alias",
+            "backend",
+            *common,
+            "-e",
+            f"AGENTGUARD_CONTAINER_TICKET_SECRET={environment['AGENTGUARD_CONTAINER_TICKET_SECRET']}",
+            backend_image,
+        ],
+        env=environment,
+    )
+    run(
+        [
+            runtime,
+            "run",
+            "-d",
+            "--name",
+            CONTAINERS[1],
+            "--network-alias",
+            "opa-envoy",
+            *common,
+            "-v",
+            f"{ROOT / 'deployment' / 'opa-envoy' / 'opa-envoy-config.yaml'}:/config/opa-envoy-config.yaml:ro",
+            "-v",
+            f"{ROOT / 'deployment' / 'opa-envoy' / 'envoy_guard.rego'}:/policy/envoy_guard.rego:ro",
+            "openpolicyagent/opa:1.16.2-envoy@sha256:f854ba5a366b7ff25a6b4598b8e408606cf47a3e39b8c560e9f02b062dd580db",
+            "run",
+            "--server",
+            "--addr=0.0.0.0:8181",
+            "--config-file=/config/opa-envoy-config.yaml",
+            "/policy/envoy_guard.rego",
+        ],
+        env=environment,
+    )
+    run(
+        [
+            runtime,
+            "run",
+            "-d",
+            "--name",
+            CONTAINERS[2],
+            *common,
+            "-p",
+            "127.0.0.1:18081:8081",
+            "-v",
+            f"{ROOT / 'deployment' / 'product-e2e' / 'envoy.yaml'}:/etc/envoy/envoy.yaml:ro",
+            "--entrypoint",
+            "/usr/local/bin/envoy",
+            "envoyproxy/envoy:v1.38.0@sha256:8146b97ee61a42cd216514709e4e3198af75f014974e3d9f310aef9c901fcbdf",
+            "-c",
+            "/etc/envoy/envoy.yaml",
+        ],
+        env=environment,
+    )
+    return network, backend_image
+
+
+def raw_docker_down(runtime: str, network: str, backend_image: str, environment) -> None:
+    for container in reversed(CONTAINERS):
+        run([runtime, "rm", "-f", container], check=False, env=environment)
+    if network:
+        run([runtime, "network", "rm", network], check=False, env=environment)
+    if backend_image:
+        run([runtime, "image", "rm", backend_image], check=False, env=environment)
+
+
 def main() -> int:
     run_id = os.environ.get("AGENTGUARD_RUN_ID") or uuid.uuid4().hex[:12]
     runtime = next(
@@ -122,15 +223,27 @@ def main() -> int:
         print(json.dumps({"status": report["status"], "run_id": run_id}))
         return 2
 
-    compose = [runtime, "compose", "-f", str(COMPOSE)]
+    compose_available = (
+        run([runtime, "compose", "version"], check=False).returncode == 0
+    )
+    compose = [runtime, "compose", "-f", str(COMPOSE)] if compose_available else []
     checks: dict[str, bool] = {}
     image_digests: dict[str, list[str]] = {}
     toolhive_detail = "not_run"
     ticket_secret = secrets.token_bytes(32)
     environment = os.environ.copy()
     environment["AGENTGUARD_CONTAINER_TICKET_SECRET"] = ticket_secret.hex()
+    raw_network = ""
+    raw_backend_image = ""
+    failure: dict[str, object] | None = None
+    container_diagnostics: dict[str, dict[str, object]] = {}
     try:
-        run([*compose, "up", "-d", "--build"], env=environment)
+        if compose_available:
+            run([*compose, "up", "-d", "--build"], env=environment)
+        else:
+            raw_network = f"agentguard-internal-{run_id}"
+            raw_backend_image = f"agentguard-product-backend:{run_id}"
+            raw_docker_up(runtime, run_id, environment)
         wait_for_envoy()
         denied_status, _ = request()
         forged_status, _ = request("container-e2e-forged-ticket")
@@ -156,7 +269,10 @@ def main() -> int:
             [runtime, "inspect", "agentguard-product-backend", "--format", "{{json .HostConfig.PortBindings}}"]
         ).stdout.strip()
         checks["backend_has_no_host_port"] = ports in {"null", "{}", ""}
-        run([*compose, "stop", "opa-envoy"], env=environment)
+        if compose_available:
+            run([*compose, "stop", "opa-envoy"], env=environment)
+        else:
+            run([runtime, "stop", CONTAINERS[1]], env=environment)
         outage_task_id = f"container-outage-{run_id}"
         outage_digest = request_action_digest(
             "POST", "/internal/tool-adapter/echo", REQUEST_BODY
@@ -164,12 +280,11 @@ def main() -> int:
         outage_ticket = issue_ticket(ticket_secret, outage_task_id, outage_digest)
         outage_status, _ = request(outage_ticket, outage_task_id)
         checks["opa_outage_fails_closed"] = outage_status in {401, 403, 500, 503}
-        run([*compose, "start", "opa-envoy"], env=environment)
-        for container in (
-            "agentguard-product-backend",
-            "agentguard-product-opa-envoy",
-            "agentguard-product-envoy",
-        ):
+        if compose_available:
+            run([*compose, "start", "opa-envoy"], env=environment)
+        else:
+            run([runtime, "start", CONTAINERS[1]], env=environment)
+        for container in CONTAINERS:
             raw = run(
                 [runtime, "inspect", container, "--format", "{{json .RepoDigests}}"]
             ).stdout.strip()
@@ -220,16 +335,38 @@ def main() -> int:
             checks["toolhive_runtime_doctor_passed"] = False
             checks["toolhive_mcp_container_running"] = False
             toolhive_detail = "ToolHive CLI unavailable"
+    except Exception as exc:
+        failure = {"type": type(exc).__name__, "message": str(exc)}
+        for container in CONTAINERS:
+            state = run(
+                [runtime, "ps", "-a", "--filter", f"name=^{container}$", "--format", "{{.Status}}"],
+                check=False,
+                env=environment,
+            )
+            logs = run(
+                [runtime, "logs", "--tail", "120", container],
+                check=False,
+                env=environment,
+            )
+            container_diagnostics[container] = {
+                "status": state.stdout.strip(),
+                "logs_tail": (logs.stdout + logs.stderr)[-8000:],
+            }
     finally:
-        run(
-            [*compose, "down", "--volumes", "--remove-orphans"],
-            check=False,
-            env=environment,
-        )
+        if compose_available:
+            run(
+                [*compose, "down", "--volumes", "--remove-orphans"],
+                check=False,
+                env=environment,
+            )
+        else:
+            raw_docker_down(
+                runtime, raw_network, raw_backend_image, environment
+            )
 
     report = {
         **base,
-        "status": "passed" if all(checks.values()) else "failed",
+        "status": "passed" if failure is None and all(checks.values()) else "failed",
         "checks": checks,
         "passed": sum(checks.values()),
         "total": len(checks),
@@ -248,11 +385,14 @@ def main() -> int:
         "toolhive_container_e2e": checks.get("toolhive_mcp_container_running", False),
         "image_repo_digests": image_digests,
         "toolhive_detail": toolhive_detail,
+        "orchestration": "docker_compose" if compose_available else "raw_docker_cli",
+        "failure": failure,
+        "container_diagnostics": container_diagnostics,
         "boundary": "OPA-Envoy performs fail-closed network authorization; the protected backend independently validates the signed, time-limited, action-bound, one-time ticket.",
     }
     REPORT.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"status": report["status"], "passed": report["passed"], "total": report["total"], "run_id": run_id}))
-    return 0 if all(checks.values()) else 1
+    return 0 if failure is None and all(checks.values()) else 1
 
 
 if __name__ == "__main__":

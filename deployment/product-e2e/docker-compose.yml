@@ -36,7 +36,10 @@ services:
   envoy:
     image: envoyproxy/envoy:v1.38.0@sha256:8146b97ee61a42cd216514709e4e3198af75f014974e3d9f310aef9c901fcbdf
     container_name: agentguard-product-envoy
-    command: ["envoy", "-c", "/etc/envoy/envoy.yaml"]
+    # The stock entrypoint chowns /dev/stdout and /dev/stderr.  Bypass it so
+    # the container can keep cap_drop=ALL and no-new-privileges.
+    entrypoint: ["/usr/local/bin/envoy"]
+    command: ["-c", "/etc/envoy/envoy.yaml"]
     volumes:
       - ./envoy.yaml:/etc/envoy/envoy.yaml:ro
     ports:

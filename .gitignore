@@ -11,10 +11,12 @@ enforcement/runtime/*.jsonl
 third_party/downloads/*.zip
 third_party/downloads/*.iso
 third_party/downloads/*.iso.sha256
+third_party/downloads/*.tar.gz
 third_party/downloads/vmlinuz-*
 third_party/downloads/initramfs-*
 third_party/downloads/*cloud*.qcow2
 third_party/runtime/
+third_party/cache/
 reports/keycloak_state/
 reports/network_e2e_state/
 reports/keycloak_stdout.log
