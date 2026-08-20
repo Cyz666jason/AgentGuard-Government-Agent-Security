@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import http.client
 import json
 import os
 import socket
@@ -487,15 +488,22 @@ class InvokeContractTests(ServiceTestBase):
             ).start()
             try:
                 before = opa.decision_calls
-                request = urllib.request.Request(
-                    f"{service.base_url}/invoke",
-                    data=b"x" * (1024 * 1024 + 10),
-                    headers={"Content-Type": "application/json"},
-                    method="POST",
+                connection = http.client.HTTPConnection(
+                    "127.0.0.1", service.port, timeout=10
                 )
-                with self.assertRaises(urllib.error.HTTPError) as caught:
-                    urllib.request.urlopen(request, timeout=10)
-                self.assertEqual(caught.exception.code, 413)
+                try:
+                    connection.putrequest("POST", "/invoke")
+                    connection.putheader("Content-Type", "application/json")
+                    connection.putheader("Content-Length", str(1024 * 1024 + 10))
+                    connection.endheaders()
+                    response = connection.getresponse()
+                    self.assertEqual(response.status, 413)
+                    self.assertEqual(
+                        json.load(response)["reason_code"],
+                        "S021_REQUEST_SIZE_REJECTED",
+                    )
+                finally:
+                    connection.close()
                 self.assertEqual(opa.decision_calls, before)
             finally:
                 service.close()
