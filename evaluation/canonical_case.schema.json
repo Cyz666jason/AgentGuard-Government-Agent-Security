@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentguard.example/schemas/public-benchmark-case-1.0.json",
+  "title": "AgentGuard public benchmark normalized case",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "benchmark",
+    "source_id",
+    "split",
+    "task_family",
+    "scenario_type",
+    "threat_type",
+    "user_goal",
+    "untrusted_content",
+    "requested_actions",
+    "expected_security_outcome",
+    "risk_tags",
+    "original_labels",
+    "provenance",
+    "content_hash"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "benchmark": {"enum": ["agentdojo", "injecagent", "agentharm"]},
+    "source_id": {"type": "string", "minLength": 1},
+    "split": {"enum": ["train", "validation", "test", "test_public", "test_public_benign", "unknown"]},
+    "task_family": {"type": "string", "minLength": 1},
+    "scenario_type": {"enum": ["benign", "prompt_injection", "harmful_request"]},
+    "threat_type": {"enum": ["none", "indirect_prompt_injection", "direct_harm", "data_exfiltration", "harmful_multi_step"]},
+    "user_goal": {"type": "string", "minLength": 1},
+    "untrusted_content": {"type": ["string", "null"]},
+    "requested_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tool", "operation", "resource", "parameters"],
+        "properties": {
+          "tool": {"type": "string", "minLength": 1},
+          "operation": {"type": "string", "minLength": 1},
+          "resource": {"type": "string"},
+          "parameters": {"type": "object"}
+        }
+      }
+    },
+    "expected_security_outcome": {"enum": ["allow", "require_approval", "deny"]},
+    "risk_tags": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "original_labels": {"type": "object"},
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_url", "source_revision", "source_path"],
+      "properties": {
+        "source_url": {"type": "string", "pattern": "^https://"},
+        "source_revision": {"type": "string", "minLength": 1},
+        "source_path": {"type": "string", "minLength": 1}
+      }
+    },
+    "content_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

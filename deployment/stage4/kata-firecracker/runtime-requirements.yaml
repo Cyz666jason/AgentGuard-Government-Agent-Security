@@ -1,0 +1,29 @@
+# Planning template only. It is not evidence that either runtime has executed.
+schemaVersion: 1
+host:
+  os: Linux
+  architectures:
+    - x86_64
+    - aarch64
+  requiredDevices:
+    - path: /dev/kvm
+      access: read-write
+runtimes:
+  kata:
+    binary: kata-runtime
+    acceptanceCommand: kata-runtime check --no-network-checks
+  firecracker:
+    binary: firecracker
+    jailerBinary: jailer
+    acceptanceCommand: firecracker --version
+artifacts:
+  kernelImageReference: REQUIRED_EXTERNAL_REFERENCE
+  rootfsImageReference: REQUIRED_EXTERNAL_REFERENCE
+  workloadReference: REQUIRED_EXTERNAL_REFERENCE
+evidenceRequired:
+  - runtime version and image digest
+  - guest kernel different from host kernel
+  - no host filesystem or device exposure beyond allowlist
+  - CPU memory process network and timeout limits
+  - escape and dangerous-system-call negative tests
+  - cold-start latency throughput and resource overhead with independent denominators

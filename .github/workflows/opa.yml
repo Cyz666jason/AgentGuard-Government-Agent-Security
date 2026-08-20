@@ -47,8 +47,12 @@ jobs:
           pip check
       - name: Python security and integration tests
         run: python -m enforcement.run_tests
+      - name: Stage 3 public-benchmark contract and Stage 4 preflight
+        run: |
+          python scripts/run_public_benchmark_evaluation.py smoke
+          python scripts/run_stage4_preflight.py || test $? -eq 2
       - name: Compile automation entrypoints
-        run: python -m py_compile scripts/*.py enforcement/*.py integrations/*.py deployment/product-e2e/backend/server.py
+        run: python -m py_compile scripts/*.py enforcement/*.py integrations/*.py integrations/openclaw_mcp/*.py evaluation/*.py deployment/product-e2e/backend/server.py
       - name: Refuse committed secrets and runtime state
         run: python scripts/prepublish_security_check.py
       - name: Validate product container configuration

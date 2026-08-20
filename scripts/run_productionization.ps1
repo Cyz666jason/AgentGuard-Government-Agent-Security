@@ -11,6 +11,13 @@ if ($Python -ne '') { $venvPython = $Python }
 
 Push-Location $projectRoot
 try {
+    & $venvPython .\scripts\run_public_benchmark_evaluation.py smoke
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+    & $venvPython .\scripts\run_stage4_preflight.py
+    $stage4PreflightExitCode = $LASTEXITCODE
+    if ($stage4PreflightExitCode -notin @(0, 2)) { exit $stage4PreflightExitCode }
+
     powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_openbao_kms_ha_e2e.ps1 -Python $venvPython
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
@@ -35,10 +42,19 @@ try {
     & $venvPython .\scripts\run_authorized_business_api_e2e.py
     if ($LASTEXITCODE -notin @(0, 2)) { exit $LASTEXITCODE }
 
+    & $venvPython .\scripts\generate_evidence_precedence.py
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
     & $venvPython .\scripts\prepublish_security_check.py
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     & $venvPython .\scripts\generate_productionization_status.py
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+    & $venvPython .\scripts\generate_route_progress.py
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+    & $venvPython .\scripts\check_status_consistency.py
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 } finally {
     Pop-Location

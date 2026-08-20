@@ -83,7 +83,9 @@ def main() -> int:
     qemu_report = ROOT / "reports" / "qemu_native_isolation_e2e.json"
     report = {
         "tested_at": datetime.now().astimezone().isoformat(timespec="seconds"),
-        "hostname": platform.node(),
+        # The exact workstation name is not needed to reproduce the test and
+        # must not be committed as publication metadata.
+        "hostname": "<HOSTNAME>",
         "os": platform.platform(),
         "architecture": platform.machine(),
         "processor": platform.processor(),

@@ -48,6 +48,22 @@ function Find-GitHubCli {
 
 Push-Location $projectRoot
 try {
+    & $venvPython .\scripts\run_public_benchmark_evaluation.py smoke
+    if ($LASTEXITCODE -ne 0) {
+        Add-Result 'Public benchmark adapter contract' 'failed' "exit_code=$LASTEXITCODE"
+        throw "Public benchmark adapter contract failed with exit code $LASTEXITCODE"
+    }
+    Add-Result 'Public benchmark adapter contract' 'fixture_contract_passed' '6 synthetic fixtures; not an upstream benchmark score'
+
+    & $venvPython .\scripts\run_stage4_preflight.py
+    $stage4Code = $LASTEXITCODE
+    if ($stage4Code -notin @(0, 2)) {
+        Add-Result 'Stage 4 external-environment preflight' 'failed' "exit_code=$stage4Code"
+        throw "Stage 4 preflight failed with exit code $stage4Code"
+    }
+    $stage4Report = Get-Content -LiteralPath (Join-Path $projectRoot 'reports\stage4_preflight.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+    Add-Result 'Stage 4 external-environment preflight' ([string]$stage4Report.status) "read_only=true; production_ready=false; exit_code=$stage4Code"
+
     powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_openbao_kms_ha_e2e.ps1 -Python $venvPython
     if ($LASTEXITCODE -ne 0) { throw "OpenBao shared approval/ticket E2E failed with exit code $LASTEXITCODE" }
     Add-Result 'OpenBao shared approval and ticket ledger' 'completed' 'exit_code=0'
@@ -81,8 +97,11 @@ try {
     }
 
     Invoke-PythonStep 'Authorized business API credential-gated E2E' @('.\scripts\run_authorized_business_api_e2e.py') @(0, 2)
+    Invoke-PythonStep 'Evidence precedence and historical annotation' @('.\scripts\generate_evidence_precedence.py')
     Invoke-PythonStep 'Pre-publication secret scan' @('.\scripts\prepublish_security_check.py')
     Invoke-PythonStep 'Productionization status report' @('.\scripts\generate_productionization_status.py')
+    Invoke-PythonStep 'Open-source route progress report' @('.\scripts\generate_route_progress.py')
+    Invoke-PythonStep 'Cross-report status consistency' @('.\scripts\check_status_consistency.py')
 
     $ghPath = Find-GitHubCli
     if ($null -eq $ghPath) {

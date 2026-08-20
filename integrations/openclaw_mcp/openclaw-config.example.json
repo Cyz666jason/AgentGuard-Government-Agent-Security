@@ -1,0 +1,23 @@
+{
+  "mcp": {
+    "servers": {
+      "agentguard-notices": {
+        "command": "C:\\path\\to\\OPA政企智能体安全原型\\.venv\\Scripts\\python.exe",
+        "args": ["-m", "integrations.openclaw_mcp"],
+        "cwd": "C:\\path\\to\\OPA政企智能体安全原型",
+        "env": {
+          "AGENTGUARD_MCP_BASE_URL": "https://agentguard.internal.example",
+          "AGENTGUARD_MCP_IDENTITY_MODE": "oidc",
+          "AGENTGUARD_MCP_TOKEN_FILE": "C:\\secure\\agentguard-user.token",
+          "AGENTGUARD_MCP_CA_BUNDLE": "C:\\secure\\internal-ca.pem"
+        },
+        "requestTimeoutMs": 20000,
+        "connectionTimeoutMs": 8000,
+        "supportsParallelToolCalls": false,
+        "toolFilter": {
+          "include": ["list_notices"]
+        }
+      }
+    }
+  }
+}

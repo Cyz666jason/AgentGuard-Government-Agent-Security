@@ -44,6 +44,13 @@ try {
     $pythonOutput | Set-Content -LiteralPath (Join-Path $reportDir 'full_python_tests.txt') -Encoding UTF8
     if ($pythonExitCode -ne 0) { exit $pythonExitCode }
 
+    & $venvPython .\scripts\run_public_benchmark_evaluation.py smoke
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+    & $venvPython .\scripts\run_stage4_preflight.py
+    $stage4PreflightExitCode = $LASTEXITCODE
+    if ($stage4PreflightExitCode -notin @(0, 2)) { exit $stage4PreflightExitCode }
+
     & $venvPython .\scripts\run_network_e2e.py |
         Set-Content -LiteralPath (Join-Path $reportDir 'network_enforcement_console.json') -Encoding UTF8
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -86,6 +93,9 @@ try {
         Set-Content -LiteralPath (Join-Path $reportDir 'container_product_e2e_console.json') -Encoding UTF8
     if ($LASTEXITCODE -notin @(0, 2)) { exit $LASTEXITCODE }
 
+    & $venvPython .\scripts\generate_evidence_precedence.py
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
     & $venvPython -m enforcement.generate_report |
         Set-Content -LiteralPath (Join-Path $reportDir 'full_security_console.json') -Encoding UTF8
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -96,6 +106,9 @@ try {
 
     & $venvPython .\scripts\generate_productionization_status.py |
         Set-Content -LiteralPath (Join-Path $reportDir 'productionization_status_console.json') -Encoding UTF8
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+    & $venvPython .\scripts\check_status_consistency.py
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 finally {

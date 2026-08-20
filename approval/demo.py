@@ -16,6 +16,20 @@ if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from approval.workflow import PROJECT_ROOT, build_workflow
+from enforcement.http_stack import OpaRestClient
+from service.opa_runtime import (
+    CLI_PERFORMANCE_NOTE,
+    REST_PERFORMANCE_NOTE,
+    ResidentOpaProcess,
+)
+
+
+def _free_port() -> int:
+    import socket
+
+    with socket.socket() as sock:
+        sock.bind(("127.0.0.1", 0))
+        return int(sock.getsockname()[1])
 
 
 def _interrupt_value(result: dict[str, Any]) -> Any:
@@ -36,6 +50,20 @@ def main() -> int:
         "--checkpoint",
         default=str(PROJECT_ROOT / "approval" / "checkpoints" / "demo.sqlite"),
     )
+    parser.add_argument(
+        "--opa-mode",
+        choices=["rest", "cli"],
+        default="rest",
+        help=(
+            "rest=常驻 OPA REST（默认，生产形态）；"
+            "cli=每次决策启动一次 OPA CLI，仅用于离线单文件复现，不是生产性能结果"
+        ),
+    )
+    parser.add_argument(
+        "--opa-base-url",
+        default="",
+        help="复用已在运行的常驻 OPA；留空则由本演示自行拉起一个临时常驻 OPA",
+    )
     args = parser.parse_args()
 
     sample_name = "allow_low_risk.json" if args.scenario == "allow" else "require_approval.json"
@@ -53,14 +81,32 @@ def main() -> int:
             "identity_source": "local_demo_authenticator",
         }
 
+    resident_opa: ResidentOpaProcess | None = None
+    opa_client = None
+    performance_note = CLI_PERFORMANCE_NOTE
+    if args.opa_mode == "rest":
+        base_url = args.opa_base_url
+        if not base_url:
+            resident_opa = ResidentOpaProcess(
+                PROJECT_ROOT, address=f"127.0.0.1:{_free_port()}"
+            ).start()
+            base_url = resident_opa.base_url
+        opa_client = OpaRestClient(base_url)
+        performance_note = REST_PERFORMANCE_NOTE
+
     graph, connection = build_workflow(
-        args.checkpoint, approver_authenticator=demo_authenticator
+        args.checkpoint,
+        approver_authenticator=demo_authenticator,
+        opa_client=opa_client,
     )
     try:
         first = graph.invoke({"request": request}, config=config)
         summary: dict[str, Any] = {
             "scenario": args.scenario,
             "thread_id": thread_id,
+            "opa_mode": args.opa_mode,
+            "performance_representative": args.opa_mode == "rest",
+            "performance_note": performance_note,
             "initial_effect": first["policy_decision"]["effect"],
             "paused": bool(first.get("__interrupt__")),
             "interrupt": _interrupt_value(first),
@@ -98,6 +144,8 @@ def main() -> int:
         return 0
     finally:
         connection.close()
+        if resident_opa is not None:
+            resident_opa.stop()
 
 
 if __name__ == "__main__":

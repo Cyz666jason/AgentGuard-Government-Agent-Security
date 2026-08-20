@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: agentguard
+  labels:
+    agentguard.security-boundary: enforcement
+    istio-injection: enabled

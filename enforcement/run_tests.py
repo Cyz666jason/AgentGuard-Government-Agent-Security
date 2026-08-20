@@ -20,8 +20,18 @@ def main() -> int:
         "enforcement/tests",
         "security_kernel/tests",
         "integrations/tests",
+        "integrations/openclaw_mcp/tests",
+        "evidence/tests",
+        "service/tests",
+        "evaluation/tests",
+        "deployment/stage4/tests",
     ):
-        suite.addTests(loader.discover(str(root / relative), pattern="test_*.py"))
+        directory = root / relative
+        if not directory.is_dir():
+            continue
+        suite.addTests(
+            loader.discover(str(directory), pattern="test_*.py", top_level_dir=root_text)
+        )
     result = unittest.TextTestRunner(stream=sys.stdout, verbosity=2).run(suite)
     return 0 if result.wasSuccessful() else 1
 

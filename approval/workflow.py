@@ -132,10 +132,15 @@ def build_workflow(
     executor: Callable[[dict[str, Any], dict[str, Any]], Mapping[str, Any]] | None = None,
     approval_service: ApprovalCredentialService | None = None,
     approver_authenticator: Callable[[Mapping[str, Any]], Mapping[str, Any]] | None = None,
+    opa_client: Any | None = None,
 ):
     """构建工作流，返回 ``(compiled_graph, sqlite_connection)``。
 
     调用方应为每个业务任务提供稳定且唯一的 ``thread_id``，并在结束后关闭连接。
+
+    ``opa_client`` 可注入常驻 OPA REST 客户端（``enforcement.http_stack.OpaRestClient``）。
+    不注入时回退到逐次启动 OPA CLI 的 :class:`OpaClient`，便于离线单文件复现，
+    但该模式的耗时包含进程启动与策略加载，**不是生产性能结果**。
     """
 
     checkpoint_path = Path(checkpoint_path)
@@ -155,7 +160,7 @@ def build_workflow(
                 checkpoint_path.with_suffix(checkpoint_path.suffix + ".approval.sqlite")
             ),
         )
-    opa = OpaClient(project_root)
+    opa = opa_client if opa_client is not None else OpaClient(project_root)
     connection = sqlite3.connect(str(checkpoint_path), check_same_thread=False)
     checkpointer = SqliteSaver(connection)
 

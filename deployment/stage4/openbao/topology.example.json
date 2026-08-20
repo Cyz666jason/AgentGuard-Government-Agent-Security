@@ -1,0 +1,20 @@
+{
+  "nodes": [
+    {
+      "id": "bao-a",
+      "api_url": "https://bao-a.example.invalid:8200",
+      "failure_domain": "zone-a"
+    },
+    {
+      "id": "bao-b",
+      "api_url": "https://bao-b.example.invalid:8200",
+      "failure_domain": "zone-b"
+    },
+    {
+      "id": "bao-c",
+      "api_url": "https://bao-c.example.invalid:8200",
+      "failure_domain": "zone-c"
+    }
+  ],
+  "warning": "Example names are reserved placeholders, not deployed endpoints."
+}

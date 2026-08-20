@@ -1,0 +1,434 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-20T09:41:30.639378+00:00",
+  "status": "passed_with_declared_scope",
+  "claim": "OpenClaw 2026.7.1-2 实机注册、doctor 和 MCP tools/list 已完成；一个只读工具已通过确定性 MCP tools/call 调用真实 AgentGuard 测试链。未配置模型凭据，故未执行 OpenClaw agent 模型回合，不能表述为“OpenClaw 模型自主调用完成”。",
+  "scope": {
+    "openclaw_runtime_registration": "completed",
+    "openclaw_live_tools_list": "completed",
+    "low_risk_call": "completed_by_deterministic_mcp_client_against_real_agentguard",
+    "openclaw_model_driven_tool_call": "not_run_no_authorized_model_credentials",
+    "identity": "loopback_static_dev_test_only",
+    "data": "isolated_synthetic_notice_sqlite",
+    "production_ready": false
+  },
+  "versions": {
+    "openclaw": "OpenClaw 2026.7.1-2 (0790d9f)",
+    "node": "v24.19.0",
+    "opa": "Version: 1.19.0\nBuild Commit: 1e32c796e8979b1bda2f768138500b1deb95ff24-dirty\nBuild Timestamp: 2026-07-30T19:38:54Z\nBuild Hostname: \nGo Version: go1.26.5\nPlatform: windows/amd64\nRego Version: v1\nWebAssembly: available",
+    "python": "3.12.13",
+    "adapter": "0.1.0",
+    "mcp_protocol": "2025-11-25",
+    "agentguard_service": "0.9.0"
+  },
+  "configuration": {
+    "server_name": "agentguard-notices",
+    "tool_filter_include": [
+      "list_notices"
+    ],
+    "mcp_definition_sha256": "e6bbd2ee99bc22600087723197b9aa7e19385d52df798f2f6ee5362178abf080",
+    "secret_values_recorded": false
+  },
+  "checks": {
+    "agentguard_ready": true,
+    "openclaw_cli_started": true,
+    "openclaw_registration_saved": true,
+    "openclaw_static_doctor_and_live_probe_passed": true,
+    "openclaw_tools_list_found_only_readonly_tool": true,
+    "protocol_initialize_and_tools_list_passed": true,
+    "low_risk_call_executed_without_business_side_effect": true,
+    "agentguard_audit_record_created": true,
+    "every_recorded_process_exited_zero": true
+  },
+  "openclaw_probe": {
+    "generatedAt": "2026-08-20T09:42:41.695Z",
+    "servers": {
+      "agentguard-notices": {
+        "launch": "<PYTHON> -m integrations.openclaw_mcp (cwd=<PROJECT_ROOT>)",
+        "tools": 1,
+        "requestTimeoutMs": 20000
+      }
+    },
+    "tools": [
+      "agentguard-notices__list_notices"
+    ],
+    "diagnostics": []
+  },
+  "agentguard_readiness": {
+    "ready": true,
+    "process_alive": true,
+    "checked_at": "2026-08-20T09:41:31.340+00:00",
+    "required_dependencies": [
+      "opa",
+      "signer",
+      "ticket_state"
+    ],
+    "dependencies": {
+      "opa": {
+        "name": "opa",
+        "healthy": true,
+        "required": true,
+        "detail": "mode=rest；canary_effect=deny",
+        "latency_ms": 3.182,
+        "checked_at": "2026-08-20T09:41:31.336+00:00"
+      },
+      "signer": {
+        "name": "signer",
+        "healthy": true,
+        "required": true,
+        "detail": "mode=hmac_env；sign_verify_roundtrip=ok",
+        "latency_ms": 0.065,
+        "checked_at": "2026-08-20T09:41:31.340+00:00"
+      },
+      "ticket_state": {
+        "name": "ticket_state",
+        "healthy": true,
+        "required": true,
+        "detail": "mode=read_only_presence_check",
+        "latency_ms": 0.004,
+        "checked_at": "2026-08-20T09:41:31.340+00:00"
+      },
+      "identity": {
+        "name": "identity",
+        "healthy": true,
+        "required": false,
+        "detail": "OIDC 未启用；该实例不校验访问令牌",
+        "latency_ms": 0.0,
+        "checked_at": "2026-08-20T09:41:31.340+00:00"
+      }
+    },
+    "blocking_dependencies": [],
+    "reason_codes": [],
+    "fail_closed": true
+  },
+  "agentguard_audit_evidence": {
+    "record_found": true,
+    "event_count": 2,
+    "tool": "database.query",
+    "operation": "query",
+    "result_status": "executed_isolated",
+    "reason_code": "G000_EXECUTED",
+    "ticket_value_recorded": false
+  },
+  "low_risk_call_evidence": {
+    "test_type": "mcp_protocol_compatibility",
+    "openclaw_runtime_used": false,
+    "claim": "协议兼容测试通过",
+    "generated_at": "2026-08-20T09:42:42.361120+00:00",
+    "versions": {
+      "python": "3.12.13",
+      "adapter": "0.1.0",
+      "requested_mcp_protocol": "2025-11-25"
+    },
+    "command": [
+      "<PYTHON>",
+      "-m",
+      "integrations.openclaw_mcp"
+    ],
+    "inputs": [
+      {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "initialize",
+        "params": {
+          "protocolVersion": "2025-11-25",
+          "capabilities": {},
+          "clientInfo": {
+            "name": "agentguard-protocol-probe",
+            "version": "0.1.0"
+          }
+        }
+      },
+      {
+        "jsonrpc": "2.0",
+        "method": "notifications/initialized",
+        "params": {}
+      },
+      {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "method": "tools/list",
+        "params": {}
+      },
+      {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "method": "tools/call",
+        "params": {
+          "name": "list_notices",
+          "arguments": {
+            "limit": 2
+          }
+        }
+      }
+    ],
+    "outputs": [
+      {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+          "protocolVersion": "2025-11-25",
+          "capabilities": {
+            "tools": {
+              "listChanged": false
+            }
+          },
+          "serverInfo": {
+            "name": "agentguard-openclaw-readonly",
+            "version": "0.1.0"
+          },
+          "instructions": "仅提供只读公告查询；所有实际调用必须经过 AgentGuard。"
+        }
+      },
+      {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "result": {
+          "tools": [
+            {
+              "name": "list_notices",
+              "title": "查询内部公告（只读）",
+              "description": "通过 AgentGuard 的权限、票据、安全内核和审计链查询内部公告；不能直连数据库，不提供写入、删除、付款、发布或运维能力。",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "default": 20,
+                    "description": "最多返回的公告条数"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "reason_code": {
+                    "type": "string"
+                  },
+                  "row_count": {
+                    "type": "integer"
+                  },
+                  "rows": {
+                    "type": "array"
+                  },
+                  "side_effect": {
+                    "const": false
+                  }
+                },
+                "required": [
+                  "status",
+                  "reason_code",
+                  "row_count",
+                  "rows",
+                  "side_effect"
+                ],
+                "additionalProperties": false
+              },
+              "annotations": {
+                "title": "AgentGuard 只读公告查询",
+                "readOnlyHint": true,
+                "destructiveHint": false,
+                "idempotentHint": true,
+                "openWorldHint": false
+              }
+            }
+          ]
+        }
+      },
+      {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"status\":\"executed_isolated\",\"reason_code\":\"G000_EXECUTED\",\"row_count\":2,\"rows\":[{\"id\":1,\"title\":\"政务服务系统维护通知\",\"department\":\"信息中心\",\"published_at\":\"2026-08-01\"},{\"id\":2,\"title\":\"第三季度材料归档安排\",\"department\":\"综合办公室\",\"published_at\":\"2026-08-03\"}],\"side_effect\":false}"
+            }
+          ],
+          "structuredContent": {
+            "status": "executed_isolated",
+            "reason_code": "G000_EXECUTED",
+            "row_count": 2,
+            "rows": [
+              {
+                "id": 1,
+                "title": "政务服务系统维护通知",
+                "department": "信息中心",
+                "published_at": "2026-08-01"
+              },
+              {
+                "id": 2,
+                "title": "第三季度材料归档安排",
+                "department": "综合办公室",
+                "published_at": "2026-08-03"
+              }
+            ],
+            "side_effect": false
+          },
+          "isError": false
+        }
+      }
+    ],
+    "stderr": "",
+    "process_exit_code": 0,
+    "checks": {
+      "process_exit_zero": true,
+      "stdout_is_jsonrpc_only": true,
+      "initialize_succeeded": true,
+      "tools_list_has_single_readonly_tool": true,
+      "low_risk_call_executed": true,
+      "low_risk_call_has_no_side_effect": true
+    },
+    "status": "passed"
+  },
+  "commands": [
+    {
+      "name": "node_version",
+      "command": [
+        "<NODE>",
+        "--version"
+      ],
+      "started_at": "2026-08-20T09:41:31.391561+00:00",
+      "finished_at": "2026-08-20T09:41:31.432965+00:00",
+      "duration_ms": 31.0,
+      "exit_code": 0,
+      "timed_out": false,
+      "stdout": "v24.19.0\n",
+      "stderr": ""
+    },
+    {
+      "name": "openclaw_version",
+      "command": [
+        "<NODE>",
+        "<OPENCLAW_ENTRY>",
+        "--version"
+      ],
+      "started_at": "2026-08-20T09:41:31.432965+00:00",
+      "finished_at": "2026-08-20T09:41:31.496658+00:00",
+      "duration_ms": 62.0,
+      "exit_code": 0,
+      "timed_out": false,
+      "stdout": "OpenClaw 2026.7.1-2 (0790d9f)\n",
+      "stderr": ""
+    },
+    {
+      "name": "opa_version",
+      "command": [
+        "<PROJECT_ROOT>\\tools\\opa.exe",
+        "version"
+      ],
+      "started_at": "2026-08-20T09:41:31.497686+00:00",
+      "finished_at": "2026-08-20T09:41:31.543360+00:00",
+      "duration_ms": 47.0,
+      "exit_code": 0,
+      "timed_out": false,
+      "stdout": "Version: 1.19.0\nBuild Commit: 1e32c796e8979b1bda2f768138500b1deb95ff24-dirty\nBuild Timestamp: 2026-07-30T19:38:54Z\nBuild Hostname: \nGo Version: go1.26.5\nPlatform: windows/amd64\nRego Version: v1\nWebAssembly: available\n",
+      "stderr": ""
+    },
+    {
+      "name": "openclaw_mcp_set",
+      "command": [
+        "<NODE>",
+        "<OPENCLAW_ENTRY>",
+        "mcp",
+        "set",
+        "agentguard-notices",
+        "{\"command\":\"<PYTHON>\",\"args\":[\"-m\",\"integrations.openclaw_mcp\"],\"cwd\":\"<PROJECT_ROOT>\",\"env\":{\"AGENTGUARD_MCP_BASE_URL\":\"http://127.0.0.1:55449\",\"AGENTGUARD_MCP_IDENTITY_MODE\":\"loopback_static_dev\",\"AGENTGUARD_MCP_DEV_SUBJECT_FILE\":\"<PROJECT_ROOT>\\\\integrations\\\\openclaw_mcp\\\\dev-subject.example.json\"},\"requestTimeoutMs\":20000,\"connectionTimeoutMs\":8000,\"supportsParallelToolCalls\":false,\"toolFilter\":{\"include\":[\"list_notices\"]}}"
+      ],
+      "started_at": "2026-08-20T09:41:31.543360+00:00",
+      "finished_at": "2026-08-20T09:41:49.093757+00:00",
+      "duration_ms": 17563.0,
+      "exit_code": 0,
+      "timed_out": false,
+      "stdout": "Saved MCP server \"agentguard-notices\" to <TEMP_STATE>\\openclaw-state\\openclaw.json.\n",
+      "stderr": ""
+    },
+    {
+      "name": "openclaw_mcp_show",
+      "command": [
+        "<NODE>",
+        "<OPENCLAW_ENTRY>",
+        "mcp",
+        "show",
+        "agentguard-notices",
+        "--json"
+      ],
+      "started_at": "2026-08-20T09:41:49.093757+00:00",
+      "finished_at": "2026-08-20T09:42:06.547428+00:00",
+      "duration_ms": 17453.0,
+      "exit_code": 0,
+      "timed_out": false,
+      "stdout": "{\n  \"command\": \"<PYTHON>\",\n  \"args\": [\n    \"-m\",\n    \"integrations.openclaw_mcp\"\n  ],\n  \"env\": {\n    \"AGENTGUARD_MCP_BASE_URL\": \"http://127.0.0.1:55449\",\n    \"AGENTGUARD_MCP_IDENTITY_MODE\": \"loopback_static_dev\",\n    \"AGENTGUARD_MCP_DEV_SUBJECT_FILE\": \"<PROJECT_ROOT>\\\\integrations\\\\openclaw_mcp\\\\dev-subject.example.json\"\n  },\n  \"cwd\": \"<PROJECT_ROOT>\",\n  \"connectionTimeoutMs\": 8000,\n  \"requestTimeoutMs\": 20000,\n  \"supportsParallelToolCalls\": false,\n  \"toolFilter\": {\n    \"include\": [\n      \"list_notices\"\n    ]\n  }\n}\n",
+      "stderr": ""
+    },
+    {
+      "name": "openclaw_mcp_doctor_probe",
+      "command": [
+        "<NODE>",
+        "<OPENCLAW_ENTRY>",
+        "mcp",
+        "doctor",
+        "agentguard-notices",
+        "--probe",
+        "--json"
+      ],
+      "started_at": "2026-08-20T09:42:06.547428+00:00",
+      "finished_at": "2026-08-20T09:42:24.194535+00:00",
+      "duration_ms": 17641.0,
+      "exit_code": 0,
+      "timed_out": false,
+      "stdout": "{\n  \"path\": \"<TEMP_STATE>\\\\openclaw-state\\\\openclaw.json\",\n  \"ok\": true,\n  \"servers\": [\n    {\n      \"name\": \"agentguard-notices\",\n      \"ok\": true,\n      \"issues\": []\n    }\n  ]\n}\n",
+      "stderr": ""
+    },
+    {
+      "name": "openclaw_mcp_probe",
+      "command": [
+        "<NODE>",
+        "<OPENCLAW_ENTRY>",
+        "mcp",
+        "probe",
+        "agentguard-notices",
+        "--json"
+      ],
+      "started_at": "2026-08-20T09:42:24.194535+00:00",
+      "finished_at": "2026-08-20T09:42:41.819371+00:00",
+      "duration_ms": 17625.0,
+      "exit_code": 0,
+      "timed_out": false,
+      "stdout": "{\n  \"generatedAt\": \"2026-08-20T09:42:41.695Z\",\n  \"servers\": {\n    \"agentguard-notices\": {\n      \"launch\": \"<PYTHON> -m integrations.openclaw_mcp (cwd=<PROJECT_ROOT>)\",\n      \"tools\": 1,\n      \"requestTimeoutMs\": 20000\n    }\n  },\n  \"tools\": [\n    \"agentguard-notices__list_notices\"\n  ],\n  \"diagnostics\": []\n}\n",
+      "stderr": ""
+    },
+    {
+      "name": "mcp_initialize_tools_list_and_low_risk_call",
+      "command": [
+        "<PYTHON>",
+        "-m",
+        "integrations.openclaw_mcp.protocol_probe",
+        "--limit",
+        "2",
+        "--report",
+        "<TEMP_STATE>\\protocol.json"
+      ],
+      "started_at": "2026-08-20T09:42:41.819371+00:00",
+      "finished_at": "2026-08-20T09:42:42.374736+00:00",
+      "duration_ms": 562.0,
+      "exit_code": 0,
+      "timed_out": false,
+      "stdout": "{\"test_type\": \"mcp_protocol_compatibility\", \"openclaw_runtime_used\": false, \"claim\": \"\\u534f\\u8bae\\u517c\\u5bb9\\u6d4b\\u8bd5\\u901a\\u8fc7\", \"generated_at\": \"2026-08-20T09:42:42.361120+00:00\", \"versions\": {\"python\": \"3.12.13\", \"adapter\": \"0.1.0\", \"requested_mcp_protocol\": \"2025-11-25\"}, \"command\": [\"<PYTHON>\", \"-m\", \"integrations.openclaw_mcp\"], \"inputs\": [{\"jsonrpc\": \"2.0\", \"id\": 1, \"method\": \"initialize\", \"params\": {\"protocolVersion\": \"2025-11-25\", \"capabilities\": {}, \"clientInfo\": {\"name\": \"agentguard-protocol-probe\", \"version\": \"0.1.0\"}}}, {\"jsonrpc\": \"2.0\", \"method\": \"notifications/initialized\", \"params\": {}}, {\"jsonrpc\": \"2.0\", \"id\": 2, \"method\": \"tools/list\", \"params\": {}}, {\"jsonrpc\": \"2.0\", \"id\": 3, \"method\": \"tools/call\", \"params\": {\"name\": \"list_notices\", \"arguments\": {\"limit\": 2}}}], \"outputs\": [{\"jsonrpc\": \"2.0\", \"id\": 1, \"result\": {\"protocolVersion\": \"2025-11-25\", \"capabilities\": {\"tools\": {\"listChanged\": false}}, \"serverInfo\": {\"name\": \"agentguard-openclaw-readonly\", \"version\": \"0.1.0\"}, \"instructions\": \"\\u4ec5\\u63d0\\u4f9b\\u53ea\\u8bfb\\u516c\\u544a\\u67e5\\u8be2\\uff1b\\u6240\\u6709\\u5b9e\\u9645\\u8c03\\u7528\\u5fc5\\u987b\\u7ecf\\u8fc7 AgentGuard\\u3002\"}}, {\"jsonrpc\": \"2.0\", \"id\": 2, \"result\": {\"tools\": [{\"name\": \"list_notices\", \"title\": \"\\u67e5\\u8be2\\u5185\\u90e8\\u516c\\u544a\\uff08\\u53ea\\u8bfb\\uff09\", \"description\": \"\\u901a\\u8fc7 AgentGuard \\u7684\\u6743\\u9650\\u3001\\u7968\\u636e\\u3001\\u5b89\\u5168\\u5185\\u6838\\u548c\\u5ba1\\u8ba1\\u94fe\\u67e5\\u8be2\\u5185\\u90e8\\u516c\\u544a\\uff1b\\u4e0d\\u80fd\\u76f4\\u8fde\\u6570\\u636e\\u5e93\\uff0c\\u4e0d\\u63d0\\u4f9b\\u5199\\u5165\\u3001\\u5220\\u9664\\u3001\\u4ed8\\u6b3e\\u3001\\u53d1\\u5e03\\u6216\\u8fd0\\u7ef4\\u80fd\\u529b\\u3002\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"limit\": {\"type\": \"integer\", \"minimum\": 1, \"maximum\": 100, \"default\": 20, \"description\": \"\\u6700\\u591a\\u8fd4\\u56de\\u7684\\u516c\\u544a\\u6761\\u6570\"}}, \"additionalProperties\": false}, \"outputSchema\": {\"type\": \"object\", \"properties\": {\"status\": {\"type\": \"string\"}, \"reason_code\": {\"type\": \"string\"}, \"row_count\": {\"type\": \"integer\"}, \"rows\": {\"type\": \"array\"}, \"side_effect\": {\"const\": false}}, \"required\": [\"status\", \"reason_code\", \"row_count\", \"rows\", \"side_effect\"], \"additionalProperties\": false}, \"annotations\": {\"title\": \"AgentGuard \\u53ea\\u8bfb\\u516c\\u544a\\u67e5\\u8be2\", \"readOnlyHint\": true, \"destructiveHint\": false, \"idempotentHint\": true, \"openWorldHint\": false}}]}}, {\"jsonrpc\": \"2.0\", \"id\": 3, \"result\": {\"content\": [{\"type\": \"text\", \"text\": \"{\\\"status\\\":\\\"executed_isolated\\\",\\\"reason_code\\\":\\\"G000_EXECUTED\\\",\\\"row_count\\\":2,\\\"rows\\\":[{\\\"id\\\":1,\\\"title\\\":\\\"\\u653f\\u52a1\\u670d\\u52a1\\u7cfb\\u7edf\\u7ef4\\u62a4\\u901a\\u77e5\\\",\\\"department\\\":\\\"\\u4fe1\\u606f\\u4e2d\\u5fc3\\\",\\\"published_at\\\":\\\"2026-08-01\\\"},{\\\"id\\\":2,\\\"title\\\":\\\"\\u7b2c\\u4e09\\u5b63\\u5ea6\\u6750\\u6599\\u5f52\\u6863\\u5b89\\u6392\\\",\\\"department\\\":\\\"\\u7efc\\u5408\\u529e\\u516c\\u5ba4\\\",\\\"published_at\\\":\\\"2026-08-03\\\"}],\\\"side_effect\\\":false}\"}], \"structuredContent\": {\"status\": \"executed_isolated\", \"reason_code\": \"G000_EXECUTED\", \"row_count\": 2, \"rows\": [{\"id\": 1, \"title\": \"\\u653f\\u52a1\\u670d\\u52a1\\u7cfb\\u7edf\\u7ef4\\u62a4\\u901a\\u77e5\", \"department\": \"\\u4fe1\\u606f\\u4e2d\\u5fc3\", \"published_at\": \"2026-08-01\"}, {\"id\": 2, \"title\": \"\\u7b2c\\u4e09\\u5b63\\u5ea6\\u6750\\u6599\\u5f52\\u6863\\u5b89\\u6392\", \"department\": \"\\u7efc\\u5408\\u529e\\u516c\\u5ba4\", \"published_at\": \"2026-08-03\"}], \"side_effect\": false}, \"isError\": false}}], \"stderr\": \"\", \"process_exit_code\": 0, \"checks\": {\"process_exit_zero\": true, \"stdout_is_jsonrpc_only\": true, \"initialize_succeeded\": true, \"tools_list_has_single_readonly_tool\": true, \"low_risk_call_executed\": true, \"low_risk_call_has_no_side_effect\": true}, \"status\": \"passed\"}\n",
+      "stderr": ""
+    }
+  ],
+  "limitations": [
+    "OpenClaw probe establishes a real MCP session and performs tools/list; it does not call tools/call.",
+    "The low-risk tools/call was deterministic protocol testing, not a model-driven OpenClaw agent turn.",
+    "The identity is an operator-configured loopback test identity, not a real per-user OIDC token.",
+    "The returned notices come from isolated synthetic SQLite test data, not production data.",
+    "Production still requires requester-scoped OIDC/OAuth, HTTPS/mTLS, network isolation, HA state and authorized business credentials."
+  ]
+}

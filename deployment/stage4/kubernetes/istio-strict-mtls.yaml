@@ -1,0 +1,10 @@
+# This template assumes Istio. If another mesh is selected, replace this file
+# with an equivalent STRICT workload identity and plaintext-rejection policy.
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: agentguard-strict-mtls
+  namespace: agentguard
+spec:
+  mtls:
+    mode: STRICT

@@ -1,0 +1,58 @@
+# Example least-privilege control path. Verify actual workload labels, ports,
+# namespace labels and required egress before applying.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: agentguard-gateway-ingress
+  namespace: agentguard
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: agentguard-gateway
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              agentguard.security-boundary: trusted-agent-ingress
+          podSelector:
+            matchLabels:
+              agentguard-client: "true"
+      ports:
+        - protocol: TCP
+          port: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: agentguard-gateway-internal-egress
+  namespace: agentguard
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: agentguard-gateway
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/component: policy
+      ports:
+        - protocol: TCP
+          port: 8181
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/component: ticket-state
+      ports:
+        - protocol: TCP
+          port: 8200
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/component: identity
+      ports:
+        - protocol: TCP
+          port: 8443

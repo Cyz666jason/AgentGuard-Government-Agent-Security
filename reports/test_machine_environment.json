@@ -1,6 +1,6 @@
-﻿{
-  "tested_at": "2026-08-14T06:05:22+08:00",
-  "hostname": "LAPTOP-JBJSO312",
+{
+  "tested_at": "2026-08-20T17:03:55+08:00",
+  "hostname": "<HOSTNAME>",
   "os": "Windows-11-10.0.26200-SP0",
   "architecture": "AMD64",
   "processor": "AMD64 Family 25 Model 97 Stepping 2, AuthenticAMD",
@@ -26,5 +26,31 @@
     "toolhive_container_tested": false,
     "native_http_policy_enforcement_e2e_tested": true,
     "reason": "本测试机未安装 Docker，WSL 命令存在但没有 Linux 发行版。"
+  },
+  "superseded_by": {
+    "note": "本文件保留为历史记录。其中的结论产生于下列测试时间与环境，已被更高优先级的证据取代，不代表当前仓库结论。",
+    "this_evidence_tested_at": "2026-08-20T17:03:55+08:00",
+    "this_evidence_environment": "local_windows_test_machine",
+    "this_evidence_tier": "historical_environment_check",
+    "superseded_claims": [
+      {
+        "claim": "opa_envoy_container_e2e",
+        "recorded_verdict": false,
+        "current_verdict": true,
+        "superseded_by": "reports/github_actions_container_product_e2e.json",
+        "superseding_tier": "ci_evidence_ancestor_commit",
+        "superseding_tested_at": "2026-08-14T10:40:28.621959+00:00",
+        "superseding_environment": "github_actions/ubuntu-latest"
+      },
+      {
+        "claim": "toolhive_container_e2e",
+        "recorded_verdict": false,
+        "current_verdict": true,
+        "superseded_by": "reports/github_actions_container_product_e2e.json",
+        "superseding_tier": "ci_evidence_ancestor_commit",
+        "superseding_tested_at": "2026-08-14T10:40:28.621959+00:00",
+        "superseding_environment": "github_actions/ubuntu-latest"
+      }
+    ]
   }
 }

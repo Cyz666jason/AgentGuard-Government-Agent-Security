@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "kata_firecracker": {
+    "required_runtimes": [
+      "kata-runtime",
+      "firecracker",
+      "jailer"
+    ],
+    "kernel_image_reference": "",
+    "rootfs_image_reference": "",
+    "test_workload_reference": ""
+  },
+  "openbao": {
+    "nodes": [
+      {
+        "id": "",
+        "api_url": "",
+        "failure_domain": ""
+      },
+      {
+        "id": "",
+        "api_url": "",
+        "failure_domain": ""
+      },
+      {
+        "id": "",
+        "api_url": "",
+        "failure_domain": ""
+      }
+    ],
+    "ca_cert_file": "",
+    "auto_unseal": {
+      "provider": "",
+      "key_reference": ""
+    },
+    "snapshot": {
+      "target_reference": "",
+      "restore_test_environment": ""
+    },
+    "network_partition_test_environment": "",
+    "capacity_test_environment": ""
+  },
+  "kubernetes": {
+    "context": "",
+    "namespace": "agentguard",
+    "networkpolicy_enforcement_evidence_reference": "",
+    "mtls_provider": "",
+    "mtls_enforcement_evidence_reference": "",
+    "failure_test_environment": ""
+  },
+  "keycloak": {
+    "public_url": "",
+    "node_endpoints": [],
+    "ca_cert_file": "",
+    "database_ha_confirmed": false,
+    "cache_ha_confirmed": false,
+    "load_balancer_health_reference": "",
+    "directory_federation": {
+      "type": "",
+      "connection_reference": ""
+    },
+    "real_mfa": {
+      "method": "",
+      "authorized_test_account_reference": ""
+    }
+  },
+  "business_and_data": {
+    "api": {
+      "side_effect_test_scope": "",
+      "rollback_or_compensation_reference": ""
+    },
+    "authorized_dataset": {
+      "expected_dataset_id": "",
+      "expected_purpose": "",
+      "expected_schema_version": "",
+      "redaction_output_directory": ""
+    }
+  }
+}

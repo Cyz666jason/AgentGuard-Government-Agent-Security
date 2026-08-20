@@ -1,4 +1,9 @@
-"""Summarize productionization evidence without turning gaps into successes."""
+"""Summarize productionization evidence without turning gaps into successes.
+
+状态一律由 ``evidence.precedence`` 裁决，不在本文件里手工写死结论：与当前提交
+历史匹配的 CI 实测证据 > 本机新鲜实测证据 > 历史环境检查与历史失败记录。
+本机没有容器运行时产生的历史失败因此不会再覆盖 GitHub Linux Runner 的成功结果。
+"""
 
 from __future__ import annotations
 
@@ -6,6 +11,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -13,13 +19,47 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 REPORTS = ROOT / "reports"
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from evidence.precedence import (  # noqa: E402
+    TIER_CI_ANCESTOR,
+    TIER_CI_HEAD,
+    TIER_CI_UNRELATED,
+    TIER_LOCAL_FRESH,
+    EvidenceResolver,
+    ResolvedClaim,
+)
+
+CI_TIERS = {TIER_CI_HEAD, TIER_CI_ANCESTOR, TIER_CI_UNRELATED}
+
+#: 只有这些状态代表"该项已经在某个测试环境实测通过"。
+#: ``production_ready`` 永远不由这些状态推导——生产就绪另有独立门槛。
+COMPLETED_STATUSES = {
+    "completed_ci_test_environment",
+    "completed_test_environment",
+    "completed_ha_test_environment",
+    "completed_authorized_e2e",
+    "completed_authorized_data",
+    "published_public",
+    "published_private",
+    "published_internal",
+}
+
+#: 外部环境类事项只允许使用这三种状态，禁止用"已完成"表述未验证的部署。
+EXTERNAL_STATUSES = {
+    "awaiting_authorized_input",
+    "blocked_external_environment",
+    "configuration_prepared_not_verified",
+}
 
 
 def load_optional(name: str) -> dict[str, Any] | None:
     path = REPORTS / name
     if not path.exists():
         return None
-    return json.loads(path.read_text(encoding="utf-8-sig"))
+    payload = json.loads(path.read_text(encoding="utf-8-sig"))
+    return payload if isinstance(payload, dict) else None
 
 
 def evidence_fresh(name: str, maximum_age_hours: float = 24.0) -> bool:
@@ -47,15 +87,103 @@ def command_available(name: str) -> bool:
     return False
 
 
+def evidence_age_hours(name: str) -> float | None:
+    path = REPORTS / name
+    if not path.exists():
+        return None
+    age = datetime.now(timezone.utc).timestamp() - path.stat().st_mtime
+    return round(max(age, 0.0) / 3600.0, 2)
+
+
+def local_suite_verdict(
+    payload: dict[str, Any] | None,
+    name: str,
+    run_id: str,
+    completed_status: str,
+) -> dict[str, Any]:
+    """判定"本机套件已实测通过"类事项。
+
+    时间流逝**不会**把一次成功的实测变成失败：过期只降级为"建议复测"，
+    并如实记录证据年龄。只有报告缺失、用例失败或 run_id 不匹配才算失败。
+    """
+
+    if payload is None:
+        return {"status": "failed_or_missing", "freshness": "missing", "age_hours": None}
+    passed = payload.get("passed")
+    total = payload.get("total")
+    if not isinstance(passed, int) or not isinstance(total, int) or total <= 0 or passed != total:
+        return {
+            "status": "failed_or_missing",
+            "freshness": "recorded",
+            "age_hours": evidence_age_hours(name),
+        }
+    if not evidence_current(payload, run_id):
+        return {
+            "status": "failed_or_missing",
+            "freshness": "run_id_mismatch",
+            "age_hours": evidence_age_hours(name),
+        }
+    fresh = evidence_fresh(name)
+    return {
+        "status": completed_status,
+        "freshness": "fresh" if fresh else "stale_recheck_recommended",
+        "age_hours": evidence_age_hours(name),
+    }
+
+
+def container_status(claim: ResolvedClaim) -> str:
+    """把容器类断言的裁决结果翻译成状态字符串。"""
+
+    if claim.verdict is not True:
+        return "blocked_external_environment"
+    if claim.tier in CI_TIERS:
+        return "completed_ci_test_environment"
+    if claim.tier == TIER_LOCAL_FRESH:
+        return "completed_test_environment"
+    return "blocked_external_environment"
+
+
+def publication_status(claim: ResolvedClaim) -> str:
+    if claim.verdict is not True:
+        return "blocked_external_environment"
+    publication = load_optional("github_publication.json") or {}
+    status = str(publication.get("status", ""))
+    return status if status.startswith("published_") else "blocked_external_environment"
+
+
+def describe(claim: ResolvedClaim) -> str:
+    """把裁决过程写成人可读的证据说明，包含被取代的历史记录。"""
+
+    winner = claim.winning
+    if winner is None:
+        return "无可用证据"
+    text = (
+        f"{winner.source}（{winner.tier}，环境={winner.environment}，"
+        f"测试时间={winner.tested_at or '未记录'}）：{winner.detail or '无补充说明'}"
+    )
+    if claim.superseded:
+        stale = "；".join(
+            f"{item.source}（{item.tier}，{item.tested_at or '未记录'}）"
+            for item in claim.superseded
+        )
+        text += f"；已取代的历史记录：{stale}"
+    return text
+
+
 def main() -> int:
+    resolver = EvidenceResolver(ROOT)
+    envoy_claim = resolver.resolve("opa_envoy_container_e2e")
+    toolhive_claim = resolver.resolve("toolhive_container_e2e")
+    publication_claim = resolver.resolve("github_public_release")
+
     openbao = load_optional("openbao_kms_ha_e2e.json")
     openbao_raft = load_optional("openbao_raft_ha_e2e.json")
     qemu = load_optional("qemu_native_isolation_e2e.json")
-    toolhive = load_optional("toolhive_environment_check.json") or {}
+    toolhive_env = load_optional("toolhive_environment_check.json") or {}
     redaction = load_optional("authorized_data_redaction.json")
     secret_scan = load_optional("prepublish_security_check.json") or {}
-    container_attempt = load_optional("container_product_e2e_attempt.json") or {}
     business_api = load_optional("authorized_business_api_e2e.json") or {}
+    stage4_preflight = load_optional("stage4_preflight.json") or {}
     run_id = os.environ.get("AGENTGUARD_RUN_ID", "standalone")
     credentials_present = all(
         os.environ.get(name)
@@ -78,75 +206,173 @@ def main() -> int:
         if completed.returncode == 0:
             remote_urls = [line for line in completed.stdout.splitlines() if line.strip()]
 
+    openbao_verdict = local_suite_verdict(
+        openbao, "openbao_kms_ha_e2e.json", run_id, "completed_ha_test_environment"
+    )
+    openbao_raft_verdict = local_suite_verdict(
+        openbao_raft, "openbao_raft_ha_e2e.json", run_id, "completed_ha_test_environment"
+    )
+    qemu_verdict = local_suite_verdict(
+        qemu, "qemu_native_isolation_e2e.json", run_id, "completed_test_environment"
+    )
+    stage4_status = str(stage4_preflight.get("status", ""))
+    stage4_evidence_valid = (
+        stage4_status in EXTERNAL_STATUSES
+        and stage4_preflight.get("preflight_valid") is True
+        and stage4_preflight.get("production_ready") is False
+        and stage4_preflight.get("product_validation_completed") is False
+        and stage4_preflight.get("preflight_mode") == "read_only"
+        and evidence_current(stage4_preflight, run_id)
+    )
+    if not stage4_evidence_valid:
+        stage4_status = "blocked_external_environment"
+    stage4_summary = stage4_preflight.get("summary", {})
+
     items = [
         {
             "item": "OPA-Envoy产品容器E2E",
-            "status": "completed_test_environment" if container_attempt.get("opa_envoy_container_e2e") and evidence_fresh("container_product_e2e_attempt.json") and evidence_current(container_attempt, run_id) else "blocked_external_environment",
-            "evidence": f"策略4/4；容器E2E={container_attempt.get('opa_envoy_container_e2e', False)}；run_id={container_attempt.get('run_id', 'missing')}；fresh={evidence_fresh('container_product_e2e_attempt.json')}",
-            "blocker": "当前机器无Docker/Podman；脚本已就绪，有运行时会真实启动并做故障注入",
+            "status": container_status(envoy_claim),
+            "evidence": describe(envoy_claim),
+            "blocker": (
+                "已在 GitHub Linux Runner 容器环境实测；本机 Windows 无 Docker/Podman，"
+                "生产仍需 mTLS 与 NetworkPolicy 加固"
+                if container_status(envoy_claim).startswith("completed")
+                else "当前机器无Docker/Podman；脚本已就绪，有运行时会真实启动并做故障注入"
+            ),
         },
         {
             "item": "ToolHive MCP容器E2E",
-            "status": "completed_test_environment" if container_attempt.get("toolhive_container_e2e") and evidence_fresh("container_product_e2e_attempt.json") and evidence_current(container_attempt, run_id) else "blocked_external_environment",
-            "evidence": f"CLI/checksum={toolhive.get('checksum_verified', False)}；container={container_attempt.get('toolhive_container_e2e', False)}；run_id={container_attempt.get('run_id', 'missing')}",
-            "blocker": "ToolHive doctor确认没有Docker/Podman/Kubernetes",
+            "status": container_status(toolhive_claim),
+            "evidence": (
+                f"CLI/checksum={toolhive_env.get('checksum_verified', False)}；"
+                + describe(toolhive_claim)
+            ),
+            "blocker": (
+                "已在 GitHub Linux Runner 观察到命名 MCP 工作负载容器运行；"
+                "doctor 在临时 Runner 上返回 1，仅作环境提示不作功能判定"
+                if container_status(toolhive_claim).startswith("completed")
+                else "ToolHive doctor确认没有Docker/Podman/Kubernetes"
+            ),
         },
         {
             "item": "外部密钥与共享票据状态",
             "status": (
-                "completed_ha_test_environment"
-                if openbao
-                and openbao.get("passed") == openbao.get("total")
-                and evidence_fresh("openbao_kms_ha_e2e.json")
-                and evidence_current(openbao, run_id)
-                and openbao_raft
-                and openbao_raft.get("passed") == openbao_raft.get("total")
-                and evidence_fresh("openbao_raft_ha_e2e.json")
-                and evidence_current(openbao_raft, run_id)
+                openbao_verdict["status"]
+                if openbao_verdict["status"] == openbao_raft_verdict["status"]
                 else "failed_or_missing"
             ),
             "evidence": (
-                f"OpenBao Transit+KV {openbao['passed']}/{openbao['total']} run_id={openbao.get('run_id', 'missing')}；三节点Raft故障切换 {openbao_raft['passed']}/{openbao_raft['total']} run_id={openbao_raft.get('run_id', 'missing')}"
+                f"OpenBao Transit+KV {openbao['passed']}/{openbao['total']}"
+                f"（run_id={openbao.get('run_id', 'missing')}，测试时间={openbao.get('generated_at', '未记录')}，"
+                f"证据年龄={openbao_verdict['age_hours']}h，{openbao_verdict['freshness']}）；"
+                f"三节点Raft故障切换 {openbao_raft['passed']}/{openbao_raft['total']}"
+                f"（run_id={openbao_raft.get('run_id', 'missing')}，测试时间={openbao_raft.get('generated_at', '未记录')}，"
+                f"证据年龄={openbao_raft_verdict['age_hours']}h，{openbao_raft_verdict['freshness']}）"
                 if openbao and openbao_raft
                 else "未生成"
             ),
+            "evidence_freshness": openbao_verdict["freshness"],
             "blocker": "本机三进程已验证HA；正式生产仍需跨故障域、TLS、自动解封、备份恢复和容量压测",
         },
         {
             "item": "原生程序独立来宾内核隔离",
-            "status": (
-                "completed_test_environment"
-                if qemu and qemu.get("passed") == qemu.get("total")
-                and evidence_fresh("qemu_native_isolation_e2e.json")
-                and evidence_current(qemu, run_id)
-                else "failed_or_missing"
+            "status": qemu_verdict["status"],
+            "evidence": (
+                f"QEMU guest kernel {qemu['passed']}/{qemu['total']}"
+                f"（run_id={qemu.get('run_id', 'missing')}，测试时间={qemu.get('generated_at', '未记录')}，"
+                f"证据年龄={qemu_verdict['age_hours']}h，{qemu_verdict['freshness']}）"
+                if qemu
+                else "未生成"
             ),
-            "evidence": f"QEMU guest kernel {qemu['passed']}/{qemu['total']}；run_id={qemu.get('run_id', 'missing')}；fresh={evidence_fresh('qemu_native_isolation_e2e.json')}" if qemu else "未生成",
+            "evidence_freshness": qemu_verdict["freshness"],
             "blocker": "不是Kata/Firecracker，当前为TCG软件模拟且无KVM",
         },
         {
+            "item": "阶段4外部环境与授权输入预检",
+            "status": stage4_status,
+            "evidence": (
+                "只读预检："
+                f"prepared={stage4_summary.get('prepared_not_verified', 0)}，"
+                f"awaiting={stage4_summary.get('awaiting_authorized_input', 0)}，"
+                f"blocked={stage4_summary.get('blocked_external_environment', 0)}；"
+                "production_ready=false，product_validation_completed=false；"
+                "报告=reports/stage4_preflight.json"
+            ),
+            "blocker": (
+                "预检只核对本地前置条件、非密配置和授权输入，不替代KVM、跨故障域、"
+                "Kubernetes、身份基础设施或真实业务产品E2E"
+            ),
+        },
+        {
             "item": "真实业务系统凭据与E2E",
-            "status": "completed_authorized_e2e" if business_api.get("status", "").startswith("passed") else ("ready_for_credentials" if not credentials_present else "credentials_detected_not_yet_e2e"),
+            "status": (
+                "completed_authorized_e2e"
+                if business_api.get("status", "").startswith("passed")
+                else (
+                    "awaiting_authorized_input"
+                    if not credentials_present
+                    else "configuration_prepared_not_verified"
+                )
+            ),
             "evidence": f"HTTPS、主机白名单、CA、幂等键、双确认写门、可信OIDC审批与对账状态已实现；报告={business_api.get('status', 'missing')}",
             "blocker": "未提供单位批准的预生产URL、令牌、CA和审批人OIDC令牌，不会生成或猜测真实凭据",
         },
         {
             "item": "脱敏生产数据",
-            "status": "completed_authorized_data" if redaction and redaction.get("status") == "passed" and evidence_fresh("authorized_data_redaction.json") and evidence_current(redaction, run_id) else "ready_for_authorized_data",
+            "status": (
+                "completed_authorized_data"
+                if redaction
+                and redaction.get("status") == "passed"
+                and evidence_fresh("authorized_data_redaction.json")
+                and evidence_current(redaction, run_id)
+                else "awaiting_authorized_input"
+            ),
             "evidence": "确定性去标识、秘密字段删除、IP泛化和SHA-256报告已实现",
             "blocker": "未提供获批原始日志；测试样例不能冒充生产数据",
         },
         {
-            "item": "远程GitHub私有仓库",
-            "status": "completed" if remote_urls else "ready_for_authentication",
-            "evidence": f"本地git仓库、.gitignore、许可证；发布前扫描={secret_scan.get('status', 'missing')}",
-            "blocker": "GitHub CLI和网页均未登录；不能代替用户创建账号或凭据",
+            "item": "远程GitHub仓库发布",
+            "status": publication_status(publication_claim),
+            "evidence": describe(publication_claim),
+            "blocker": (
+                "仓库已公开可读；公开发布不等于生产验收，密钥与授权数据仍不入库"
+                if publication_status(publication_claim).startswith("published_")
+                else "GitHub CLI和网页均未登录；不能代替用户创建账号或凭据"
+            ),
         },
     ]
+
+    production_ready_blockers = [
+        "Kata/Firecracker 产品级 KVM 隔离未在 Linux/KVM 环境验证",
+        "OpenBao 跨故障域、TLS、自动解封、快照恢复与容量压测未验证",
+        "Kubernetes NetworkPolicy 与 mTLS 未在真实集群验证",
+        "Keycloak HTTPS、高可用、目录联邦与真实 MFA 未验证",
+        "未接入单位授权的真实业务 API",
+        "未获得授权生产数据用于脱敏与回放",
+    ]
+
     report = {
         "run_id": run_id,
         "generated_at": datetime.now().astimezone().isoformat(),
-        "all_production_items_completed": all(item["status"] == "completed" for item in items),
+        "evidence_precedence": {
+            "rule": (
+                "与当前提交历史匹配的CI实测证据 > 当前机器新鲜实测证据 > "
+                "历史环境检查与历史失败记录"
+            ),
+            "report": "reports/evidence_precedence.json",
+            "head_commit": resolver.head_commit,
+            "claims": {
+                "opa_envoy_container_e2e": envoy_claim.as_dict(),
+                "toolhive_container_e2e": toolhive_claim.as_dict(),
+                "github_public_release": publication_claim.as_dict(),
+            },
+        },
+        "all_production_items_completed": all(
+            item["status"] in COMPLETED_STATUSES for item in items
+        ),
+        "production_ready": False,
+        "production_ready_blockers": production_ready_blockers,
+        "external_status_vocabulary": sorted(EXTERNAL_STATUSES),
         "items": items,
         "installed_tools": {
             "git": command_available("git"),
@@ -167,20 +393,57 @@ def main() -> int:
         f"| {item['item']} | {item['status']} | {item['evidence']} | {item['blocker']} |"
         for item in items
     )
+    blocker_rows = "\n".join(f"- {item}" for item in production_ready_blockers)
     markdown = f"""# AgentGuard 生产化自动推进状态
 
 生成时间：{report['generated_at']}
+
+## 证据优先级
+
+状态不手工写死，由 `evidence/precedence.py` 裁决：
+
+1. 与当前提交历史匹配的 CI 实测证据；
+2. 当前机器产生的新鲜实测证据；
+3. 与当前提交无关的 CI 证据；
+4. 历史环境检查与历史失败记录。
+
+因此本机缺少容器运行时产生的历史失败**不会**覆盖 GitHub Linux Runner 的成功结果；
+被取代的历史文件保留原始测量值，并在文件内 `superseded_by` 字段注明测试时间、
+测试环境与取代它的新证据。裁决明细见 `reports/evidence_precedence.json`。
 
 | 内容 | 状态 | 当前证据 | 尚缺条件/边界 |
 |---|---|---|---|
 {rows}
 
+## 生产就绪
+
+`production_ready` = **false**。仍未满足的硬性条件：
+
+{blocker_rows}
+
 ## 结论
 
-已经自动完成 OpenBao 外部密钥与共享票据状态验证、三节点Raft选主/复制/主节点故障切换、QEMU 独立 Linux 来宾内核隔离、本地 Git 仓库、真实业务 HTTPS 接入代码和生产数据脱敏流水线。需要管理员权限、单位授权数据、真实预生产凭据或用户 GitHub 登录的项目保留为外部阻塞，不能自动伪造为完成。
+已经自动完成 OpenBao 外部密钥与共享票据状态验证、三节点 Raft 选主/复制/主节点故障切换、
+QEMU 独立 Linux 来宾内核隔离、OPA-Envoy 与 ToolHive 的 Linux 容器 E2E（GitHub Actions 实测）、
+公开仓库发布、真实业务 HTTPS 接入代码、生产数据脱敏流水线，以及阶段4只读预检与验收模板。需要 Linux/KVM、多台服务器、
+单位授权数据或真实预生产凭据的项目保留为外部阻塞，只允许使用
+`awaiting_authorized_input`、`blocked_external_environment`、
+`configuration_prepared_not_verified` 三种状态，不能自动伪造为完成。
 """
     (REPORTS / "productionization_status.md").write_text(markdown, encoding="utf-8")
-    print(json.dumps({"items": len(items), "report": str(json_path)}, ensure_ascii=False))
+    print(
+        json.dumps(
+            {
+                "items": len(items),
+                "report": str(json_path),
+                "opa_envoy": items[0]["status"],
+                "toolhive": items[1]["status"],
+                "publication": items[-1]["status"],
+                "production_ready": report["production_ready"],
+            },
+            ensure_ascii=False,
+        )
+    )
     return 0
 
 

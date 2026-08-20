@@ -1,0 +1,7 @@
+{
+  "id": "user-001",
+  "department": "综合办公室",
+  "roles": ["office_user"],
+  "clearance": 1,
+  "mfa": true
+}

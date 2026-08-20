@@ -1,6 +1,6 @@
 {
-  "run_id": "403cfd8e1f22",
-  "generated_at": "2026-08-14T06:16:57.479901+08:00",
+  "run_id": "standalone",
+  "generated_at": "2026-08-20T17:04:43.650437+08:00",
   "service": "OpenBao integrated storage Raft",
   "nodes": 3,
   "secret_material_in_report": false,

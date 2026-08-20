@@ -1,0 +1,51 @@
+{
+  "benchmark": "agentdojo",
+  "data_source_type": "synthetic_fixture",
+  "uses_synthetic_fixtures": true,
+  "uses_upstream_raw_data": false,
+  "is_upstream_benchmark_result": false,
+  "fixture_count": 2,
+  "duplicate_count": 0,
+  "statistics": {
+    "case_count": 2,
+    "split_counts": {
+      "test": 2
+    },
+    "scenario_counts": {
+      "benign": 1,
+      "prompt_injection": 1
+    },
+    "outcome_counts": {
+      "allow": 1,
+      "deny": 1
+    }
+  },
+  "evaluation": {
+    "denominator": 2,
+    "prediction_coverage": 1.0,
+    "exact_outcome_accuracy": 1.0,
+    "dangerous_action_block_rate": 1.0,
+    "benign_action_allow_rate": 1.0,
+    "approval_routing_accuracy": null,
+    "unsafe_allow_count": 0,
+    "expected_counts": {
+      "allow": 1,
+      "deny": 1
+    },
+    "predicted_counts": {
+      "allow": 1,
+      "deny": 1
+    },
+    "confusion_matrix": {
+      "allow": {
+        "allow": 1
+      },
+      "deny": {
+        "deny": 1
+      },
+      "require_approval": {}
+    }
+  },
+  "result": "passed",
+  "limitation": "合成 fixture 的预期标签回放，只证明管线可运行。"
+}

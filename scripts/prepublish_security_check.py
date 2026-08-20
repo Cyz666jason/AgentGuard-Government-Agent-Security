@@ -1,9 +1,10 @@
-"""Fail closed when obvious high-impact secrets would enter the Git repository."""
+"""Fail closed when secrets or workstation identity would enter Git."""
 
 from __future__ import annotations
 
 import json
 import os
+import platform
 import re
 import subprocess
 from datetime import datetime
@@ -24,7 +25,24 @@ PATTERNS = {
         rb"(?:password|passwd|secret|api[_-]?key|access[_-]?token)\s*[:=]\s*['\"](?!replace-|leave-|__)[^'\"\r\n]{12,}['\"]",
         re.I,
     ),
+    # Limit the Windows rule to personal profile folders. This catches real
+    # workstation paths while allowing deliberately synthetic fixture paths.
+    "windows_user_absolute_path": re.compile(
+        rb"[A-Z]:[\\/]+Users[\\/]+[^\\/\r\n\"]+[\\/]+(?:Desktop|Documents|Downloads|AppData|\.codex)(?:[\\/]|$)",
+        re.I,
+    ),
+    "machine_hostname": re.compile(
+        rb"\b(?:LAPTOP|DESKTOP)-[A-Z0-9]{6,}\b",
+        re.I,
+    ),
 }
+
+_current_hostname = platform.node().strip()
+if _current_hostname and _current_hostname.lower() not in {"localhost", "<hostname>"}:
+    PATTERNS["current_machine_hostname"] = re.compile(
+        re.escape(_current_hostname.encode("utf-8")),
+        re.I,
+    )
 
 
 def candidate_files() -> list[Path]:

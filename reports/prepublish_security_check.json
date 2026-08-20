@@ -1,8 +1,8 @@
 {
   "run_id": "standalone",
-  "generated_at": "2026-08-14T18:29:21.360908+08:00",
+  "generated_at": "2026-08-20T18:00:18.795203+08:00",
   "status": "passed",
-  "files_scanned": 179,
+  "files_scanned": 256,
   "binary_files_skipped": 2,
   "findings": [],
   "secret_values_recorded": false

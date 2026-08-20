@@ -1,0 +1,47 @@
+# Render one copy per node outside Git. Values in angle brackets are required.
+# Never place the auto-unseal token or TLS private key in the repository.
+ui = false
+disable_mlock = false
+api_addr = "https://<node-fqdn>:8200"
+cluster_addr = "https://<node-fqdn>:8201"
+
+listener "tcp" {
+  address            = "0.0.0.0:8200"
+  cluster_address    = "0.0.0.0:8201"
+  tls_disable        = false
+  tls_cert_file      = "/run/secrets/openbao/tls.crt"
+  tls_key_file       = "/run/secrets/openbao/tls.key"
+  tls_client_ca_file = "/run/secrets/openbao/ca.crt"
+}
+
+storage "raft" {
+  path                 = "/var/lib/openbao/raft"
+  node_id              = "<unique-node-id>"
+  performance_multiplier = 1
+
+  retry_join {
+    leader_api_addr         = "https://<peer-1-fqdn>:8200"
+    leader_tls_servername   = "<peer-1-fqdn>"
+    leader_ca_cert_file     = "/run/secrets/openbao/ca.crt"
+  }
+  retry_join {
+    leader_api_addr         = "https://<peer-2-fqdn>:8200"
+    leader_tls_servername   = "<peer-2-fqdn>"
+    leader_ca_cert_file     = "/run/secrets/openbao/ca.crt"
+  }
+}
+
+# Example structure. Render provider-specific values through the approved
+# deployment/secret system; do not commit the token.
+seal "transit" {
+  address         = "https://<independent-seal-service>:8200"
+  token           = "<injected-from-secret-manager-at-render-time>"
+  key_name        = "agentguard-auto-unseal"
+  mount_path      = "transit/"
+  tls_ca_cert     = "/run/secrets/openbao/seal-ca.crt"
+}
+
+telemetry {
+  disable_hostname = true
+  prometheus_retention_time = "30s"
+}

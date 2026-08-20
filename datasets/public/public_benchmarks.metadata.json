@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "reviewed_at": "2026-08-20",
+  "raw_data_bundled": false,
+  "fixtures_are_upstream_data": false,
+  "benchmarks": {
+    "agentdojo": {
+      "name": "AgentDojo",
+      "scope": "工具型智能体的间接提示注入与正常任务效用性",
+      "repository": "https://github.com/ethz-spylab/agentdojo",
+      "paper": "https://arxiv.org/abs/2406.13352",
+      "reviewed_revision": "089ed468cf3ed0322acc66b0211f26d9d90dbf60",
+      "release_observed": "v0.1.35",
+      "license": {
+        "spdx_id": "MIT",
+        "source": "https://github.com/ethz-spylab/agentdojo/blob/089ed468cf3ed0322acc66b0211f26d9d90dbf60/LICENSE",
+        "redistribution_policy": "本项目不再分发原始数据；使用者从上游获取并保留许可和引用。"
+      },
+      "adapter_boundary": "转换用户任务、注入任务和工具描述的 JSON/JSONL 导出；不复刻官方动态环境和 utility/security 评分器。"
+    },
+    "injecagent": {
+      "name": "InjecAgent",
+      "scope": "工具集成智能体的间接提示注入，包括直接危害和数据窃取",
+      "repository": "https://github.com/uiuc-kang-lab/InjecAgent",
+      "paper": "https://arxiv.org/abs/2403.02691",
+      "reviewed_revision": "f19c9f2c79a41046eb13c03c51a24c567a8ffa07",
+      "release_observed": "未见稳定发行标签，固定到上述提交",
+      "license": {
+        "spdx_id": "MIT",
+        "source": "https://github.com/uiuc-kang-lab/InjecAgent/blob/f19c9f2c79a41046eb13c03c51a24c567a8ffa07/LICENCE",
+        "redistribution_policy": "本项目不再分发上游原始数据；使用者须独立获取并保留许可和引用。"
+      },
+      "adapter_boundary": "支持官方 test_cases_dh_*.json 与 test_cases_ds_*.json 主要字段；不运行模型，不替代官方 ASR-valid/ASR-all 评分。"
+    },
+    "agentharm": {
+      "name": "AgentHarm",
+      "scope": "多步有害智能体任务与良性对照",
+      "dataset": "https://huggingface.co/datasets/ai-safety-institute/AgentHarm",
+      "reference_implementation": "https://github.com/UKGovernmentBEIS/inspect_evals/tree/main/src/inspect_evals/agentharm",
+      "paper": "https://arxiv.org/abs/2410.09024",
+      "reviewed_revision": "79a8ff566f37a8fb9d50a9fb51535f293057321d",
+      "release_observed": "Hugging Face 数据集为持续更新，实验须另记 dataset revision",
+      "license": {
+        "spdx_id": "LicenseRef-AgentHarm-MIT-Additional-Clause",
+        "source": "https://github.com/UKGovernmentBEIS/inspect_evals/blob/79a8ff566f37a8fb9d50a9fb51535f293057321d/src/inspect_evals/agentharm/LICENSE",
+        "additional_clause": "只允许用于改善 AI 系统的安全与保护。",
+        "redistribution_policy": "不捆绑有害原始内容；使用者须从官方源获取并遵守附加用途限制。"
+      },
+      "adapter_boundary": "转换 id/name/category/prompt 及良性 split；不复制官方 multi-step 环境、语义裁判器或有害内容。"
+    }
+  }
+}

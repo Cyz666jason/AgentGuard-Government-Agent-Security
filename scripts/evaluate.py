@@ -7,6 +7,7 @@ import argparse
 import csv
 import json
 import os
+import re
 import statistics
 import subprocess
 import sys
@@ -16,6 +17,23 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def report_path(path: Path) -> str:
+    """Render evidence paths without publishing workstation identity."""
+    resolved = path.resolve()
+    try:
+        relative = resolved.relative_to(ROOT.resolve())
+    except ValueError:
+        raw = str(resolved)
+        raw = re.sub(
+            r"(?i)^[A-Z]:[\\/]+Users[\\/]+[^\\/]+",
+            "<USER_HOME>",
+            raw,
+        )
+        raw = re.sub(r"^/(?:home|Users)/[^/]+", "<USER_HOME>", raw)
+        return raw.replace("\\", "/")
+    return f"<PROJECT_ROOT>/{relative.as_posix()}"
 
 
 def percentile(values: list[float], p: float) -> float:
@@ -138,8 +156,8 @@ def main() -> int:
     invalid_approval = [row for row in rows if row["category"] == "invalid_approval"]
 
     summary = {
-        "opa_binary": str(opa),
-        "dataset": str(dataset_path.resolve()),
+        "opa_binary": report_path(opa),
+        "dataset": report_path(dataset_path),
         "total_cases": total,
         "effect_accuracy": safe_rate(effect_correct, total),
         "reason_code_accuracy": safe_rate(reason_correct, total),

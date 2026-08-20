@@ -30,6 +30,12 @@ deployment/*.env
 deployment/*.pem
 deployment/*.key
 datasets/authorized_redacted/
+datasets/public/raw/
+datasets/public/normalized/
+datasets/public/predictions/
+deployment/stage4/*.local.json
+deployment/stage4/**/*.local.*
+integrations/openclaw_mcp/.e2e_state/
 reports/*console*
 reports/automation_*
 reports/*stdout.log

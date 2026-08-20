@@ -1,6 +1,6 @@
 {
-  "run_id": "403cfd8e1f22",
-  "generated_at": "2026-08-14T06:16:13.640732+08:00",
+  "run_id": "standalone",
+  "generated_at": "2026-08-20T17:03:58.436229+08:00",
   "service": "OpenBao Transit + KV v2",
   "address": "http://127.0.0.1:18200",
   "secret_material_in_report": false,

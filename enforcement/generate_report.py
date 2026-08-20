@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -11,6 +12,18 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 REPORTS = ROOT / "reports"
+
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from evidence.precedence import (  # noqa: E402
+    TIER_CI_ANCESTOR,
+    TIER_CI_HEAD,
+    TIER_CI_UNRELATED,
+    EvidenceResolver,
+)
+
+CI_TIERS = {TIER_CI_HEAD, TIER_CI_ANCESTOR, TIER_CI_UNRELATED}
 
 
 def load_json(name: str) -> dict[str, Any]:
@@ -112,13 +125,45 @@ def main() -> int:
         ]
         and qemu_e2e["checks"]["boot_media_mounted_without_error"],
     }
-    gaps = [
-        {
-            "severity": "中",
-            "item": "Envoy/ToolHive 指定产品的容器部署未启动",
-            "reason": "本机没有 Docker/Podman/Linux；已用等价的双端口 HTTP PEP 完成核心强制链路 5/5 实测，并已实现容器后端的签名、时效、动作绑定和一次性票据校验，ToolHive v0.28.3 CLI 与官方校验和已固定",
-            "next": "在具备容器运行时的 Linux 预生产机执行现成E2E，补OPA-Envoy故障注入、伪造票据、重放和ToolHive容器运行证据；生产再补mTLS与NetworkPolicy",
-        },
+    resolver = EvidenceResolver(ROOT)
+    envoy_claim = resolver.resolve("opa_envoy_container_e2e")
+    toolhive_claim = resolver.resolve("toolhive_container_e2e")
+    publication_claim = resolver.resolve("github_public_release")
+    ci_container = load_json("github_actions_container_product_e2e.json")
+    container_e2e_done = (
+        envoy_claim.verdict is True and toolhive_claim.verdict is True
+    )
+    container_in_ci = envoy_claim.tier in CI_TIERS
+
+    checks["OPA-Envoy容器化网络授权E2E"] = envoy_claim.verdict is True
+    checks["ToolHive MCP容器工作负载E2E"] = toolhive_claim.verdict is True
+
+    gaps: list[dict[str, str]] = []
+    if container_e2e_done:
+        gaps.append(
+            {
+                "severity": "低",
+                "item": "OPA-Envoy/ToolHive 容器 E2E 仅在 CI Linux Runner 完成",
+                "reason": (
+                    f"GitHub Actions ubuntu-latest 上 {ci_container['passed']}/{ci_container['total']} 通过，"
+                    f"覆盖无票据拒绝、伪造票据拒绝、签名票据放行、重放拒绝、跨动作拒绝、"
+                    f"后端无宿主端口、OPA 故障 fail-closed 与命名 MCP 容器运行；"
+                    f"提交={ci_container.get('commit', '')[:12]}；"
+                    "本机 Windows 无容器运行时，该历史失败记录已标注被取代"
+                ),
+                "next": "在单位预生产 Kubernetes 集群补 NetworkPolicy、mTLS 与跨节点故障注入",
+            }
+        )
+    else:
+        gaps.append(
+            {
+                "severity": "中",
+                "item": "Envoy/ToolHive 指定产品的容器部署未启动",
+                "reason": "本机没有 Docker/Podman/Linux；已用等价的双端口 HTTP PEP 完成核心强制链路 5/5 实测，并已实现容器后端的签名、时效、动作绑定和一次性票据校验，ToolHive v0.28.3 CLI 与官方校验和已固定",
+                "next": "在具备容器运行时的 Linux 预生产机执行现成E2E，补OPA-Envoy故障注入、伪造票据、重放和ToolHive容器运行证据；生产再补mTLS与NetworkPolicy",
+            }
+        )
+    gaps.extend([
         {
             "severity": "中",
             "item": "Keycloak 当前为本机开发模式测试域",
@@ -152,16 +197,31 @@ def main() -> int:
         {
             "severity": "中",
             "item": "数据仍以合成场景为主",
-            "reason": "确定性去标识、秘密删除、IP泛化和哈希报告流水线已实现，但未获得单位批准的真实日志",
-            "next": "获得数据许可后运行脱敏脚本，隔离训练/调参与盲测数据并开展回放",
+            "reason": "确定性去标识、秘密删除、IP泛化和哈希报告流水线已实现；AgentDojo/InjecAgent/AgentHarm转换、严格校验和独立分母评测入口已用6条自编fixture验证，但尚未导入上游全量原始数据，也未获得单位批准的真实日志",
+            "next": "按许可取得公开基准并生成真实策略预测；获得数据授权后运行脱敏脚本，隔离训练/调参与盲测数据并开展回放",
         },
-        {
-            "severity": "中",
-            "item": "远程GitHub仓库尚未发布",
-            "reason": "GitHub CLI已安装、本地Git仓库和敏感文件扫描已完成，但命令行和网页均未登录",
-            "next": "用户登录GitHub后创建私有仓库并推送；不得代替用户生成账号或凭据",
-        },
-    ]
+    ])
+    if publication_claim.verdict is True:
+        gaps.append(
+            {
+                "severity": "低",
+                "item": "公开仓库已发布，但公开不等于生产验收",
+                "reason": (
+                    f"{publication_claim.source} 实测远程仓库匿名可读且可见性为 public；"
+                    "密钥、授权数据与运行态状态目录仍被 .gitignore 与发布前扫描挡在仓库外"
+                ),
+                "next": "保持发布前秘密扫描为 CI 必过项；对外材料继续区分“已开源”与“已生产就绪”",
+            }
+        )
+    else:
+        gaps.append(
+            {
+                "severity": "中",
+                "item": "远程GitHub仓库尚未发布",
+                "reason": "GitHub CLI已安装、本地Git仓库和敏感文件扫描已完成，但命令行和网页均未登录",
+                "next": "用户登录GitHub后创建仓库并推送；不得代替用户生成账号或凭据",
+            }
+        )
     summary = {
         "name": "AgentGuard 负责部分完整实测",
         "generated_at": date.today().isoformat(),
@@ -175,7 +235,31 @@ def main() -> int:
             "OpenBao Transit外部密钥与共享票据账本",
             "OpenBao三节点Raft高可用与故障切换",
             "QEMU独立Linux来宾内核隔离",
+            *(
+                ["OPA-Envoy与ToolHive Linux容器E2E（CI测试环境）"]
+                if container_e2e_done
+                else []
+            ),
         ],
+        "container_product_e2e": {
+            "opa_envoy": envoy_claim.verdict is True,
+            "toolhive": toolhive_claim.verdict is True,
+            "passed": ci_container["passed"],
+            "total": ci_container["total"],
+            "environment": (
+                "github_actions_linux_runner" if container_in_ci else "local_test_machine"
+            ),
+            "evidence": envoy_claim.source,
+            "status": (
+                "completed_ci_test_environment"
+                if container_e2e_done and container_in_ci
+                else "blocked_external_environment"
+            ),
+        },
+        "github_publication": {
+            "published_public": publication_claim.verdict is True,
+            "evidence": publication_claim.source,
+        },
         "opa_unit_tests": {"passed": opa_passed, "total": opa_total},
         "opa_envoy_policy_tests": {"passed": envoy_passed, "total": envoy_total},
         "opa_dataset": {
@@ -249,7 +333,8 @@ def main() -> int:
 - 内存：{machine['memory_gb']} GiB
 - Python：{machine['python']}
 - OPA / LangGraph / Wasmtime：{machine['components']['opa']} / {machine['components']['langgraph']} / {machine['components']['wasmtime']}
-- 容器条件：Docker={machine['container_environment']['docker_cli_available']}；Linux 发行版={machine['container_environment']['linux_distribution_available']}
+- 本机容器条件：Docker={machine['container_environment']['docker_cli_available']}；Linux 发行版={machine['container_environment']['linux_distribution_available']}
+- 容器 E2E 执行环境：{summary['container_product_e2e']['environment']}，{summary['container_product_e2e']['passed']}/{summary['container_product_e2e']['total']} 通过，证据 `{summary['container_product_e2e']['evidence']}`
 
 ## 关键攻击与故障验证
 
@@ -265,7 +350,13 @@ def main() -> int:
 
 ## 结论边界
 
-本次可以证明可信身份、策略、审批、网络阻断、票据、安全内核和真实本地测试业务副作用在测试机上形成闭环，但不能声称已经完成生产部署。没有 Docker/Linux，因此不能把等价 HTTP PEP 说成 Envoy/ToolHive 产品级容器实测；也不能把测试账本说成真实转账。剩余事项均为生产化或特定部署环境补齐，不再是本原型核心控制链路的高优先级缺口。
+本次可以证明可信身份、策略、审批、网络阻断、票据、安全内核和真实本地测试业务副作用形成闭环，
+OPA-Envoy 与 ToolHive 的容器化强制链路已在 GitHub Actions Linux Runner 上取得 {summary['container_product_e2e']['passed']}/{summary['container_product_e2e']['total']} 实测证据，
+公开仓库已发布。但这些都**不等于生产就绪**：容器 E2E 是 CI 测试环境而非单位预生产集群，
+仍缺 Kubernetes NetworkPolicy 与 mTLS、Kata/Firecracker KVM 隔离、OpenBao 跨故障域与 TLS/自动解封、
+Keycloak HTTPS/高可用/目录联邦/真实 MFA，也没有接入单位授权的真实业务 API 与获批生产数据；
+测试账本仍然不能说成真实转账。本机 Windows 无容器运行时留下的历史失败记录已保留并标注被取代，
+不再作为当前结论。
 """
     (REPORTS / "full_security_evaluation_report.md").write_text(report, encoding="utf-8")
     print(json.dumps(summary, ensure_ascii=False, indent=2))

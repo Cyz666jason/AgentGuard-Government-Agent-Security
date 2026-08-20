@@ -1,6 +1,6 @@
 {
   "name": "AgentGuard 负责部分完整实测",
-  "generated_at": "2026-08-14",
+  "generated_at": "2026-08-20",
   "completed_scope": [
     "Keycloak/OIDC 可信身份",
     "OPA 权限策略",
@@ -10,8 +10,22 @@
     "真实本地测试业务适配器",
     "OpenBao Transit外部密钥与共享票据账本",
     "OpenBao三节点Raft高可用与故障切换",
-    "QEMU独立Linux来宾内核隔离"
+    "QEMU独立Linux来宾内核隔离",
+    "OPA-Envoy与ToolHive Linux容器E2E（CI测试环境）"
   ],
+  "container_product_e2e": {
+    "opa_envoy": true,
+    "toolhive": true,
+    "passed": 10,
+    "total": 10,
+    "environment": "github_actions_linux_runner",
+    "evidence": "reports/github_actions_container_product_e2e.json",
+    "status": "completed_ci_test_environment"
+  },
+  "github_publication": {
+    "published_public": true,
+    "evidence": "reports/github_publication.json"
+  },
   "opa_unit_tests": {
     "passed": 31,
     "total": 31
@@ -26,8 +40,8 @@
     "unsafe_allow_count": 0
   },
   "python_security_tests": {
-    "passed": 60,
-    "total": 60
+    "passed": 173,
+    "total": 173
   },
   "network_enforcement_e2e": {
     "passed": 5,
@@ -71,14 +85,16 @@
     "同一审批跨双网关只能核销一次": true,
     "OpenBao三节点Raft主节点故障切换": true,
     "QEMU独立Linux来宾内核隔离": true,
-    "QEMU只读启动介质无挂载错误": true
+    "QEMU只读启动介质无挂载错误": true,
+    "OPA-Envoy容器化网络授权E2E": true,
+    "ToolHive MCP容器工作负载E2E": true
   },
-  "demonstration_passed": 21,
-  "demonstration_total": 21,
+  "demonstration_passed": 23,
+  "demonstration_total": 23,
   "unsafe_execution_count": 0,
   "test_machine": {
-    "tested_at": "2026-08-14T06:05:22+08:00",
-    "hostname": "LAPTOP-JBJSO312",
+    "tested_at": "2026-08-20T17:03:55+08:00",
+    "hostname": "<HOSTNAME>",
     "os": "Windows-11-10.0.26200-SP0",
     "architecture": "AMD64",
     "processor": "AMD64 Family 25 Model 97 Stepping 2, AuthenticAMD",
@@ -104,14 +120,40 @@
       "toolhive_container_tested": false,
       "native_http_policy_enforcement_e2e_tested": true,
       "reason": "本测试机未安装 Docker，WSL 命令存在但没有 Linux 发行版。"
+    },
+    "superseded_by": {
+      "note": "本文件保留为历史记录。其中的结论产生于下列测试时间与环境，已被更高优先级的证据取代，不代表当前仓库结论。",
+      "this_evidence_tested_at": "2026-08-20T17:03:55+08:00",
+      "this_evidence_environment": "local_windows_test_machine",
+      "this_evidence_tier": "historical_environment_check",
+      "superseded_claims": [
+        {
+          "claim": "opa_envoy_container_e2e",
+          "recorded_verdict": false,
+          "current_verdict": true,
+          "superseded_by": "reports/github_actions_container_product_e2e.json",
+          "superseding_tier": "ci_evidence_ancestor_commit",
+          "superseding_tested_at": "2026-08-14T10:40:28.621959+00:00",
+          "superseding_environment": "github_actions/ubuntu-latest"
+        },
+        {
+          "claim": "toolhive_container_e2e",
+          "recorded_verdict": false,
+          "current_verdict": true,
+          "superseded_by": "reports/github_actions_container_product_e2e.json",
+          "superseding_tier": "ci_evidence_ancestor_commit",
+          "superseding_tested_at": "2026-08-14T10:40:28.621959+00:00",
+          "superseding_environment": "github_actions/ubuntu-latest"
+        }
+      ]
     }
   },
   "known_gaps": [
     {
-      "severity": "中",
-      "item": "Envoy/ToolHive 指定产品的容器部署未启动",
-      "reason": "本机没有 Docker/Podman/Linux；已用等价的双端口 HTTP PEP 完成核心强制链路 5/5 实测，并已实现容器后端的签名、时效、动作绑定和一次性票据校验，ToolHive v0.28.3 CLI 与官方校验和已固定",
-      "next": "在具备容器运行时的 Linux 预生产机执行现成E2E，补OPA-Envoy故障注入、伪造票据、重放和ToolHive容器运行证据；生产再补mTLS与NetworkPolicy"
+      "severity": "低",
+      "item": "OPA-Envoy/ToolHive 容器 E2E 仅在 CI Linux Runner 完成",
+      "reason": "GitHub Actions ubuntu-latest 上 10/10 通过，覆盖无票据拒绝、伪造票据拒绝、签名票据放行、重放拒绝、跨动作拒绝、后端无宿主端口、OPA 故障 fail-closed 与命名 MCP 容器运行；提交=167b2b0445ca；本机 Windows 无容器运行时，该历史失败记录已标注被取代",
+      "next": "在单位预生产 Kubernetes 集群补 NetworkPolicy、mTLS 与跨节点故障注入"
     },
     {
       "severity": "中",
@@ -146,14 +188,14 @@
     {
       "severity": "中",
       "item": "数据仍以合成场景为主",
-      "reason": "确定性去标识、秘密删除、IP泛化和哈希报告流水线已实现，但未获得单位批准的真实日志",
-      "next": "获得数据许可后运行脱敏脚本，隔离训练/调参与盲测数据并开展回放"
+      "reason": "确定性去标识、秘密删除、IP泛化和哈希报告流水线已实现；AgentDojo/InjecAgent/AgentHarm转换、严格校验和独立分母评测入口已用6条自编fixture验证，但尚未导入上游全量原始数据，也未获得单位批准的真实日志",
+      "next": "按许可取得公开基准并生成真实策略预测；获得数据授权后运行脱敏脚本，隔离训练/调参与盲测数据并开展回放"
     },
     {
-      "severity": "中",
-      "item": "远程GitHub仓库尚未发布",
-      "reason": "GitHub CLI已安装、本地Git仓库和敏感文件扫描已完成，但命令行和网页均未登录",
-      "next": "用户登录GitHub后创建私有仓库并推送；不得代替用户生成账号或凭据"
+      "severity": "低",
+      "item": "公开仓库已发布，但公开不等于生产验收",
+      "reason": "reports/github_publication.json 实测远程仓库匿名可读且可见性为 public；密钥、授权数据与运行态状态目录仍被 .gitignore 与发布前扫描挡在仓库外",
+      "next": "保持发布前秘密扫描为 CI 必过项；对外材料继续区分“已开源”与“已生产就绪”"
     }
   ]
 }

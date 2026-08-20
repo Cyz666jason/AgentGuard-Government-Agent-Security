@@ -6,7 +6,9 @@
 - `require_approval`：暂停任务，绑定具体任务和参数后进入人工审批；
 - `deny`：立即阻断，并输出可审计原因码。
 
-项目不是静态调研材料，已经使用 Keycloak 26.7.1、OPA 1.19.0、LangGraph 1.2.10、Wasmtime 47.0.1、OpenBao 2.6.1 和 QEMU 11.1.0 在测试机实际运行并生成测试报告。
+项目不是静态调研材料，已经使用 OpenClaw 2026.7.1-2、Keycloak 26.7.1、OPA 1.19.0、LangGraph 1.2.10、Wasmtime 47.0.1、OpenBao 2.6.1 和 QEMU 11.1.0 在测试机实际运行并生成测试报告。
+
+> 最新进展、证据边界和未完成项见 [2026-08-20 项目进展](docs/%E9%A1%B9%E7%9B%AE%E6%9C%80%E6%96%B0%E8%BF%9B%E5%B1%95_20260820.md)。
 
 ## 已完成的课题内容
 
@@ -25,6 +27,9 @@
 13. **密钥外置与共享核销**：OpenBao Transit 外置签名密钥并完成轮换，KV v2 CAS 供两个网关共享核销，32 路竞争只执行一次。
 14. **原生工具隔离验证**：QEMU 启动独立 Alpine Linux 来宾内核，限制 1 vCPU/256 MiB、关闭网络和宿主目录共享。
 15. **生产接入流水线**：真实业务适配器要求 HTTPS、CA、主机白名单、幂等键与审批；真实数据在进入评估前执行确定性去标识和秘密删除。
+16. **公开基准适配**：完成 AgentDojo、InjecAgent、AgentHarm 的离线转换、严格校验、去重和独立分母评测管线；6 条自编 fixture 只用于验证管线合同，不冒充真实基准成绩。
+17. **阶段4执行门禁**：完成 Kata/Firecracker、跨故障域 OpenBao、Kubernetes mTLS/NetworkPolicy、身份 HA/MFA、真实业务与授权数据的非密模板、只读预检和验收清单。
+18. **OpenClaw 最小接入**：实现一个纯标准库的 stdio MCP Server，只暴露只读公告查询；OpenClaw 实机注册、`doctor --probe` 与 `tools/list` 已完成，低风险 `tools/call` 已贯通真实 AgentGuard 测试链并明确区分模型回合边界。
 
 ## 技术位置
 
@@ -60,18 +65,22 @@ OPA 负责“算出决定”，网关负责“执行决定”。只有 OPA 而�
 | 两个生产策略文件覆盖率 | 100% |
 | 全部 Rego 文件覆盖率（包含测试代码） | 99.61% |
 | OPA 纯策略基准 | 约 0.35-0.36 ms/次 |
-| 身份/审批/网关/内核/生产接入 Python 测试 | 60/60 通过 |
+| 身份/审批/网关/内核/MCP/公开评测/阶段4预检 Python 测试 | 173/173 通过 |
 | OPA-Envoy 网络前置策略测试 | 4/4 通过 |
-| 完整链路关键演示与实服检查 | 21/21 通过 |
+| 完整链路关键演示与实服检查 | 23/23 通过 |
 | Keycloak/OIDC 真实端到端 | 7/7 通过 |
 | 常驻 OPA REST 网络强制链路 | 5/5 通过 |
 | 真实本地业务适配器 | 6/6 通过 |
 | OpenBao Transit + 共享KV票据/审批核销 | 10/10 通过 |
 | OpenBao 三节点Raft选主、复制与主节点故障切换 | 8/8 通过 |
 | QEMU 独立 Linux 来宾内核隔离 | 11/11 通过 |
+| OPA-Envoy + ToolHive Linux 容器 E2E（GitHub Actions） | 10/10 通过 |
+| 公开基准适配器契约测试 | 6/6 自编 fixture 通过（非上游真实成绩） |
+| 阶段4外部环境只读预检 | 5 个域已检查；当前 4 个外部环境阻塞、1 个等待授权输入 |
+| OpenClaw × AgentGuard 最小接入 | 9/9 通过（实机注册/工具发现 + 协议层低风险调用） |
+| 阻断或沙箱攻击误执行次数 | 0 |
 
 Python完整依赖已写入 `requirements-lock.txt` 并包含包哈希；CI 使用 `--require-hashes` 安装。GitHub Actions 与产品容器镜像均固定到提交或 SHA-256 摘要。
-| 阻断或沙箱攻击误执行次数 | 0 |
 
 批量评测脚本逐条启动 OPA CLI，耗时会随机器负载波动，最新均值与 P95 以 `reports/open_source_route_progress.md` 自动看板为准；该值主要包含进程启动和策略加载，不是 sidecar、Wasm 或 Go SDK 常驻部署的纯决策延迟。
 
@@ -161,10 +170,11 @@ OPA→LangGraph→强制网关→Wasmtime 的完整审批链路已经实际跑�
 - `identity/`：Keycloak 26.7.1 测试域和 OIDC 验证器；无令牌、篡改令牌、错误身份来源均阻断。
 - `enforcement/http_stack.py`：常驻 OPA REST→HTTP 网关→一次性票据→受保护 HTTP 后端，网络端到端 5/5。
 - `enforcement/adapters.py`：受限于状态目录的真实 SQLite 查询与付款测试账本，6/6。
-- `third_party/README.md`：Keycloak、Java 与 ToolHive 官方下载、版本和校验和。ToolHive CLI 已验证；因本机无容器运行时，产品级 MCP 容器仍是中优先级环境项。
+- `third_party/README.md`：Keycloak、Java 与 ToolHive 官方下载、版本和校验和。ToolHive CLI 已验证；产品级 MCP 容器与 OPA-Envoy 容器链路已在 GitHub Actions Linux Runner 上 10/10 实测（`reports/github_actions_container_product_e2e.json`），本机 Windows 无容器运行时不影响该结论。
 - `enforcement/signers.py`、`enforcement/ledgers.py`、`approval/credentials.py`：OpenBao Transit票据/审批密钥外置、版本轮换和KV v2 CAS共享核销，实服10/10；三节点Raft选主、复制与leader故障切换8/8。
 - `scripts/run_qemu_native_isolation_e2e.py`：QEMU独立Linux guest kernel、Alpine用户态与只读校验启动介质隔离，实测11/11。
-- `integrations/`：获批真实API与真实数据的安全接入入口；未提供凭据或数据时默认跳过并明确报告。
+- `integrations/`：获批真实API、真实数据以及 OpenClaw 只读 MCP 的安全接入入口；未提供生产凭据或数据时默认跳过并明确报告。
+- `integrations/openclaw_mcp/`：单一只读 MCP 工具、可信身份边界、OpenClaw 示例配置和协议测试；所有业务调用固定经过 AgentGuard `/invoke`。
 
 ## 作为 OPA 服务运行
 
@@ -190,9 +200,10 @@ tests/        Rego 单元测试
 identity/     Keycloak 测试域、OIDC JWT 验证与可信 subject 映射
 approval/     LangGraph 暂停/恢复、SQLite 检查点、演示与自动化测试
 enforcement/  强制阻断网关、HTTP PEP、一次性票据、真实测试适配器、审计与全链路测试
-integrations/  获批预生产API适配器、真实数据脱敏和接入测试
+integrations/  获批预生产API、真实数据脱敏、OpenClaw只读MCP适配器和接入测试
+evaluation/    三套公开智能体安全基准的离线转换、严格校验、去重和独立评测
 security_kernel/ Wasmtime 安全内核、受控模块和资源攻击测试
-deployment/   OPA-Envoy 与 ToolHive 的生产接入参考及测试边界
+deployment/   OPA-Envoy、ToolHive 与阶段4外部产品验证的非密模板及测试边界
 schemas/      候选动作和决策输出 JSON Schema
 samples/      放行、审批、阻断和审批后放行样例
 datasets/     55 个 OPA + 9 个审批 + 19 个阻断/内核用例
@@ -205,12 +216,14 @@ docs/         可直接用于技术报告、PPT和答辩的中文内容
 
 - OPA 不执行真实命令，也不保存长流程状态；本原型已用 LangGraph + SQLite 实现暂停/恢复，生产环境可换用 PostgreSQL 检查点或 Temporal。
 - OpenBao票据/审批独立Transit密钥和KV v2 CAS双网关共享核销已10/10实测，三节点Raft选主、复制和leader故障切换已8/8实测；生产仍需跨故障域、TLS、自动解封、备份恢复和容量压测。
-- 常驻 OPA REST 与双端口 HTTP 强制链路已经端到端实测；OPA-Envoy 与 ToolHive 指定产品的容器运行仍因本机没有 Docker/Linux 而未标记完成。
+- 常驻 OPA REST 与双端口 HTTP 强制链路已经端到端实测；OPA-Envoy 与 ToolHive 的容器化链路已在 GitHub Actions `ubuntu-latest` 上 10/10 实测（无票据拒绝、伪造票据拒绝、签名票据放行、重放拒绝、跨动作拒绝、后端无宿主端口、OPA 故障 fail-closed、命名 MCP 容器运行）。这是 **CI 测试环境**，不是单位预生产集群；生产仍需 Kubernetes NetworkPolicy 与 mTLS。
 - Wasmtime已限制WebAssembly工具；QEMU独立Linux来宾内核/用户态/只读启动介质已11/11验证。Kata/Firecracker产品E2E仍需Linux/KVM测试机。
 - 工具适配器已经真实读写隔离 SQLite 测试业务库，但不会调用真实银行、ERP、生产文件或系统命令。
-- 当前 55 个样例是合成的政企安全测试数据，不包含真实个人信息，部署前应结合单位制度、资源目录和密级规则扩充。
+- 当前 55 个样例是合成的政企安全测试数据，不包含真实个人信息，部署前应结合单位制度、资源目录和密级规则扩充；公开数据集（AgentDojo / InjecAgent / AgentHarm）已提供转换器、校验器与独立分母评测入口，原始数据需按各自许可证自行获取，本仓库不重分发也不虚构样本。
 - 真实业务URL、令牌、CA和单位日志没有被提供，因此只完成安全接入代码和自动预检，不能把测试样例表述成生产E2E。
-- GitHub CLI、本地仓库和敏感文件扫描已完成；远程私有仓库仍需用户登录GitHub后才能发布。
+- OpenClaw 2026.7.1-2 已实机完成 MCP 注册、`doctor --probe` 和 `tools/list`；低风险调用由确定性 MCP 客户端完成，不是使用模型凭据的 OpenClaw agent 回合。生产仍需逐用户 OIDC/OAuth、mTLS 与模型回合审计。
+- `reports/stage4_preflight.json` 始终区分“配置已准备”与“产品已实测”；预检通过也不会把 `production_ready` 或 `product_validation_completed` 改为真。
+- 公开 GitHub 仓库已发布（`reports/github_publication.json` 实测匿名可读、可见性 public）。已开源不等于已生产就绪；密钥、授权数据与运行态状态目录仍被 `.gitignore` 与发布前秘密扫描挡在仓库外。
 
 ## 生产化自动推进
 
@@ -227,14 +240,29 @@ $env:AGENTGUARD_REDACTION_SALT_HEX = '<由密钥管理器注入的64位十六进
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_productionization.ps1 -AuthorizedJsonl 'C:\approved\business-log.jsonl'
 ```
 
-获得 GitHub 登录授权后，先做发布前敏感信息扫描，再自动创建私有仓库并推送：
+发布前敏感信息扫描与远程仓库发布状态实测：
 
 ```powershell
-gh auth login --web --git-protocol https
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\publish_private_github.ps1
+.\.venv\Scripts\python.exe .\scripts\prepublish_security_check.py
+.\.venv\Scripts\python.exe .\scripts\check_github_publication.py
 ```
 
 状态总表为 `reports/productionization_status.md`；外部凭据、获批数据和远程登录缺失时脚本会明确跳过或失败关闭，不会伪造完成。
+
+### 证据优先级
+
+不同环境会产生互相矛盾的记录（本机无 Docker vs. CI Linux Runner 成功）。状态不手工写死，由 `evidence/precedence.py` 按固定优先级裁决：
+
+1. 与当前提交历史匹配的 CI 实测证据；
+2. 当前机器产生的新鲜实测证据；
+3. 与当前提交无关的 CI 证据；
+4. 历史环境检查与历史失败记录。
+
+```powershell
+.\.venv\Scripts\python.exe .\scripts\generate_evidence_precedence.py
+```
+
+历史失败文件一律保留原始测量值，只追加 `superseded_by` 说明块，写明该记录的测试时间、测试环境，以及现在由哪份证据代表当前结论。裁决明细见 `reports/evidence_precedence.json`。
 
 需要反复检查并自动续跑全部剩余项时，可使用统一入口：
 

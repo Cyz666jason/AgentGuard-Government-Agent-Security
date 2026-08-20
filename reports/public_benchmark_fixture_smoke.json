@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "kind": "adapter_contract_smoke_test",
+  "uses_upstream_raw_data": false,
+  "uses_synthetic_fixtures": true,
+  "benchmarks": {
+    "agentdojo": {
+      "result": "passed",
+      "denominator": 2,
+      "report": "reports/public_benchmark_agentdojo_fixture.json"
+    },
+    "injecagent": {
+      "result": "passed",
+      "denominator": 2,
+      "report": "reports/public_benchmark_injecagent_fixture.json"
+    },
+    "agentharm": {
+      "result": "passed",
+      "denominator": 2,
+      "report": "reports/public_benchmark_agentharm_fixture.json"
+    }
+  },
+  "aggregate_metrics": null,
+  "aggregation_note": "只验证转换、规范和评测管线，不是模型或策略效果成绩。"
+}
