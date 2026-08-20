@@ -67,9 +67,15 @@ def tamper_jwt_signature(token: str) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--base-url", default="http://127.0.0.1:18080")
-    parser.add_argument("--state-dir", default=str(PROJECT_ROOT / "reports" / "keycloak_state"))
     parser.add_argument(
-        "--report", default=str(PROJECT_ROOT / "reports" / "keycloak_oidc_e2e.json")
+        "--state-dir",
+        default=str(PROJECT_ROOT / "reports" / "e2e" / "identity" / "keycloak_state"),
+    )
+    parser.add_argument(
+        "--report",
+        default=str(
+            PROJECT_ROOT / "reports" / "e2e" / "identity" / "keycloak_oidc_e2e.json"
+        ),
     )
     args = parser.parse_args()
     issuer = f"{args.base_url}/realms/agentguard"
@@ -146,6 +152,7 @@ def main() -> None:
         "tampered_token_result": tampered_result,
         "payment_result": payment_result,
     }
+    Path(args.report).parent.mkdir(parents=True, exist_ok=True)
     Path(args.report).write_text(
         json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
     )

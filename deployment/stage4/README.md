@@ -22,8 +22,8 @@ snapshots, write business records or read production dataset contents.
 
 The command writes:
 
-- `reports/stage4_preflight.json`
-- `reports/stage4_preflight.md`
+- `reports/preflight/stage4_preflight.json`
+- `reports/preflight/stage4_preflight.md`
 
 Exit code `2` means an external environment or authorised input is still
 missing. That is an expected, truthful preflight result, not a product failure.
@@ -46,5 +46,5 @@ Allowed statuses are limited to:
   certificate authorities and emergency access paths are reviewed.
 - Do not use production side effects merely because preflight succeeds.
 - Product completion requires the signed acceptance checklist in
-  `docs/stage4_external_environment_plan.md` and evidence from the real target
+  `docs/production/stage4_external_environment_plan.md` and evidence from the real target
   environment.

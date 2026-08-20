@@ -1,0 +1,31 @@
+{
+  "tested_at": "2026-08-07T08:43:13+08:00",
+  "download_source": "https://github.com/stacklok/toolhive/releases/download/v0.28.3/toolhive_0.28.3_windows_amd64.zip",
+  "version": "0.28.3",
+  "commit": "61202ff8f44cc41870d8aed21b2aeea10714d821",
+  "platform": "windows/amd64",
+  "sha256_expected": "a6c2aea6bf4f3226ea6225d7bbd6c72cc7835e2d4bdeb2e86819cc5b0e1c1063",
+  "sha256_actual": "a6c2aea6bf4f3226ea6225d7bbd6c72cc7835e2d4bdeb2e86819cc5b0e1c1063",
+  "checksum_verified": true,
+  "cli_version_tested": true,
+  "doctor_result": "no container runtime available; requires Docker-compatible runtime or Kubernetes",
+  "container_e2e_tested": false,
+  "reason": "The test machine has no Docker, Podman, Kubernetes or installed WSL Linux distribution.",
+  "superseded_by": {
+    "note": "本文件保留为历史记录。其中的结论产生于下列测试时间与环境，已被更高优先级的证据取代，不代表当前仓库结论。",
+    "this_evidence_tested_at": "2026-08-07T08:43:13+08:00",
+    "this_evidence_environment": "local_windows_test_machine",
+    "this_evidence_tier": "historical_environment_check",
+    "superseded_claims": [
+      {
+        "claim": "toolhive_container_e2e",
+        "recorded_verdict": false,
+        "current_verdict": true,
+        "superseded_by": "reports/e2e/network/github_actions_container_product_e2e.json",
+        "superseding_tier": "ci_evidence_ancestor_commit",
+        "superseding_tested_at": "2026-08-14T10:40:28.621959+00:00",
+        "superseding_environment": "github_actions/ubuntu-latest"
+      }
+    ]
+  }
+}

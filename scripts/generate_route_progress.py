@@ -17,6 +17,14 @@ from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 REPORT_DIR = PROJECT_ROOT / "reports"
+CORE_REPORT_DIR = REPORT_DIR / "core"
+NETWORK_REPORT_DIR = REPORT_DIR / "e2e" / "network"
+IDENTITY_REPORT_DIR = REPORT_DIR / "e2e" / "identity"
+OPENBAO_REPORT_DIR = REPORT_DIR / "e2e" / "openbao"
+ISOLATION_REPORT_DIR = REPORT_DIR / "e2e" / "isolation"
+PUBLIC_BENCHMARK_REPORT_DIR = REPORT_DIR / "evaluation" / "public-benchmarks"
+PREFLIGHT_REPORT_DIR = REPORT_DIR / "preflight"
+STATUS_REPORT_DIR = REPORT_DIR / "status"
 DATASET_DIR = PROJECT_ROOT / "datasets"
 
 if str(PROJECT_ROOT) not in sys.path:
@@ -66,15 +74,17 @@ def result_row(name: str, result: dict[str, Any], evidence: str) -> dict[str, An
 
 
 def main() -> int:
-    full = load_json(REPORT_DIR / "full_security_evaluation_summary.json")
-    evaluation = load_json(REPORT_DIR / "evaluation_summary.json")
-    coverage = load_json(REPORT_DIR / "coverage.json")
-    machine = load_json(REPORT_DIR / "test_machine_environment.json")
-    openbao_raft = load_json(REPORT_DIR / "openbao_raft_ha_e2e.json")
+    full = load_json(CORE_REPORT_DIR / "full_security_evaluation_summary.json")
+    evaluation = load_json(CORE_REPORT_DIR / "evaluation_summary.json")
+    coverage = load_json(CORE_REPORT_DIR / "coverage.json")
+    machine = load_json(PREFLIGHT_REPORT_DIR / "test_machine_environment.json")
+    openbao_raft = load_json(OPENBAO_REPORT_DIR / "openbao_raft_ha_e2e.json")
     public_smoke = load_optional_json(
-        REPORT_DIR / "public_benchmark_fixture_smoke.json"
+        PUBLIC_BENCHMARK_REPORT_DIR / "public_benchmark_fixture_smoke.json"
     ) or {}
-    stage4_preflight = load_optional_json(REPORT_DIR / "stage4_preflight.json") or {}
+    stage4_preflight = load_optional_json(
+        PREFLIGHT_REPORT_DIR / "stage4_preflight.json"
+    ) or {}
 
     public_benchmarks = public_smoke.get("benchmarks", {})
     public_fixture_contract_passed = (
@@ -143,32 +153,32 @@ def main() -> int:
         result_row(
             "OPA/Rego单元测试",
             full["opa_unit_tests"],
-            "reports/full_opa_tests.txt",
+            "reports/core/full_opa_tests.txt",
         ),
         result_row(
             "OPA-Envoy前置策略测试",
             full["opa_envoy_policy_tests"],
-            "reports/opa_envoy_policy_tests.txt",
+            "reports/e2e/network/opa_envoy_policy_tests.txt",
         ),
         result_row(
             "三态策略数据集",
             full["opa_dataset"],
-            "reports/evaluation_summary.json",
+            "reports/core/evaluation_summary.json",
         ),
         result_row(
             "身份/审批/网关/内核Python测试",
             full["python_security_tests"],
-            "reports/full_python_tests.txt",
+            "reports/core/full_python_tests.txt",
         ),
         result_row(
             "常驻OPA REST网络链路",
             full["network_enforcement_e2e"],
-            "reports/network_enforcement_e2e.json",
+            "reports/e2e/network/network_enforcement_e2e.json",
         ),
         result_row(
             "Keycloak/OIDC真实链路",
             full["keycloak_oidc_e2e"],
-            "reports/keycloak_oidc_e2e.json",
+            "reports/e2e/identity/keycloak_oidc_e2e.json",
         ),
         result_row(
             "完整链路演示检查",
@@ -176,22 +186,22 @@ def main() -> int:
                 "passed": full["demonstration_passed"],
                 "total": full["demonstration_total"],
             },
-            "reports/full_security_evaluation_summary.json",
+            "reports/core/full_security_evaluation_summary.json",
         ),
         result_row(
             "OpenBao外部密钥与共享票据核销",
             full["openbao_kms_ha_e2e"],
-            "reports/openbao_kms_ha_e2e.json",
+            "reports/e2e/openbao/openbao_kms_ha_e2e.json",
         ),
         result_row(
             "OpenBao三节点Raft故障切换",
             openbao_raft,
-            "reports/openbao_raft_ha_e2e.json",
+            "reports/e2e/openbao/openbao_raft_ha_e2e.json",
         ),
         result_row(
             "QEMU独立Linux来宾内核隔离",
             full["qemu_native_isolation_e2e"],
-            "reports/qemu_native_isolation_e2e.json",
+            "reports/e2e/isolation/qemu_native_isolation_e2e.json",
         ),
     ]
 
@@ -205,7 +215,7 @@ def main() -> int:
         {
             "stage": "1 赛题解读",
             "status": "completed",
-            "evidence": "docs/开源路线自动推进总览_20260813.md#2-赛题解读题目怎样转化为工程任务",
+            "evidence": "docs/overview/开源路线自动推进总览_20260813.md#2-赛题解读题目怎样转化为工程任务",
             "next": "后续实现继续映射到感知—决策—调用—执行和赛题评分项",
         },
         {
@@ -222,10 +232,10 @@ def main() -> int:
                 else "partial_missing_public_adapter_evidence"
             ),
             "evidence": (
-                "reports/full_security_evaluation_summary.json；"
-                "reports/github_actions_container_product_e2e.json；"
-                "reports/复现问题台账_20260813.md；"
-                "reports/public_benchmark_fixture_smoke.json（仅适配器契约）"
+                "reports/core/full_security_evaluation_summary.json；"
+                "reports/e2e/network/github_actions_container_product_e2e.json；"
+                "reports/status/复现问题台账_20260813.md；"
+                "reports/evaluation/public-benchmarks/public_benchmark_fixture_smoke.json（仅适配器契约）"
             ),
             "next": "导入许可允许的真实公开样本并生成真实策略预测；外部产品实测继续按阶段4门禁执行",
         },
@@ -245,7 +255,7 @@ def main() -> int:
         {
             "stage": "5 整体大图与清晰语言",
             "status": "completed",
-            "evidence": "docs/整体开源技术路线图_20260813.mmd",
+            "evidence": "docs/architecture/整体开源技术路线图_20260813.mmd",
             "next": "所有后续材料复用同一架构语言和边界表述",
         },
     ]
@@ -281,7 +291,7 @@ def main() -> int:
                 "与当前提交历史匹配的CI实测证据 > 当前机器新鲜实测证据 > "
                 "历史环境检查与历史失败记录"
             ),
-            "report": "reports/evidence_precedence.json",
+            "report": "reports/status/evidence_precedence.json",
             "head_commit": resolver.head_commit,
             "claims": {
                 "opa_envoy_container_e2e": envoy_claim.as_dict(),
@@ -334,7 +344,7 @@ def main() -> int:
                 },
                 "aggregate_metrics": public_smoke.get("aggregate_metrics"),
                 "real_upstream_evaluation_completed": False,
-                "evidence": "reports/public_benchmark_fixture_smoke.json",
+                "evidence": "reports/evaluation/public-benchmarks/public_benchmark_fixture_smoke.json",
                 "boundary": "fixture只验证转换、校验和评测合同，不是公开基准真实成绩。",
             },
         },
@@ -347,7 +357,7 @@ def main() -> int:
                 "product_validation_completed", False
             ),
             "summary": stage4_preflight.get("summary", {}),
-            "evidence": "reports/stage4_preflight.json",
+            "evidence": "reports/preflight/stage4_preflight.json",
             "boundary": "只读预检与配置准备不等于KVM、跨域HA、集群、身份或生产数据实测。",
         },
         "environment": {
@@ -396,7 +406,7 @@ def main() -> int:
             "evidence": [
                 "identity/run_keycloak_e2e.py",
                 "identity/tests/test_oidc.py",
-                "reports/keycloak_oidc_e2e.json",
+                "reports/e2e/identity/keycloak_oidc_e2e.json",
             ],
             "status": "resolved",
         },
@@ -414,9 +424,9 @@ def main() -> int:
         },
     }
 
-    REPORT_DIR.mkdir(parents=True, exist_ok=True)
-    json_path = REPORT_DIR / "open_source_route_progress.json"
-    markdown_path = REPORT_DIR / "open_source_route_progress.md"
+    STATUS_REPORT_DIR.mkdir(parents=True, exist_ok=True)
+    json_path = STATUS_REPORT_DIR / "open_source_route_progress.json"
+    markdown_path = STATUS_REPORT_DIR / "open_source_route_progress.md"
     json_path.write_text(
         json.dumps(dashboard, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",

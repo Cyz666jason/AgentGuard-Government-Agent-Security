@@ -17,6 +17,20 @@ third_party/downloads/initramfs-*
 third_party/downloads/*cloud*.qcow2
 third_party/runtime/
 third_party/cache/
+reports/e2e/identity/keycloak_state/
+reports/e2e/identity/keycloak_stdout.log
+reports/e2e/identity/keycloak_stderr.log
+reports/e2e/network/network_e2e_state/
+reports/e2e/openbao/openbao_state/
+reports/e2e/openbao/openbao_raft_state/
+reports/e2e/isolation/qemu_container_host/
+reports/e2e/business/authorized_business_state/
+reports/runtime/
+# 兼容已有工作区的旧版本运行态；新脚本不再写入这些路径。
+reports/service_state/
+reports/.eval_input.json
+reports/.gateway_input.json
+reports/.approval-*.json
 reports/keycloak_state/
 reports/network_e2e_state/
 reports/keycloak_stdout.log
@@ -40,4 +54,7 @@ reports/*console*
 reports/automation_*
 reports/*stdout.log
 reports/*stderr.log
-reports/python_dependency_install.json
+reports/**/*console*
+reports/**/*stdout.log
+reports/**/*stderr.log
+reports/core/python_dependency_install.json

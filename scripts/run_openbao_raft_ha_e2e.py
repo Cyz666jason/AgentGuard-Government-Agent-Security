@@ -17,8 +17,9 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-STATE = ROOT / "reports" / "openbao_raft_state"
-REPORT = ROOT / "reports" / "openbao_raft_ha_e2e.json"
+OPENBAO_REPORTS = ROOT / "reports" / "e2e" / "openbao"
+STATE = OPENBAO_REPORTS / "openbao_raft_state"
+REPORT = OPENBAO_REPORTS / "openbao_raft_ha_e2e.json"
 NODES = (
     {"name": "node1", "api": 18301, "cluster": 18401},
     {"name": "node2", "api": 18302, "cluster": 18402},
@@ -127,6 +128,7 @@ def stop(process: subprocess.Popen | None) -> None:
 
 
 def main() -> int:
+    REPORT.parent.mkdir(parents=True, exist_ok=True)
     bao = find_bao()
     if STATE.exists():
         shutil.rmtree(STATE)

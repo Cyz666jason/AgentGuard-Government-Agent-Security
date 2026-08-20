@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-20T18:32:42.052072+08:00",
+  "run_id": "standalone",
+  "status": "blocked_external_environment",
+  "production_ready": false,
+  "product_validation_completed": false,
+  "preflight_valid": true,
+  "result_class": "blocked_external_environment",
+  "preflight_mode": "read_only",
+  "network_requests_performed": false,
+  "mutating_commands_performed": false,
+  "secret_values_recorded": false,
+  "config_source_filename": "stage4.preflight.example.json",
+  "host": {
+    "system": "Windows",
+    "release": "11",
+    "machine": "AMD64"
+  },
+  "status_contract": [
+    "awaiting_authorized_input",
+    "blocked_external_environment",
+    "configuration_prepared_not_verified"
+  ],
+  "domains": {
+    "kata_firecracker": {
+      "name": "Kata/Firecracker KVM product E2E",
+      "status": "blocked_external_environment",
+      "ready_for_authorized_e2e": false,
+      "product_validation_completed": false,
+      "checks": {
+        "linux_host": false,
+        "supported_architecture": false,
+        "dev_kvm_present": false,
+        "dev_kvm_read_write": false,
+        "kata_runtime_available": false,
+        "firecracker_available": false,
+        "firecracker_jailer_available": false,
+        "kernel_image_reference_supplied": false,
+        "rootfs_image_reference_supplied": false,
+        "test_workload_reference_supplied": false,
+        "all_declared_runtimes_known": true
+      },
+      "blockers": [
+        "linux_host",
+        "supported_architecture",
+        "dev_kvm_present",
+        "dev_kvm_read_write",
+        "kata_runtime_available",
+        "firecracker_available",
+        "firecracker_jailer_available",
+        "kernel_image_reference_supplied",
+        "rootfs_image_reference_supplied",
+        "test_workload_reference_supplied"
+      ],
+      "authorized_inputs_missing": [],
+      "validation_errors": [],
+      "next_steps": [
+        "Run on an authorised Linux x86_64/aarch64 host with read/write /dev/kvm.",
+        "After preflight passes, run separate Kata and Firecracker isolation, escape, resource-limit and performance E2E."
+      ]
+    },
+    "openbao": {
+      "name": "Cross-failure-domain OpenBao",
+      "status": "blocked_external_environment",
+      "ready_for_authorized_e2e": false,
+      "product_validation_completed": false,
+      "checks": {
+        "bao_cli_available": true,
+        "at_least_three_nodes_declared": true,
+        "unique_node_ids": false,
+        "at_least_three_failure_domains": false,
+        "all_api_endpoints_https": false,
+        "tls_ca_readable": false,
+        "auto_unseal_provider_declared": false,
+        "auto_unseal_key_reference_declared": false,
+        "snapshot_target_declared": false,
+        "snapshot_restore_environment_declared": false,
+        "network_partition_environment_declared": false,
+        "capacity_environment_declared": false
+      },
+      "blockers": [
+        "unique_node_ids",
+        "at_least_three_failure_domains",
+        "all_api_endpoints_https",
+        "tls_ca_readable",
+        "auto_unseal_provider_declared",
+        "auto_unseal_key_reference_declared",
+        "snapshot_target_declared",
+        "snapshot_restore_environment_declared",
+        "network_partition_environment_declared",
+        "capacity_environment_declared"
+      ],
+      "authorized_inputs_missing": [
+        "AGENTGUARD_STAGE4_OPENBAO_TOKEN"
+      ],
+      "validation_errors": [],
+      "next_steps": [
+        "Obtain an authorised least-privilege token through the organisation secret manager.",
+        "Run TLS/SAN, Raft quorum, auto-unseal, snapshot restore, leader loss, network partition and capacity tests in the declared failure domains."
+      ]
+    },
+    "kubernetes": {
+      "name": "Kubernetes NetworkPolicy and mTLS",
+      "status": "blocked_external_environment",
+      "ready_for_authorized_e2e": false,
+      "product_validation_completed": false,
+      "checks": {
+        "kubectl_available": false,
+        "cluster_context_declared": false,
+        "namespace_declared": true,
+        "kubeconfig_readable": false,
+        "networkpolicy_enforcement_evidence_declared": false,
+        "mtls_provider_declared": false,
+        "mtls_enforcement_evidence_declared": false,
+        "failure_test_environment_declared": false
+      },
+      "blockers": [
+        "kubectl_available",
+        "cluster_context_declared",
+        "networkpolicy_enforcement_evidence_declared",
+        "mtls_provider_declared",
+        "mtls_enforcement_evidence_declared",
+        "failure_test_environment_declared"
+      ],
+      "authorized_inputs_missing": [
+        "AGENTGUARD_STAGE4_KUBECONFIG"
+      ],
+      "validation_errors": [],
+      "next_steps": [
+        "Use a read-only preflight identity first; use a separately approved deployment identity only when applying manifests.",
+        "Verify default deny, required service paths, DNS egress, policy enforcement by the CNI, STRICT mTLS and plaintext rejection."
+      ]
+    },
+    "keycloak": {
+      "name": "Keycloak HTTPS/HA/federation/real MFA",
+      "status": "blocked_external_environment",
+      "ready_for_authorized_e2e": false,
+      "product_validation_completed": false,
+      "checks": {
+        "public_url_https": false,
+        "at_least_two_https_nodes": false,
+        "tls_ca_readable": false,
+        "production_database_ha_declared": false,
+        "cache_or_session_ha_declared": false,
+        "load_balancer_health_reference_declared": false,
+        "directory_provider_declared": false,
+        "directory_connection_reference_declared": false,
+        "real_mfa_flow_declared": false,
+        "authorized_mfa_account_reference_declared": false
+      },
+      "blockers": [
+        "public_url_https",
+        "at_least_two_https_nodes",
+        "tls_ca_readable",
+        "production_database_ha_declared",
+        "cache_or_session_ha_declared",
+        "load_balancer_health_reference_declared",
+        "directory_provider_declared",
+        "directory_connection_reference_declared",
+        "real_mfa_flow_declared",
+        "authorized_mfa_account_reference_declared"
+      ],
+      "authorized_inputs_missing": [
+        "AGENTGUARD_STAGE4_KEYCLOAK_ADMIN_TOKEN",
+        "AGENTGUARD_STAGE4_LDAP_BIND_SECRET",
+        "AGENTGUARD_STAGE4_MFA_TEST_CREDENTIAL"
+      ],
+      "validation_errors": [],
+      "next_steps": [
+        "Use authorised non-production test identities and least-privilege administration credentials.",
+        "Verify issuer/SAN, node and site failover, directory sync/disable, real step-up MFA, replay rejection and audit evidence."
+      ]
+    },
+    "business_and_data": {
+      "name": "Authorised business API and production data",
+      "status": "awaiting_authorized_input",
+      "ready_for_authorized_e2e": false,
+      "product_validation_completed": false,
+      "checks": {
+        "business_api_https": false,
+        "business_api_url_shape_valid": false,
+        "business_api_allowlist_declared": false,
+        "business_api_hostname_in_allowlist": false,
+        "business_api_token_present": false,
+        "business_api_ca_readable_when_configured": true,
+        "business_api_timeout_valid": true,
+        "requester_oidc_issuer_https": false,
+        "requester_oidc_audience_present": false,
+        "query_requester_token_present": false,
+        "side_effect_test_scope_declared": false,
+        "rollback_or_compensation_declared": false,
+        "authorized_dataset_readable": false,
+        "data_authorization_manifest_readable": false,
+        "expected_dataset_id_declared": false,
+        "expected_purpose_declared": false,
+        "expected_schema_version_declared": false,
+        "redaction_output_directory_writable": false,
+        "redaction_salt_is_at_least_32_bytes_hex": false,
+        "business_max_write_amount_valid": true,
+        "manifest_json_object": false,
+        "manifest_version_supported": false,
+        "dataset_id_matches_expected": false,
+        "approved_purpose_matches_expected": false,
+        "dataset_schema_version_matches_expected": false,
+        "owner_approval_reference_present": false,
+        "authorization_not_expired": false,
+        "allowed_fields_nonempty_unique": false,
+        "prohibited_fields_valid_unique": false,
+        "prohibited_fields_disjoint": false,
+        "side_effects_explicitly_forbidden": false,
+        "retention_and_deletion_reference_present": false,
+        "source_sha256_matches_data": false,
+        "record_count_matches_data": false,
+        "jsonl_records_are_objects": false,
+        "records_use_only_allowed_fields": false,
+        "records_exclude_prohibited_fields": false
+      },
+      "blockers": [],
+      "authorized_inputs_missing": [
+        "AGENTGUARD_AUTHORIZED_DATA_JSONL",
+        "AGENTGUARD_AUTHORIZED_DATA_MANIFEST",
+        "AGENTGUARD_BUSINESS_API_ALLOWED_HOSTS",
+        "AGENTGUARD_BUSINESS_API_BASE_URL",
+        "AGENTGUARD_BUSINESS_API_TOKEN",
+        "AGENTGUARD_QUERY_REQUESTER_ACCESS_TOKEN",
+        "AGENTGUARD_REDACTION_SALT_HEX",
+        "AGENTGUARD_REQUESTER_OIDC_AUDIENCE",
+        "AGENTGUARD_REQUESTER_OIDC_ISSUER",
+        "expected_dataset_id_declared",
+        "expected_purpose_declared",
+        "expected_schema_version_declared",
+        "redaction_output_directory_writable",
+        "rollback_or_compensation_declared",
+        "side_effect_test_scope_declared"
+      ],
+      "validation_errors": [],
+      "next_steps": [
+        "Obtain written data-owner/API-owner authorisation, scoped credentials and an approved rollback window.",
+        "Validate schema and provenance, redact into an isolated output directory, then run read-only calls before approved side-effect tests."
+      ]
+    }
+  },
+  "summary": {
+    "prepared_not_verified": 0,
+    "awaiting_authorized_input": 1,
+    "blocked_external_environment": 4,
+    "total": 5,
+    "validation_errors": 0
+  },
+  "validation_errors": [],
+  "boundary": "This preflight proves only that local prerequisites and authorised-input presence are prepared. It does not prove product E2E, production safety, high availability, isolation strength, or performance.",
+  "expected_exit_code": 2
+}

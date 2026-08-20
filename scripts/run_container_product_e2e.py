@@ -19,7 +19,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REPORT = ROOT / "reports" / "container_product_e2e_attempt.json"
+REPORT = ROOT / "reports" / "e2e" / "network" / "container_product_e2e_attempt.json"
 COMPOSE = ROOT / "deployment" / "product-e2e" / "docker-compose.yml"
 REQUEST_BODY = b"{}"
 CONTAINERS = (
@@ -207,6 +207,7 @@ def raw_docker_down(runtime: str, networks: list[str], backend_image: str, envir
 
 
 def main() -> int:
+    REPORT.parent.mkdir(parents=True, exist_ok=True)
     run_id = os.environ.get("AGENTGUARD_RUN_ID") or uuid.uuid4().hex[:12]
     runtime = next(
         (name for name in ("docker", "podman") if shutil.which(name)), None

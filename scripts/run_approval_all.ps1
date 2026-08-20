@@ -7,7 +7,7 @@ $ErrorActionPreference = 'Stop'
 $env:PYTHONUTF8 = '1'
 $env:PYTHONIOENCODING = 'utf-8'
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$reportDir = Join-Path $projectRoot 'reports'
+$reportDir = Join-Path $projectRoot 'reports\approval'
 $venvPython = Join-Path $projectRoot '.venv\Scripts\python.exe'
 
 if ($Python -ne '') {
@@ -40,4 +40,4 @@ finally {
     Pop-Location
 }
 
-Write-Host "审批工作流全部测试通过。报告目录：$reportDir"
+Write-Host "审批工作流全部测试通过。审批报告目录：$reportDir"

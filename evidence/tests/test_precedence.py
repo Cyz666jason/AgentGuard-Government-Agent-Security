@@ -140,13 +140,15 @@ class ResolverIntegrationTests(unittest.TestCase):
         return (completed.stdout or "").strip()
 
     def _write(self, name: str, payload: dict) -> None:
-        (self.reports / name).write_text(
+        path = self.reports / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
             json.dumps(payload, ensure_ascii=False), encoding="utf-8"
         )
 
     def _write_ci(self, commit: str, passed: bool = True) -> None:
         self._write(
-            "github_actions_container_product_e2e.json",
+            "e2e/network/github_actions_container_product_e2e.json",
             {
                 "commit": commit,
                 "runner": "ubuntu-latest",
@@ -161,7 +163,7 @@ class ResolverIntegrationTests(unittest.TestCase):
 
     def _write_local_failure(self, generated_at: datetime) -> None:
         self._write(
-            "container_product_e2e_attempt.json",
+            "e2e/network/container_product_e2e_attempt.json",
             {
                 "run_id": "local-1",
                 "generated_at": generated_at.isoformat(),
@@ -177,7 +179,7 @@ class ResolverIntegrationTests(unittest.TestCase):
         self._write_ci(self.first_commit, passed=True)
         self._write_local_failure(datetime.now(timezone.utc) - timedelta(days=30))
         self._write(
-            "toolhive_environment_check.json",
+            "preflight/toolhive_environment_check.json",
             {
                 "tested_at": "2026-08-07T08:43:13+08:00",
                 "container_e2e_tested": False,
@@ -219,7 +221,7 @@ class ResolverIntegrationTests(unittest.TestCase):
 
         self._write_ci(self.head_commit, passed=False)
         self._write(
-            "container_product_e2e_attempt.json",
+            "e2e/network/container_product_e2e_attempt.json",
             {
                 "run_id": "local-1",
                 "generated_at": (
@@ -236,7 +238,7 @@ class ResolverIntegrationTests(unittest.TestCase):
 
     def test_publication_evidence_requires_public_visibility(self) -> None:
         self._write(
-            "github_publication.json",
+            "status/github_publication.json",
             {
                 "generated_at": datetime.now(timezone.utc).isoformat(),
                 "published": True,
@@ -250,7 +252,7 @@ class ResolverIntegrationTests(unittest.TestCase):
 
     def test_public_visibility_resolves_to_published(self) -> None:
         self._write(
-            "github_publication.json",
+            "status/github_publication.json",
             {
                 "generated_at": datetime.now(timezone.utc).isoformat(),
                 "published": True,

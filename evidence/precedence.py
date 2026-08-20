@@ -1,9 +1,9 @@
 """按明确优先级解析互相冲突的测试证据。
 
 项目在不同环境下产生过互相矛盾的记录：本机 Windows 没有容器运行时，因此
-``reports/container_product_e2e_attempt.json`` 与
-``reports/toolhive_environment_check.json`` 记录的是失败或"未运行"；而
-``reports/github_actions_container_product_e2e.json`` 记录的是 GitHub Linux
+``reports/e2e/network/container_product_e2e_attempt.json`` 与
+``reports/preflight/toolhive_environment_check.json`` 记录的是失败或"未运行"；而
+``reports/e2e/network/github_actions_container_product_e2e.json`` 记录的是 GitHub Linux
 Runner 上 10/10 通过的实测。
 
 这里不手工写死结论，而是实现一条可复用的优先级规则：
@@ -250,7 +250,7 @@ class EvidenceResolver:
         self._collect_publication_evidence()
 
     def _collect_ci_container_evidence(self) -> None:
-        path = self.reports / "github_actions_container_product_e2e.json"
+        path = self.reports / "e2e" / "network" / "github_actions_container_product_e2e.json"
         payload = _load_json(path)
         if payload is None:
             return
@@ -283,7 +283,7 @@ class EvidenceResolver:
             )
 
     def _collect_local_container_evidence(self) -> None:
-        path = self.reports / "container_product_e2e_attempt.json"
+        path = self.reports / "e2e" / "network" / "container_product_e2e_attempt.json"
         payload = _load_json(path)
         if payload is None:
             return
@@ -313,7 +313,7 @@ class EvidenceResolver:
             )
 
     def _collect_historical_environment_evidence(self) -> None:
-        toolhive_path = self.reports / "toolhive_environment_check.json"
+        toolhive_path = self.reports / "preflight" / "toolhive_environment_check.json"
         toolhive = _load_json(toolhive_path)
         if toolhive is not None:
             self._add(
@@ -328,7 +328,7 @@ class EvidenceResolver:
                 )
             )
 
-        machine_path = self.reports / "test_machine_environment.json"
+        machine_path = self.reports / "preflight" / "test_machine_environment.json"
         machine = _load_json(machine_path)
         containers = (machine or {}).get("container_environment")
         if isinstance(containers, Mapping):
@@ -351,7 +351,7 @@ class EvidenceResolver:
                 )
 
     def _collect_publication_evidence(self) -> None:
-        path = self.reports / "github_publication.json"
+        path = self.reports / "status" / "github_publication.json"
         payload = _load_json(path)
         if payload is not None:
             visibility = str(payload.get("visibility", "unknown"))

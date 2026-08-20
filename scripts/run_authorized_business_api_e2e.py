@@ -27,7 +27,14 @@ from integrations.production_api import (
 
 
 def main() -> int:
-    report_path = PROJECT_ROOT / "reports" / "authorized_business_api_e2e.json"
+    report_path = (
+        PROJECT_ROOT
+        / "reports"
+        / "e2e"
+        / "business"
+        / "authorized_business_api_e2e.json"
+    )
+    report_path.parent.mkdir(parents=True, exist_ok=True)
     if not production_credentials_present():
         report = {
             "run_id": os.environ.get("AGENTGUARD_RUN_ID", "standalone"),
@@ -66,7 +73,7 @@ def main() -> int:
         issuer=issuer, audience=audience, require_mfa=True
     )
     gateway = build_gateway(
-        PROJECT_ROOT / "reports" / "authorized_business_state",
+        PROJECT_ROOT / "reports" / "e2e" / "business" / "authorized_business_state",
         business_adapter=adapter,
     )
     query = json.loads(

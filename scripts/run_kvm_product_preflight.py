@@ -12,7 +12,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REPORT = ROOT / "reports" / "kvm_product_preflight.json"
+REPORT = ROOT / "reports" / "preflight" / "kvm_product_preflight.json"
 
 
 def command_output(command: list[str]) -> tuple[int, str]:
@@ -29,6 +29,7 @@ def command_output(command: list[str]) -> tuple[int, str]:
 
 
 def main() -> int:
+    REPORT.parent.mkdir(parents=True, exist_ok=True)
     is_linux = platform.system() == "Linux"
     kvm = Path("/dev/kvm")
     kvm_present = is_linux and kvm.exists()

@@ -31,7 +31,7 @@ from evaluation.validation import (  # noqa: E402
 
 METADATA_PATH = ROOT / "datasets/public/public_benchmarks.metadata.json"
 FIXTURE_DIR = ROOT / "evaluation/tests/fixtures"
-REPORT_DIR = ROOT / "reports"
+REPORT_DIR = ROOT / "reports" / "evaluation" / "public-benchmarks"
 
 
 class CliArgumentParser(argparse.ArgumentParser):
@@ -163,7 +163,10 @@ def command_smoke(_: argparse.Namespace) -> int:
         write_json(REPORT_DIR / f"public_benchmark_{benchmark}_fixture.json", benchmark_report)
         index["benchmarks"][benchmark] = {
             "result": "passed", "denominator": len(cases),
-            "report": f"reports/public_benchmark_{benchmark}_fixture.json",
+            "report": (
+                "reports/evaluation/public-benchmarks/"
+                f"public_benchmark_{benchmark}_fixture.json"
+            ),
         }
     write_json(REPORT_DIR / "public_benchmark_fixture_smoke.json", index)
     print(json.dumps(index, ensure_ascii=False, indent=2))

@@ -36,14 +36,15 @@ jobs:
           ./tools/opa check --strict deployment/opa-envoy
       - name: Unit tests and coverage
         run: |
+          mkdir -p reports/core
           ./tools/opa test policy tests data --fail-on-empty
           ./tools/opa test deployment/opa-envoy --fail-on-empty
-          ./tools/opa test policy tests data --coverage --format=json > reports/coverage.json
+          ./tools/opa test policy tests data --coverage --format=json > reports/core/coverage.json
       - name: Batch evaluation
         run: python scripts/evaluate.py --opa ./tools/opa
       - name: Install Python security dependencies
         run: |
-          pip install --require-hashes --report reports/python_dependency_install.json -r requirements-lock.txt
+          pip install --require-hashes --report reports/core/python_dependency_install.json -r requirements-lock.txt
           pip check
       - name: Python security and integration tests
         run: python -m enforcement.run_tests

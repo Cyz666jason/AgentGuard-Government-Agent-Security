@@ -1,0 +1,28 @@
+{
+  "run_id": "qemu-c757968445d5",
+  "generated_at": "2026-08-14T18:01:16.236733+08:00",
+  "guest": "Alpine 3.24 live on QEMU TCG",
+  "toolhive_version": "0.28.3",
+  "toolhive_archive_sha256_expected": "6b6b1533cdb1b5840fd65792a8dc6e73547f28043e3e8fc111f7d9e557a96a78",
+  "source_archive_scope": [
+    "deployment/product-e2e",
+    "deployment/opa-envoy",
+    "scripts/run_container_product_e2e.py"
+  ],
+  "credentials_or_production_data_transferred": false,
+  "status": "failed",
+  "guest_started_by_this_run": false,
+  "e2e_exit_code": 1,
+  "opa_envoy_container_e2e": false,
+  "toolhive_container_e2e": false,
+  "checks_passed": 0,
+  "checks_total": 0,
+  "elapsed_seconds": 93.266,
+  "evidence": [
+    "reports/e2e/isolation/qemu_container_host/live_container_host.json",
+    "reports/e2e/isolation/qemu_container_host/guest_provision.log",
+    "reports/e2e/isolation/qemu_container_host/guest_inventory.log",
+    "reports/e2e/isolation/qemu_container_host/container_e2e_console.log",
+    "reports/e2e/network/container_product_e2e_attempt.json"
+  ]
+}

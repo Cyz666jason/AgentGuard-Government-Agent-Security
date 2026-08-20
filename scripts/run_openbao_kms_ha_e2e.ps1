@@ -23,7 +23,7 @@ $rng.Dispose()
 $devToken = ($tokenBytes | ForEach-Object { $_.ToString('x2') }) -join ''
 $env:AGENTGUARD_BAO_ADDR = 'http://127.0.0.1:18200'
 $env:AGENTGUARD_BAO_TOKEN = $devToken
-$logDir = Join-Path $projectRoot 'reports\openbao_state'
+$logDir = Join-Path $projectRoot 'reports\e2e\openbao\openbao_state'
 New-Item -ItemType Directory -Path $logDir -Force | Out-Null
 $stdout = Join-Path $logDir 'openbao_stdout.log'
 $stderr = Join-Path $logDir 'openbao_stderr.log'

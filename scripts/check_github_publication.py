@@ -18,7 +18,7 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REPORT = ROOT / "reports" / "github_publication.json"
+REPORT = ROOT / "reports" / "status" / "github_publication.json"
 SLUG_PATTERN = re.compile(
     r"github\.com[:/](?P<owner>[^/]+)/(?P<repo>[^/]+?)(?:\.git)?/?$", re.IGNORECASE
 )

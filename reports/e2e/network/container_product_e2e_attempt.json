@@ -1,0 +1,35 @@
+{
+  "run_id": "5ff0e3c1c842",
+  "generated_at": "2026-08-20T17:05:38.198420+08:00",
+  "runtime": null,
+  "status": "blocked_external_environment",
+  "opa_envoy_container_e2e": false,
+  "toolhive_container_e2e": false,
+  "reason": "Docker/Podman daemon is unavailable",
+  "superseded_by": {
+    "note": "本文件保留为历史记录。其中的结论产生于下列测试时间与环境，已被更高优先级的证据取代，不代表当前仓库结论。",
+    "this_evidence_tested_at": "2026-08-20T17:05:38.198420+08:00",
+    "this_evidence_environment": "local_windows_test_machine",
+    "this_evidence_tier": "local_fresh_evidence",
+    "superseded_claims": [
+      {
+        "claim": "opa_envoy_container_e2e",
+        "recorded_verdict": false,
+        "current_verdict": true,
+        "superseded_by": "reports/e2e/network/github_actions_container_product_e2e.json",
+        "superseding_tier": "ci_evidence_ancestor_commit",
+        "superseding_tested_at": "2026-08-14T10:40:28.621959+00:00",
+        "superseding_environment": "github_actions/ubuntu-latest"
+      },
+      {
+        "claim": "toolhive_container_e2e",
+        "recorded_verdict": false,
+        "current_verdict": true,
+        "superseded_by": "reports/e2e/network/github_actions_container_product_e2e.json",
+        "superseding_tier": "ci_evidence_ancestor_commit",
+        "superseding_tested_at": "2026-08-14T10:40:28.621959+00:00",
+        "superseding_environment": "github_actions/ubuntu-latest"
+      }
+    ]
+  }
+}

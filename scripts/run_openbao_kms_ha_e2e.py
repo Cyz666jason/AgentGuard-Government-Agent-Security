@@ -261,7 +261,10 @@ def main() -> int:
     token = os.environ.get("AGENTGUARD_BAO_TOKEN", "")
     if not token:
         raise RuntimeError("缺少 AGENTGUARD_BAO_TOKEN")
-    report_path = PROJECT_ROOT / "reports" / "openbao_kms_ha_e2e.json"
+    report_path = (
+        PROJECT_ROOT / "reports" / "e2e" / "openbao" / "openbao_kms_ha_e2e.json"
+    )
+    report_path.parent.mkdir(parents=True, exist_ok=True)
     report = run_e2e(address, token, report_path)
     print(json.dumps({"passed": report["passed"], "total": report["total"]}))
     return 0 if report["passed"] == report["total"] else 1

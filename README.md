@@ -8,7 +8,19 @@
 
 项目不是静态调研材料，已经使用 OpenClaw 2026.7.1-2、Keycloak 26.7.1、OPA 1.19.0、LangGraph 1.2.10、Wasmtime 47.0.1、OpenBao 2.6.1 和 QEMU 11.1.0 在测试机实际运行并生成测试报告。
 
-> 最新进展、证据边界和未完成项见 [2026-08-20 项目进展](docs/%E9%A1%B9%E7%9B%AE%E6%9C%80%E6%96%B0%E8%BF%9B%E5%B1%95_20260820.md)。
+> 快速入口：[2026-08-20 项目最新进展](docs/overview/项目最新进展_20260820.md) · [OpenClaw 接入说明](docs/integrations/OpenClaw接入判断与基础版说明.md) · [OpenClaw 实测报告](reports/e2e/openclaw/openclaw_mcp_integration.md) · [文档导航](docs/README.md) · [测试证据导航](reports/README.md)
+
+## 仓库导航
+
+| 分组 | 目录 | 主要内容 |
+|---|---|---|
+| 核心安全代码 | [`policy/`](policy/) · [`approval/`](approval/) · [`enforcement/`](enforcement/) · [`security_kernel/`](security_kernel/) · [`service/`](service/) | Rego 动态权限、人工审批、强制阻断网关、Wasmtime 安全内核和常驻服务 |
+| 智能体与业务集成 | [`integrations/`](integrations/) | OpenClaw 只读 MCP、获批业务 API 和授权数据脱敏接入 |
+| 评测与数据 | [`evaluation/`](evaluation/) · [`datasets/`](datasets/) | 公开基准转换与评测代码、合成安全测试集及数据说明 |
+| 部署与生产化 | [`deployment/`](deployment/) | OPA-Envoy、ToolHive、Kubernetes、OpenBao 和阶段 4 环境模板 |
+| 设计与汇报文档 | [`docs/README.md`](docs/README.md) | 项目全貌、架构、接入、评测、汇报和生产化文档索引 |
+| 测试与运行证据 | [`reports/README.md`](reports/README.md) | 核心、审批、演示、E2E、公开基准、预检和状态证据索引 |
+| 自动化入口 | [`scripts/`](scripts/) | 环境准备、全量测试、E2E、评测、状态生成和发布前检查脚本 |
 
 ## 已完成的课题内容
 
@@ -82,7 +94,7 @@ OPA 负责“算出决定”，网关负责“执行决定”。只有 OPA 而�
 
 Python完整依赖已写入 `requirements-lock.txt` 并包含包哈希；CI 使用 `--require-hashes` 安装。GitHub Actions 与产品容器镜像均固定到提交或 SHA-256 摘要。
 
-批量评测脚本逐条启动 OPA CLI，耗时会随机器负载波动，最新均值与 P95 以 `reports/open_source_route_progress.md` 自动看板为准；该值主要包含进程启动和策略加载，不是 sidecar、Wasm 或 Go SDK 常驻部署的纯决策延迟。
+批量评测脚本逐条启动 OPA CLI，耗时会随机器负载波动，最新均值与 P95 以[自动进度看板](reports/status/open_source_route_progress.md)为准；该值主要包含进程启动和策略加载，不是 sidecar、Wasm 或 Go SDK 常驻部署的纯决策延迟。
 
 ## 一键复现
 
@@ -101,8 +113,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_complete_s
 
 完整脚本结束时还会自动刷新：
 
-- `reports/open_source_route_progress.json`：机器可读的五阶段路线、指标、数据集和缺漏状态；
-- `reports/open_source_route_progress.md`：可直接检查的中文进度看板。
+- [`reports/status/open_source_route_progress.json`](reports/status/open_source_route_progress.json)：机器可读的五阶段路线、指标、数据集和缺漏状态；
+- [`reports/status/open_source_route_progress.md`](reports/status/open_source_route_progress.md)：可直接检查的中文进度看板。
 
 如果 `python` 不在 PATH，可显式指定：
 
@@ -153,7 +165,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_approval_a
 .\.venv\Scripts\python.exe -m approval.demo --scenario tamper
 ```
 
-实测结果为 10/10 个工作流测试通过：低风险直通、高风险暂停、批准恢复、拒绝阻断、修改后重新审批、审批后参数篡改阻断、自批阻断、无审批角色阻断、跨任务复用阻断、进程重启后恢复。量化结果在 `reports/approval_evaluation_report.md`，9 条工作流数据在 `datasets/approval_workflow_cases.jsonl`。
+实测结果为 10/10 个工作流测试通过：低风险直通、高风险暂停、批准恢复、拒绝阻断、修改后重新审批、审批后参数篡改阻断、自批阻断、无审批角色阻断、跨任务复用阻断、进程重启后恢复。量化结果见[审批专项评估](reports/approval/approval_evaluation_report.md)，9 条工作流数据见[`datasets/approval_workflow_cases.jsonl`](datasets/approval_workflow_cases.jsonl)。
 
 ## 第三阶段：强制阻断网关（已实现）
 
@@ -163,18 +175,18 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_approval_a
 
 `security_kernel/` 使用 Wasmtime 执行受控 WebAssembly 工具适配器。默认不注入 WASI、文件系统、网络、环境变量或其他主机函数；每次执行限制为 2 MiB 内存和固定燃料预算。测试证明无限循环被 `K006_CPU_BUDGET_EXCEEDED` 终止，WASI 文件写入导入被 `K002_HOST_IMPORT_FORBIDDEN` 拒绝，超量初始内存和非白名单入口同样不能运行。
 
-OPA→LangGraph→强制网关→Wasmtime 的完整审批链路已经实际跑通。主报告位于 `reports/full_security_evaluation_report.md`。
+OPA→LangGraph→强制网关→Wasmtime 的完整审批链路已经实际跑通。结果见[完整安全评估报告](reports/core/full_security_evaluation_report.md)。
 
 ## 高优先级缺口补齐（已实测）
 
 - `identity/`：Keycloak 26.7.1 测试域和 OIDC 验证器；无令牌、篡改令牌、错误身份来源均阻断。
 - `enforcement/http_stack.py`：常驻 OPA REST→HTTP 网关→一次性票据→受保护 HTTP 后端，网络端到端 5/5。
 - `enforcement/adapters.py`：受限于状态目录的真实 SQLite 查询与付款测试账本，6/6。
-- `third_party/README.md`：Keycloak、Java 与 ToolHive 官方下载、版本和校验和。ToolHive CLI 已验证；产品级 MCP 容器与 OPA-Envoy 容器链路已在 GitHub Actions Linux Runner 上 10/10 实测（`reports/github_actions_container_product_e2e.json`），本机 Windows 无容器运行时不影响该结论。
+- [`third_party/README.md`](third_party/README.md)：Keycloak、Java 与 ToolHive 官方下载、版本和校验和。ToolHive CLI 已验证；产品级 MCP 容器与 OPA-Envoy 容器链路已在 GitHub Actions Linux Runner 上 10/10 实测（[容器 E2E 证据](reports/e2e/network/github_actions_container_product_e2e.json)），本机 Windows 无容器运行时不影响该结论。
 - `enforcement/signers.py`、`enforcement/ledgers.py`、`approval/credentials.py`：OpenBao Transit票据/审批密钥外置、版本轮换和KV v2 CAS共享核销，实服10/10；三节点Raft选主、复制与leader故障切换8/8。
 - `scripts/run_qemu_native_isolation_e2e.py`：QEMU独立Linux guest kernel、Alpine用户态与只读校验启动介质隔离，实测11/11。
 - `integrations/`：获批真实API、真实数据以及 OpenClaw 只读 MCP 的安全接入入口；未提供生产凭据或数据时默认跳过并明确报告。
-- `integrations/openclaw_mcp/`：单一只读 MCP 工具、可信身份边界、OpenClaw 示例配置和协议测试；所有业务调用固定经过 AgentGuard `/invoke`。
+- [`integrations/openclaw_mcp/`](integrations/openclaw_mcp/)：单一只读 MCP 工具、可信身份边界、OpenClaw 示例配置和协议测试；所有业务调用固定经过 AgentGuard `/invoke`。接入判断见[专题说明](docs/integrations/OpenClaw接入判断与基础版说明.md)，实测命令、输出和证据边界见[OpenClaw E2E 报告](reports/e2e/openclaw/openclaw_mcp_integration.md)。
 
 ## 作为 OPA 服务运行
 
@@ -194,22 +206,41 @@ Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8181/v1/data/agent/guard/de
 ## 目录说明
 
 ```text
-policy/       核心策略与决策日志脱敏规则
-data/         可信工具、角色权限、阈值和名单配置
-tests/        Rego 单元测试
-identity/     Keycloak 测试域、OIDC JWT 验证与可信 subject 映射
-approval/     LangGraph 暂停/恢复、SQLite 检查点、演示与自动化测试
-enforcement/  强制阻断网关、HTTP PEP、一次性票据、真实测试适配器、审计与全链路测试
-integrations/  获批预生产API、真实数据脱敏、OpenClaw只读MCP适配器和接入测试
-evaluation/    三套公开智能体安全基准的离线转换、严格校验、去重和独立评测
-security_kernel/ Wasmtime 安全内核、受控模块和资源攻击测试
-deployment/   OPA-Envoy、ToolHive 与阶段4外部产品验证的非密模板及测试边界
-schemas/      候选动作和决策输出 JSON Schema
-samples/      放行、审批、阻断和审批后放行样例
-datasets/     55 个 OPA + 9 个审批 + 19 个阻断/内核用例
-scripts/      完整环境安装、一键测试、演示和评测
-reports/      四层实际测试、测试机环境、覆盖率、性能和缺漏报告
-docs/         可直接用于技术报告、PPT和答辩的中文内容
+├─ policy/                 Rego 动态权限策略与决策日志脱敏规则
+├─ approval/               LangGraph 暂停/恢复、审批凭证和职责分离
+├─ enforcement/            强制阻断网关、执行票据、审计和业务适配器
+├─ security_kernel/        Wasmtime 安全内核、受控模块和资源攻击测试
+├─ service/                AgentGuard 常驻 HTTP 服务与 OPA 生命周期管理
+├─ identity/               Keycloak 测试域、OIDC 验证和可信身份映射
+├─ integrations/           OpenClaw MCP、获批业务 API 和数据脱敏接入
+├─ evaluation/             公开智能体安全基准的转换、校验和独立评测
+├─ datasets/               合成安全测试集、公开基准元数据与许可说明
+├─ deployment/             OPA-Envoy、ToolHive、Kubernetes、OpenBao 和阶段4模板
+├─ data/ schemas/ samples/ 策略配置、JSON Schema 和三态决策样例
+├─ tests/                  Rego 单元测试与生成用例
+├─ scripts/                安装、测试、E2E、评测、状态与发布前检查入口
+├─ docs/                   项目文档（入口：docs/README.md）
+│  ├─ overview/            最新进展、完成范围、缺漏和开源路线
+│  ├─ architecture/        核心架构图与整体技术路线图
+│  ├─ integrations/        OpenClaw 等外部系统接入说明
+│  ├─ evaluation/          公开基准与量化评测说明
+│  ├─ presentation/        汇报、答辩和课题报告材料
+│  └─ production/          生产化条件、外部环境和验收计划
+└─ reports/                可复核测试证据（入口：reports/README.md）
+   ├─ core/                核心策略、回归、覆盖率和完整安全评估
+   ├─ approval/            人工审批专项证据
+   ├─ demos/               完整链路演示与脱敏审计样例
+   ├─ e2e/                 分产品和安全边界保存端到端证据
+   │  ├─ business/         受控真实测试业务 API
+   │  ├─ identity/         Keycloak/OIDC 可信身份
+   │  ├─ isolation/        QEMU 原生与容器隔离
+   │  ├─ network/          OPA-Envoy、ToolHive 和网络强制链
+   │  ├─ openbao/          密钥外置、共享核销和 Raft 高可用
+   │  └─ openclaw/         OpenClaw 注册、工具发现和 MCP 调用
+   ├─ evaluation/
+   │  └─ public-benchmarks/ 公开基准转换与冒烟评测证据
+   ├─ preflight/           外部环境和生产化前置检查
+   └─ status/              最新进度、证据裁决、发布和安全扫描状态
 ```
 
 ## 工程边界
@@ -222,8 +253,8 @@ docs/         可直接用于技术报告、PPT和答辩的中文内容
 - 当前 55 个样例是合成的政企安全测试数据，不包含真实个人信息，部署前应结合单位制度、资源目录和密级规则扩充；公开数据集（AgentDojo / InjecAgent / AgentHarm）已提供转换器、校验器与独立分母评测入口，原始数据需按各自许可证自行获取，本仓库不重分发也不虚构样本。
 - 真实业务URL、令牌、CA和单位日志没有被提供，因此只完成安全接入代码和自动预检，不能把测试样例表述成生产E2E。
 - OpenClaw 2026.7.1-2 已实机完成 MCP 注册、`doctor --probe` 和 `tools/list`；低风险调用由确定性 MCP 客户端完成，不是使用模型凭据的 OpenClaw agent 回合。生产仍需逐用户 OIDC/OAuth、mTLS 与模型回合审计。
-- `reports/stage4_preflight.json` 始终区分“配置已准备”与“产品已实测”；预检通过也不会把 `production_ready` 或 `product_validation_completed` 改为真。
-- 公开 GitHub 仓库已发布（`reports/github_publication.json` 实测匿名可读、可见性 public）。已开源不等于已生产就绪；密钥、授权数据与运行态状态目录仍被 `.gitignore` 与发布前秘密扫描挡在仓库外。
+- [`reports/preflight/stage4_preflight.json`](reports/preflight/stage4_preflight.json) 始终区分“配置已准备”与“产品已实测”；预检通过也不会把 `production_ready` 或 `product_validation_completed` 改为真。
+- 公开 GitHub 仓库已发布（[`reports/status/github_publication.json`](reports/status/github_publication.json) 实测匿名可读、可见性 public）。已开源不等于已生产就绪；密钥、授权数据与运行态状态目录仍被 `.gitignore` 与发布前秘密扫描挡在仓库外。
 
 ## 生产化自动推进
 
@@ -247,7 +278,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_production
 .\.venv\Scripts\python.exe .\scripts\check_github_publication.py
 ```
 
-状态总表为 `reports/productionization_status.md`；外部凭据、获批数据和远程登录缺失时脚本会明确跳过或失败关闭，不会伪造完成。
+状态总表见[`reports/status/productionization_status.md`](reports/status/productionization_status.md)；外部凭据、获批数据和远程登录缺失时脚本会明确跳过或失败关闭，不会伪造完成。
 
 ### 证据优先级
 
@@ -262,7 +293,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_production
 .\.venv\Scripts\python.exe .\scripts\generate_evidence_precedence.py
 ```
 
-历史失败文件一律保留原始测量值，只追加 `superseded_by` 说明块，写明该记录的测试时间、测试环境，以及现在由哪份证据代表当前结论。裁决明细见 `reports/evidence_precedence.json`。
+历史失败文件一律保留原始测量值，只追加 `superseded_by` 说明块，写明该记录的测试时间、测试环境，以及现在由哪份证据代表当前结论。裁决明细见[`reports/status/evidence_precedence.json`](reports/status/evidence_precedence.json)。
 
 需要反复检查并自动续跑全部剩余项时，可使用统一入口：
 

@@ -8,6 +8,12 @@ $env:PYTHONUTF8 = '1'
 $env:PYTHONIOENCODING = 'utf-8'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $reportDir = Join-Path $projectRoot 'reports'
+$coreReportDir = Join-Path $reportDir 'core'
+$demoReportDir = Join-Path $reportDir 'demos'
+$networkReportDir = Join-Path $reportDir 'e2e\network'
+$identityReportDir = Join-Path $reportDir 'e2e\identity'
+$preflightReportDir = Join-Path $reportDir 'preflight'
+$statusReportDir = Join-Path $reportDir 'status'
 $opaPath = Join-Path $projectRoot 'tools\opa.exe'
 $venvPython = Join-Path $projectRoot '.venv\Scripts\python.exe'
 if ($Python -ne '') { $venvPython = $Python }
@@ -15,7 +21,12 @@ if (-not (Test-Path -LiteralPath $venvPython)) {
     throw '未找到 Python 虚拟环境，请先运行 scripts/setup_full.ps1'
 }
 
-New-Item -ItemType Directory -Path $reportDir -Force | Out-Null
+foreach ($directory in @(
+    $reportDir, $coreReportDir, $demoReportDir, $networkReportDir,
+    $identityReportDir, $preflightReportDir, $statusReportDir
+)) {
+    New-Item -ItemType Directory -Path $directory -Force | Out-Null
+}
 & (Join-Path $PSScriptRoot 'bootstrap_opa.ps1')
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
@@ -28,12 +39,12 @@ try {
 
     $envoyPolicyOutput = & $opaPath test deployment\opa-envoy -v --fail-on-empty 2>&1
     $envoyPolicyExitCode = $LASTEXITCODE
-    $envoyPolicyOutput | Set-Content -LiteralPath (Join-Path $reportDir 'opa_envoy_policy_tests.txt') -Encoding UTF8
+    $envoyPolicyOutput | Set-Content -LiteralPath (Join-Path $networkReportDir 'opa_envoy_policy_tests.txt') -Encoding UTF8
     if ($envoyPolicyExitCode -ne 0) { exit $envoyPolicyExitCode }
 
     $opaOutput = & $opaPath test policy tests data -v --fail-on-empty 2>&1
     $opaExitCode = $LASTEXITCODE
-    $opaOutput | Set-Content -LiteralPath (Join-Path $reportDir 'full_opa_tests.txt') -Encoding UTF8
+    $opaOutput | Set-Content -LiteralPath (Join-Path $coreReportDir 'full_opa_tests.txt') -Encoding UTF8
     if ($opaExitCode -ne 0) { exit $opaExitCode }
 
     & $venvPython .\scripts\evaluate.py --opa $opaPath
@@ -41,7 +52,7 @@ try {
 
     $pythonOutput = & $venvPython -m enforcement.run_tests
     $pythonExitCode = $LASTEXITCODE
-    $pythonOutput | Set-Content -LiteralPath (Join-Path $reportDir 'full_python_tests.txt') -Encoding UTF8
+    $pythonOutput | Set-Content -LiteralPath (Join-Path $coreReportDir 'full_python_tests.txt') -Encoding UTF8
     if ($pythonExitCode -ne 0) { exit $pythonExitCode }
 
     & $venvPython .\scripts\run_public_benchmark_evaluation.py smoke
@@ -69,12 +80,12 @@ try {
         'opa_down', 'full_chain', 'kernel_loop', 'kernel_wasi'
     )) {
         & $venvPython -m enforcement.demo --scenario $scenario |
-            Set-Content -LiteralPath (Join-Path $reportDir "full_demo_$scenario.json") -Encoding UTF8
+            Set-Content -LiteralPath (Join-Path $demoReportDir "full_demo_$scenario.json") -Encoding UTF8
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     }
 
     & $venvPython -m enforcement.test_machine |
-        Set-Content -LiteralPath (Join-Path $reportDir 'test_machine_environment.json') -Encoding UTF8
+        Set-Content -LiteralPath (Join-Path $preflightReportDir 'test_machine_environment.json') -Encoding UTF8
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_openbao_kms_ha_e2e.ps1 -Python $venvPython |
@@ -115,5 +126,5 @@ finally {
     Pop-Location
 }
 
-Write-Host "完整安全原型测试通过。主报告：$reportDir\full_security_evaluation_report.md"
-Write-Host "开源路线进度已刷新：$reportDir\open_source_route_progress.md"
+Write-Host "完整安全原型测试通过。主报告：$coreReportDir\full_security_evaluation_report.md"
+Write-Host "开源路线进度已刷新：$statusReportDir\open_source_route_progress.md"

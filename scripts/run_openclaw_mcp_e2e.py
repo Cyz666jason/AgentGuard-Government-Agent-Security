@@ -28,8 +28,9 @@ from typing import Any, Mapping, Sequence
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
-DEFAULT_REPORT = PROJECT_ROOT / "reports" / "openclaw_mcp_integration.json"
-DEFAULT_MARKDOWN = PROJECT_ROOT / "reports" / "openclaw_mcp_integration.md"
+OPENCLAW_REPORT_DIR = PROJECT_ROOT / "reports" / "e2e" / "openclaw"
+DEFAULT_REPORT = OPENCLAW_REPORT_DIR / "openclaw_mcp_integration.json"
+DEFAULT_MARKDOWN = OPENCLAW_REPORT_DIR / "openclaw_mcp_integration.md"
 
 
 def _utc_now() -> str:

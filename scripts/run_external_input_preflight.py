@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REPORT = ROOT / "reports" / "external_input_preflight.json"
+REPORT = ROOT / "reports" / "preflight" / "external_input_preflight.json"
 CREDENTIAL_VARS = (
     "AGENTGUARD_BUSINESS_API_BASE_URL",
     "AGENTGUARD_BUSINESS_API_TOKEN",
@@ -25,6 +25,7 @@ def present(name: str) -> bool:
 
 
 def main() -> int:
+    REPORT.parent.mkdir(parents=True, exist_ok=True)
     credential_presence = {name: present(name) for name in CREDENTIAL_VARS}
     data_value = os.environ.get("AGENTGUARD_AUTHORIZED_DATA_JSONL", "").strip()
     data_path = Path(data_value).resolve() if data_value else None
@@ -49,7 +50,7 @@ def main() -> int:
             "python scripts/run_authorized_business_api_e2e.py and "
             "python integrations/redact_dataset.py --input <approved-jsonl> "
             "--output datasets/authorized_redacted/authorized_redacted.jsonl "
-            "--report reports/authorized_data_redaction.json"
+            "--report reports/e2e/business/authorized_data_redaction.json"
         ),
     }
     REPORT.write_text(

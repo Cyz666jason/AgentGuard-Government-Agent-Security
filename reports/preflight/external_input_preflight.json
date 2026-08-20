@@ -1,0 +1,22 @@
+{
+  "run_id": "standalone",
+  "generated_at": "2026-08-20T18:40:17.303357+08:00",
+  "status": "blocked_missing_authorized_inputs",
+  "credential_presence": {
+    "AGENTGUARD_BUSINESS_API_BASE_URL": false,
+    "AGENTGUARD_BUSINESS_API_TOKEN": false,
+    "AGENTGUARD_BUSINESS_API_ALLOWED_HOSTS": false,
+    "AGENTGUARD_REQUESTER_OIDC_ISSUER": false,
+    "AGENTGUARD_REQUESTER_OIDC_AUDIENCE": false,
+    "AGENTGUARD_QUERY_REQUESTER_ACCESS_TOKEN": false
+  },
+  "credentials_ready": false,
+  "authorized_data_path_supplied": false,
+  "authorized_data_file_exists": false,
+  "authorized_data_filename": null,
+  "redaction_salt_present": false,
+  "production_data_ready": false,
+  "secret_values_recorded": false,
+  "source_path_recorded": false,
+  "next_command": "python scripts/run_authorized_business_api_e2e.py and python integrations/redact_dataset.py --input <approved-jsonl> --output datasets/authorized_redacted/authorized_redacted.jsonl --report reports/e2e/business/authorized_data_redaction.json"
+}

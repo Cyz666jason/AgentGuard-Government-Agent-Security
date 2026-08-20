@@ -12,7 +12,9 @@ $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $venvPython = Join-Path $projectRoot '.venv\Scripts\python.exe'
 if ($Python -ne '') { $venvPython = $Python }
-$reportPath = Join-Path $projectRoot 'reports\automatic_remaining_run.json'
+$reportPath = Join-Path $projectRoot 'reports\status\automatic_remaining_run.json'
+$reportDirectory = Split-Path -Parent $reportPath
+New-Item -ItemType Directory -Path $reportDirectory -Force | Out-Null
 $items = [System.Collections.Generic.List[object]]::new()
 $runId = [Guid]::NewGuid().ToString('N').Substring(0, 12)
 $runStartedAt = [DateTimeOffset]::Now
@@ -61,7 +63,7 @@ try {
         Add-Result 'Stage 4 external-environment preflight' 'failed' "exit_code=$stage4Code"
         throw "Stage 4 preflight failed with exit code $stage4Code"
     }
-    $stage4Report = Get-Content -LiteralPath (Join-Path $projectRoot 'reports\stage4_preflight.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+    $stage4Report = Get-Content -LiteralPath (Join-Path $projectRoot 'reports\preflight\stage4_preflight.json') -Raw -Encoding UTF8 | ConvertFrom-Json
     Add-Result 'Stage 4 external-environment preflight' ([string]$stage4Report.status) "read_only=true; production_ready=false; exit_code=$stage4Code"
 
     powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_openbao_kms_ha_e2e.ps1 -Python $venvPython
@@ -90,7 +92,7 @@ try {
             '.\integrations\redact_dataset.py',
             '--input', $AuthorizedJsonl,
             '--output', (Join-Path $redactedDir 'authorized_redacted.jsonl'),
-            '--report', (Join-Path $projectRoot 'reports\authorized_data_redaction.json')
+            '--report', (Join-Path $projectRoot 'reports\e2e\business\authorized_data_redaction.json')
         )
     } else {
         Add-Result 'Authorized production data redaction' 'skipped_missing_external_input' 'No approved source JSONL was supplied'

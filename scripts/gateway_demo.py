@@ -11,6 +11,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+RUNTIME_DIR = ROOT / "reports" / "runtime"
 
 
 def main() -> int:
@@ -19,7 +20,7 @@ def main() -> int:
     parser.add_argument("--opa", default=os.environ.get("OPA_BIN", str(ROOT / "tools" / "opa.exe")))
     args = parser.parse_args()
     payload = json.loads(Path(args.input).read_text(encoding="utf-8"))
-    input_path = ROOT / "reports" / ".gateway_input.json"
+    input_path = RUNTIME_DIR / "gateway_input.json"
     input_path.parent.mkdir(parents=True, exist_ok=True)
     input_path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
     command = [
@@ -28,7 +29,7 @@ def main() -> int:
         "--format=json",
         "--data", "policy",
         "--data", "data",
-        "--input", "reports/.gateway_input.json",
+        "--input", "reports/runtime/gateway_input.json",
         "data.agent.guard.decision",
     ]
     try:
@@ -46,7 +47,7 @@ def main() -> int:
     }
     print(json.dumps(decision, ensure_ascii=False, indent=2))
     print("\n" + labels[decision["effect"]])
-    audit_path = ROOT / "reports" / "gateway_audit.jsonl"
+    audit_path = ROOT / "reports" / "demos" / "gateway_audit.jsonl"
     audit_path.parent.mkdir(parents=True, exist_ok=True)
     with audit_path.open("a", encoding="utf-8") as stream:
         stream.write(json.dumps(decision["audit"], ensure_ascii=False) + "\n")

@@ -1,0 +1,29 @@
+{
+  "run_id": "standalone",
+  "generated_at": "2026-08-20T10:32:44+00:00",
+  "remote_url": "https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security.git",
+  "repository": "Cyz666jason/AgentGuard-Government-Agent-Security",
+  "published": true,
+  "visibility": "public",
+  "status": "published_public",
+  "probe_method": "anonymous_git_ls_remote",
+  "gh_probe": {
+    "probe_method": "gh_repo_view",
+    "visibility": "public",
+    "is_private": false,
+    "url": "https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security",
+    "default_branch": "main",
+    "pushed_at": "2026-08-20T10:00:46Z"
+  },
+  "anonymous_probe": {
+    "probe_method": "anonymous_git_ls_remote",
+    "anonymous_readable": true,
+    "remote_branches": [
+      "refs/heads/claude/remaining-work",
+      "refs/heads/codex/complete-ha-productionization",
+      "refs/heads/main"
+    ]
+  },
+  "secret_values_recorded": false,
+  "boundary": "该报告只证明远程仓库存在且可读，不证明仓库内容已经通过生产验收。"
+}

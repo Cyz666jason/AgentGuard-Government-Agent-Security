@@ -1,0 +1,420 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-08-20T18:32:48+08:00",
+  "project": "AgentGuard 政企智能体权限、审批、阻断与安全内核",
+  "contest_focus": "面向工具调用和任务执行的安全约束与审批控制",
+  "overall": {
+    "automated_regression_passed": true,
+    "dataset_counts_consistent": true,
+    "unsafe_execution_count": 0,
+    "current_machine_scope_passed": true,
+    "production_ready": false,
+    "production_ready_reason": "OPA-Envoy/ToolHive 容器 E2E 已在 GitHub Linux Runner 实测通过，公开仓库已发布；生产就绪仍缺 Kata/Firecracker KVM 隔离、OpenBao 跨故障域与 TLS/自动解封/快照恢复、Kubernetes NetworkPolicy 与 mTLS、Keycloak HTTPS/高可用/目录联邦/真实 MFA、单位授权的真实业务凭据与获批生产数据。"
+  },
+  "evidence_precedence": {
+    "rule": "与当前提交历史匹配的CI实测证据 > 当前机器新鲜实测证据 > 历史环境检查与历史失败记录",
+    "report": "reports/status/evidence_precedence.json",
+    "head_commit": "ffd5a17c6ad2a9be20a742ca617954c00ebeb34d",
+    "claims": {
+      "opa_envoy_container_e2e": {
+        "claim": "opa_envoy_container_e2e",
+        "verdict": true,
+        "decided_by": {
+          "claim": "opa_envoy_container_e2e",
+          "verdict": true,
+          "tier": "ci_evidence_ancestor_commit",
+          "tier_rank": 40,
+          "source": "reports/e2e/network/github_actions_container_product_e2e.json",
+          "tested_at": "2026-08-14T10:40:28.621959+00:00",
+          "environment": "github_actions/ubuntu-latest",
+          "commit": "167b2b0445ca9b93a980f44271dc15a8aebd7853",
+          "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 2 个提交，未被这次 CI 覆盖"
+        },
+        "superseded_evidence": [
+          {
+            "claim": "opa_envoy_container_e2e",
+            "verdict": false,
+            "tier": "local_fresh_evidence",
+            "tier_rank": 30,
+            "source": "reports/e2e/network/container_product_e2e_attempt.json",
+            "tested_at": "2026-08-20T17:05:38.198420+08:00",
+            "environment": "local_windows_test_machine",
+            "commit": "",
+            "detail": "本机 runtime=None；status=blocked_external_environment"
+          },
+          {
+            "claim": "opa_envoy_container_e2e",
+            "verdict": false,
+            "tier": "historical_environment_check",
+            "tier_rank": 10,
+            "source": "reports/preflight/test_machine_environment.json",
+            "tested_at": "2026-08-20T17:03:55+08:00",
+            "environment": "local_windows_test_machine",
+            "commit": "",
+            "detail": "本测试机未安装 Docker，WSL 命令存在但没有 Linux 发行版。"
+          }
+        ]
+      },
+      "toolhive_container_e2e": {
+        "claim": "toolhive_container_e2e",
+        "verdict": true,
+        "decided_by": {
+          "claim": "toolhive_container_e2e",
+          "verdict": true,
+          "tier": "ci_evidence_ancestor_commit",
+          "tier_rank": 40,
+          "source": "reports/e2e/network/github_actions_container_product_e2e.json",
+          "tested_at": "2026-08-14T10:40:28.621959+00:00",
+          "environment": "github_actions/ubuntu-latest",
+          "commit": "167b2b0445ca9b93a980f44271dc15a8aebd7853",
+          "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 2 个提交，未被这次 CI 覆盖"
+        },
+        "superseded_evidence": [
+          {
+            "claim": "toolhive_container_e2e",
+            "verdict": false,
+            "tier": "local_fresh_evidence",
+            "tier_rank": 30,
+            "source": "reports/e2e/network/container_product_e2e_attempt.json",
+            "tested_at": "2026-08-20T17:05:38.198420+08:00",
+            "environment": "local_windows_test_machine",
+            "commit": "",
+            "detail": "本机 runtime=None；status=blocked_external_environment"
+          },
+          {
+            "claim": "toolhive_container_e2e",
+            "verdict": false,
+            "tier": "historical_environment_check",
+            "tier_rank": 10,
+            "source": "reports/preflight/test_machine_environment.json",
+            "tested_at": "2026-08-20T17:03:55+08:00",
+            "environment": "local_windows_test_machine",
+            "commit": "",
+            "detail": "本测试机未安装 Docker，WSL 命令存在但没有 Linux 发行版。"
+          },
+          {
+            "claim": "toolhive_container_e2e",
+            "verdict": false,
+            "tier": "historical_environment_check",
+            "tier_rank": 10,
+            "source": "reports/preflight/toolhive_environment_check.json",
+            "tested_at": "2026-08-07T08:43:13+08:00",
+            "environment": "local_windows_test_machine",
+            "commit": "",
+            "detail": "The test machine has no Docker, Podman, Kubernetes or installed WSL Linux distribution."
+          }
+        ]
+      },
+      "github_public_release": {
+        "claim": "github_public_release",
+        "verdict": true,
+        "decided_by": {
+          "claim": "github_public_release",
+          "verdict": true,
+          "tier": "local_fresh_evidence",
+          "tier_rank": 30,
+          "source": "reports/status/github_publication.json",
+          "tested_at": "2026-08-20T10:32:44+00:00",
+          "environment": "git_remote_probe",
+          "commit": "",
+          "detail": "remote=https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security.git；visibility=public；probe=anonymous_git_ls_remote"
+        },
+        "superseded_evidence": []
+      }
+    }
+  },
+  "route": [
+    {
+      "stage": "1 赛题解读",
+      "status": "completed",
+      "evidence": "docs/overview/开源路线自动推进总览_20260813.md#2-赛题解读题目怎样转化为工程任务",
+      "next": "后续实现继续映射到感知—决策—调用—执行和赛题评分项"
+    },
+    {
+      "stage": "2 开源技术路线与选型",
+      "status": "completed",
+      "evidence": "Keycloak + OPA + LangGraph + 强制网关 + Wasmtime + OPA-Envoy/ToolHive 容器链路",
+      "next": "生产分支补跨故障域KMS/HA、Kubernetes NetworkPolicy/mTLS与Kata/Firecracker"
+    },
+    {
+      "stage": "3 复现效果与问题",
+      "status": "completed_with_gaps",
+      "evidence": "reports/core/full_security_evaluation_summary.json；reports/e2e/network/github_actions_container_product_e2e.json；reports/status/复现问题台账_20260813.md；reports/evaluation/public-benchmarks/public_benchmark_fixture_smoke.json（仅适配器契约）",
+      "next": "导入许可允许的真实公开样本并生成真实策略预测；外部产品实测继续按阶段4门禁执行"
+    },
+    {
+      "stage": "4 相关评估与数据支撑",
+      "status": "partial_external_inputs_required",
+      "evidence": "三层83条合成定义；三套公开基准适配器使用6条自编fixture验证；阶段4只读预检=blocked_external_environment",
+      "next": "取得许可数据和组织授权后，分别完成真实公开基准、盲测、红队、产品E2E与生产回放"
+    },
+    {
+      "stage": "5 整体大图与清晰语言",
+      "status": "completed",
+      "evidence": "docs/architecture/整体开源技术路线图_20260813.mmd",
+      "next": "所有后续材料复用同一架构语言和边界表述"
+    }
+  ],
+  "test_metrics": [
+    {
+      "name": "OPA/Rego单元测试",
+      "passed": 31,
+      "total": 31,
+      "pass_rate": 1.0,
+      "status": "passed",
+      "evidence": "reports/core/full_opa_tests.txt"
+    },
+    {
+      "name": "OPA-Envoy前置策略测试",
+      "passed": 4,
+      "total": 4,
+      "pass_rate": 1.0,
+      "status": "passed",
+      "evidence": "reports/e2e/network/opa_envoy_policy_tests.txt"
+    },
+    {
+      "name": "三态策略数据集",
+      "passed": 55,
+      "total": 55,
+      "pass_rate": 1.0,
+      "status": "passed",
+      "evidence": "reports/core/evaluation_summary.json"
+    },
+    {
+      "name": "身份/审批/网关/内核Python测试",
+      "passed": 173,
+      "total": 173,
+      "pass_rate": 1.0,
+      "status": "passed",
+      "evidence": "reports/core/full_python_tests.txt"
+    },
+    {
+      "name": "常驻OPA REST网络链路",
+      "passed": 5,
+      "total": 5,
+      "pass_rate": 1.0,
+      "status": "passed",
+      "evidence": "reports/e2e/network/network_enforcement_e2e.json"
+    },
+    {
+      "name": "Keycloak/OIDC真实链路",
+      "passed": 7,
+      "total": 7,
+      "pass_rate": 1.0,
+      "status": "passed",
+      "evidence": "reports/e2e/identity/keycloak_oidc_e2e.json"
+    },
+    {
+      "name": "完整链路演示检查",
+      "passed": 23,
+      "total": 23,
+      "pass_rate": 1.0,
+      "status": "passed",
+      "evidence": "reports/core/full_security_evaluation_summary.json"
+    },
+    {
+      "name": "OpenBao外部密钥与共享票据核销",
+      "passed": 10,
+      "total": 10,
+      "pass_rate": 1.0,
+      "status": "passed",
+      "evidence": "reports/e2e/openbao/openbao_kms_ha_e2e.json"
+    },
+    {
+      "name": "OpenBao三节点Raft故障切换",
+      "passed": 8,
+      "total": 8,
+      "pass_rate": 1.0,
+      "status": "passed",
+      "evidence": "reports/e2e/openbao/openbao_raft_ha_e2e.json"
+    },
+    {
+      "name": "QEMU独立Linux来宾内核隔离",
+      "passed": 11,
+      "total": 11,
+      "pass_rate": 1.0,
+      "status": "passed",
+      "evidence": "reports/e2e/isolation/qemu_native_isolation_e2e.json"
+    }
+  ],
+  "policy_effect_metrics": {
+    "effect_accuracy": 1.0,
+    "reason_code_accuracy": 1.0,
+    "dangerous_action_block_rate": 1.0,
+    "legitimate_action_pass_rate": 1.0,
+    "approval_routing_accuracy": 1.0,
+    "invalid_approval_block_rate": 1.0,
+    "unsafe_allow_count": 0,
+    "cli_end_to_end_latency_ms": {
+      "mean": 65.316,
+      "median": 65.856,
+      "p95": 72.694,
+      "max": 74.85,
+      "note": "包含每个用例启动一次 OPA CLI 的进程开销，不代表 sidecar/嵌入式部署时的纯策略延迟。"
+    },
+    "rego_total_coverage": 99.6063
+  },
+  "data_support": {
+    "datasets": [
+      {
+        "layer": "策略决策",
+        "file": "datasets/agent_guard_cases.jsonl",
+        "actual_cases": 55,
+        "declared_cases": 55,
+        "count_consistent": true,
+        "contains_personal_data": false
+      },
+      {
+        "layer": "审批流程",
+        "file": "datasets/approval_workflow_cases.jsonl",
+        "actual_cases": 9,
+        "declared_cases": 9,
+        "count_consistent": true,
+        "contains_personal_data": false
+      },
+      {
+        "layer": "强制执行与安全内核",
+        "file": "datasets/enforcement_kernel_cases.jsonl",
+        "actual_cases": 19,
+        "declared_cases": 19,
+        "count_consistent": true,
+        "contains_personal_data": false
+      }
+    ],
+    "total_layered_case_definitions": 83,
+    "data_type": "synthetic",
+    "warning": "83是三层测试定义数量，不是可以相加后称为83/83的单一准确率分母。",
+    "public_benchmark_support": {
+      "adapter_contract_passed": true,
+      "uses_synthetic_fixtures": true,
+      "uses_upstream_raw_data": false,
+      "fixture_denominators": {
+        "agentdojo": 2,
+        "agentharm": 2,
+        "injecagent": 2
+      },
+      "aggregate_metrics": null,
+      "real_upstream_evaluation_completed": false,
+      "evidence": "reports/evaluation/public-benchmarks/public_benchmark_fixture_smoke.json",
+      "boundary": "fixture只验证转换、校验和评测合同，不是公开基准真实成绩。"
+    }
+  },
+  "stage4_preflight": {
+    "evidence_valid": true,
+    "preflight_valid": true,
+    "status": "blocked_external_environment",
+    "production_ready": false,
+    "product_validation_completed": false,
+    "summary": {
+      "prepared_not_verified": 0,
+      "awaiting_authorized_input": 1,
+      "blocked_external_environment": 4,
+      "total": 5,
+      "validation_errors": 0
+    },
+    "evidence": "reports/preflight/stage4_preflight.json",
+    "boundary": "只读预检与配置准备不等于KVM、跨域HA、集群、身份或生产数据实测。"
+  },
+  "environment": {
+    "tested_at": "2026-08-20T17:03:55+08:00",
+    "os": "Windows-11-10.0.26200-SP0",
+    "logical_processors": 32,
+    "memory_gb": 15.7,
+    "python": "3.12.13",
+    "components": {
+      "opa": "1.19.0",
+      "langgraph": "1.2.10",
+      "langgraph-checkpoint-sqlite": "3.1.1",
+      "wasmtime": "47.0.1",
+      "pyjwt": "2.10.1",
+      "keycloak_portable": "26.7.1 (OIDC E2E tested)",
+      "toolhive_portable": "0.28.3 (CLI/checksum tested)",
+      "openbao": "2.6.1 (Transit/KV + three-node Raft failover E2E tested)",
+      "qemu": "11.1.0 (Linux guest kernel E2E tested)"
+    },
+    "native_http_policy_enforcement_e2e_tested": true,
+    "opa_envoy_product_e2e_tested": true,
+    "opa_envoy_product_e2e_environment": "github_actions_linux_runner",
+    "toolhive_container_tested": true,
+    "toolhive_container_environment": "github_actions_linux_runner",
+    "local_machine_container_runtime_available": false,
+    "environment_blocker": "本测试机未安装 Docker，WSL 命令存在但没有 Linux 发行版；容器类 E2E 因此在 GitHub Linux Runner 上执行并取得实测证据。"
+  },
+  "publication": {
+    "github_public_release": true,
+    "status": "published_public",
+    "evidence": "reports/status/github_publication.json"
+  },
+  "known_gaps": [
+    {
+      "severity": "低",
+      "item": "OPA-Envoy/ToolHive 容器 E2E 仅在 CI Linux Runner 完成",
+      "reason": "GitHub Actions ubuntu-latest 上 10/10 通过，覆盖无票据拒绝、伪造票据拒绝、签名票据放行、重放拒绝、跨动作拒绝、后端无宿主端口、OPA 故障 fail-closed 与命名 MCP 容器运行；提交=167b2b0445ca；本机 Windows 无容器运行时，该历史失败记录已标注被取代",
+      "next": "在单位预生产 Kubernetes 集群补 NetworkPolicy、mTLS 与跨节点故障注入"
+    },
+    {
+      "severity": "中",
+      "item": "Keycloak 当前为本机开发模式测试域",
+      "reason": "真实 Keycloak 26.7.1、JWT签名、issuer、audience、角色、部门、密级和MFA声明已 7/7 实测；测试密码改为每次随机生成，但测试域仍使用HTTP和合成MFA声明",
+      "next": "生产改用 HTTPS、组织目录联邦、真实 OTP/WebAuthn 认证流程和密钥轮换，删除测试用户与固定 MFA mapper"
+    },
+    {
+      "severity": "中",
+      "item": "尚未连接真实外部业务系统",
+      "reason": "HTTPS、CA、主机白名单、幂等键、显式写操作双确认、金额上限、可信OIDC审批和结果未知对账均已实现；未获得单位批准的预生产URL、令牌和CA",
+      "next": "获得合法测试凭据后运行真实API E2E；不得生成、猜测或把本地模拟凭据称为真实凭据"
+    },
+    {
+      "severity": "中",
+      "item": "生产KMS/HA仍需跨故障域加固",
+      "reason": "OpenBao票据与审批独立Transit密钥/共享KV 10/10及三节点Raft选主、复制、leader故障切换8/8已完成，但三个节点仍位于同一Windows测试机且关闭TLS",
+      "next": "预生产跨故障域部署，启用TLS与自动解封，并补快照恢复、网络分区和容量压测"
+    },
+    {
+      "severity": "中",
+      "item": "Kata/Firecracker产品隔离尚未运行",
+      "reason": "QEMU独立Linux来宾内核/Alpine用户态/只读启动介质 11/11已验证无网络、无宿主目录和资源限制，但当前为TCG软件模拟",
+      "next": "在Linux/KVM测试机运行Kata或Firecracker产品E2E和性能测试"
+    },
+    {
+      "severity": "中",
+      "item": "默认演示仍保留 OPA CLI 调用",
+      "reason": "网络端到端测试已使用常驻 OPA REST；部分旧演示为便于单文件复现仍逐次启动 CLI",
+      "next": "生产统一切换至 OPA sidecar/OPA-Envoy/Go SDK 或 Wasm 常驻求值，并做压力测试"
+    },
+    {
+      "severity": "中",
+      "item": "数据仍以合成场景为主",
+      "reason": "确定性去标识、秘密删除、IP泛化和哈希报告流水线已实现；AgentDojo/InjecAgent/AgentHarm转换、严格校验和独立分母评测入口已用6条自编fixture验证，但尚未导入上游全量原始数据，也未获得单位批准的真实日志",
+      "next": "按许可取得公开基准并生成真实策略预测；获得数据授权后运行脱敏脚本，隔离训练/调参与盲测数据并开展回放"
+    },
+    {
+      "severity": "低",
+      "item": "公开仓库已发布，但公开不等于生产验收",
+      "reason": "reports/status/github_publication.json 实测远程仓库匿名可读且可见性为 public；密钥、授权数据与运行态状态目录仍被 .gitignore 与发布前扫描挡在仓库外",
+      "next": "保持发布前秘密扫描为 CI 必过项；对外材料继续区分“已开源”与“已生产就绪”"
+    }
+  ],
+  "resolved_regression": {
+    "id": "P-20260813-01",
+    "summary": "修复JWT篡改用例可能只改变Base64url未使用填充位的问题；现改为翻转真实签名字节。",
+    "evidence": [
+      "identity/run_keycloak_e2e.py",
+      "identity/tests/test_oidc.py",
+      "reports/e2e/identity/keycloak_oidc_e2e.json"
+    ],
+    "status": "resolved"
+  },
+  "official_sources": {
+    "OPA": "https://www.openpolicyagent.org/docs",
+    "Keycloak": "https://www.keycloak.org/securing-apps/oidc-layers",
+    "LangGraph": "https://langchain-ai.github.io/langgraph/concepts/breakpoints/",
+    "Wasmtime": "https://docs.wasmtime.dev/api/wasmtime/struct.Store.html",
+    "ToolHive": "https://github.com/stacklok/toolhive",
+    "OpenBao": "https://openbao.org/docs/",
+    "QEMU": "https://www.qemu.org/docs/master/system/introduction.html",
+    "AgentDojo": "https://github.com/ethz-spylab/agentdojo",
+    "InjecAgent": "https://github.com/uiuc-kang-lab/InjecAgent",
+    "AgentHarm": "https://huggingface.co/datasets/ai-safety-institute/AgentHarm"
+  }
+}

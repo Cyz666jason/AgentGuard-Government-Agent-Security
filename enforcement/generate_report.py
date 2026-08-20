@@ -12,6 +12,13 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 REPORTS = ROOT / "reports"
+CORE_REPORTS = REPORTS / "core"
+DEMO_REPORTS = REPORTS / "demos"
+NETWORK_REPORTS = REPORTS / "e2e" / "network"
+IDENTITY_REPORTS = REPORTS / "e2e" / "identity"
+OPENBAO_REPORTS = REPORTS / "e2e" / "openbao"
+ISOLATION_REPORTS = REPORTS / "e2e" / "isolation"
+PREFLIGHT_REPORTS = REPORTS / "preflight"
 
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -26,8 +33,8 @@ from evidence.precedence import (  # noqa: E402
 CI_TIERS = {TIER_CI_HEAD, TIER_CI_ANCESTOR, TIER_CI_UNRELATED}
 
 
-def load_json(name: str) -> dict[str, Any]:
-    return json.loads((REPORTS / name).read_text(encoding="utf-8-sig"))
+def load_json(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8-sig"))
 
 
 def test_count(text: str) -> tuple[int, bool]:
@@ -39,7 +46,7 @@ def test_count(text: str) -> tuple[int, bool]:
 
 def main() -> int:
     demos = {
-        name: load_json(f"full_demo_{name}.json")
+        name: load_json(DEMO_REPORTS / f"full_demo_{name}.json")
         for name in (
             "allow",
             "pending",
@@ -53,13 +60,13 @@ def main() -> int:
             "kernel_wasi",
         )
     }
-    python_text = (REPORTS / "full_python_tests.txt").read_text(
+    python_text = (CORE_REPORTS / "full_python_tests.txt").read_text(
         encoding="utf-8-sig", errors="replace"
     )
-    opa_text = (REPORTS / "full_opa_tests.txt").read_text(
+    opa_text = (CORE_REPORTS / "full_opa_tests.txt").read_text(
         encoding="utf-8-sig", errors="replace"
     )
-    envoy_policy_text = (REPORTS / "opa_envoy_policy_tests.txt").read_text(
+    envoy_policy_text = (NETWORK_REPORTS / "opa_envoy_policy_tests.txt").read_text(
         encoding="utf-8-sig", errors="replace"
     )
     python_total, python_ok = test_count(python_text)
@@ -69,13 +76,13 @@ def main() -> int:
     envoy_match = re.search(r"PASS:\s*(\d+)/(\d+)", envoy_policy_text)
     envoy_passed = int(envoy_match.group(1)) if envoy_match else 0
     envoy_total = int(envoy_match.group(2)) if envoy_match else 0
-    evaluation = load_json("evaluation_summary.json")
-    machine = load_json("test_machine_environment.json")
-    network_e2e = load_json("network_enforcement_e2e.json")
-    keycloak_e2e = load_json("keycloak_oidc_e2e.json")
-    openbao_e2e = load_json("openbao_kms_ha_e2e.json")
-    openbao_raft_e2e = load_json("openbao_raft_ha_e2e.json")
-    qemu_e2e = load_json("qemu_native_isolation_e2e.json")
+    evaluation = load_json(CORE_REPORTS / "evaluation_summary.json")
+    machine = load_json(PREFLIGHT_REPORTS / "test_machine_environment.json")
+    network_e2e = load_json(NETWORK_REPORTS / "network_enforcement_e2e.json")
+    keycloak_e2e = load_json(IDENTITY_REPORTS / "keycloak_oidc_e2e.json")
+    openbao_e2e = load_json(OPENBAO_REPORTS / "openbao_kms_ha_e2e.json")
+    openbao_raft_e2e = load_json(OPENBAO_REPORTS / "openbao_raft_ha_e2e.json")
+    qemu_e2e = load_json(ISOLATION_REPORTS / "qemu_native_isolation_e2e.json")
 
     checks = {
         "低风险动作经网关与 Wasmtime 执行": demos["allow"]["status"] == "executed_isolated",
@@ -129,7 +136,7 @@ def main() -> int:
     envoy_claim = resolver.resolve("opa_envoy_container_e2e")
     toolhive_claim = resolver.resolve("toolhive_container_e2e")
     publication_claim = resolver.resolve("github_public_release")
-    ci_container = load_json("github_actions_container_product_e2e.json")
+    ci_container = load_json(NETWORK_REPORTS / "github_actions_container_product_e2e.json")
     container_e2e_done = (
         envoy_claim.verdict is True and toolhive_claim.verdict is True
     )
@@ -299,7 +306,8 @@ def main() -> int:
         "test_machine": machine,
         "known_gaps": gaps,
     }
-    (REPORTS / "full_security_evaluation_summary.json").write_text(
+    CORE_REPORTS.mkdir(parents=True, exist_ok=True)
+    (CORE_REPORTS / "full_security_evaluation_summary.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
     )
 
@@ -358,7 +366,9 @@ Keycloak HTTPS/高可用/目录联邦/真实 MFA，也没有接入单位授权�
 测试账本仍然不能说成真实转账。本机 Windows 无容器运行时留下的历史失败记录已保留并标注被取代，
 不再作为当前结论。
 """
-    (REPORTS / "full_security_evaluation_report.md").write_text(report, encoding="utf-8")
+    (CORE_REPORTS / "full_security_evaluation_report.md").write_text(
+        report, encoding="utf-8"
+    )
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     all_ok = (
         opa_passed == opa_total > 0

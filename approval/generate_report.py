@@ -10,10 +10,11 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REPORTS = ROOT / "reports"
+REPORTS = ROOT / "reports" / "approval"
 
 
 def main() -> int:
+    REPORTS.mkdir(parents=True, exist_ok=True)
     demos = {
         name: json.loads((REPORTS / f"approval_demo_{name}.json").read_text(encoding="utf-8-sig"))
         for name in ("allow", "approve", "reject", "tamper")

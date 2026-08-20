@@ -146,7 +146,7 @@ def container_status(claim: ResolvedClaim) -> str:
 def publication_status(claim: ResolvedClaim) -> str:
     if claim.verdict is not True:
         return "blocked_external_environment"
-    publication = load_optional("github_publication.json") or {}
+    publication = load_optional("status/github_publication.json") or {}
     status = str(publication.get("status", ""))
     return status if status.startswith("published_") else "blocked_external_environment"
 
@@ -176,14 +176,14 @@ def main() -> int:
     toolhive_claim = resolver.resolve("toolhive_container_e2e")
     publication_claim = resolver.resolve("github_public_release")
 
-    openbao = load_optional("openbao_kms_ha_e2e.json")
-    openbao_raft = load_optional("openbao_raft_ha_e2e.json")
-    qemu = load_optional("qemu_native_isolation_e2e.json")
-    toolhive_env = load_optional("toolhive_environment_check.json") or {}
-    redaction = load_optional("authorized_data_redaction.json")
-    secret_scan = load_optional("prepublish_security_check.json") or {}
-    business_api = load_optional("authorized_business_api_e2e.json") or {}
-    stage4_preflight = load_optional("stage4_preflight.json") or {}
+    openbao = load_optional("e2e/openbao/openbao_kms_ha_e2e.json")
+    openbao_raft = load_optional("e2e/openbao/openbao_raft_ha_e2e.json")
+    qemu = load_optional("e2e/isolation/qemu_native_isolation_e2e.json")
+    toolhive_env = load_optional("preflight/toolhive_environment_check.json") or {}
+    redaction = load_optional("e2e/business/authorized_data_redaction.json")
+    secret_scan = load_optional("status/prepublish_security_check.json") or {}
+    business_api = load_optional("e2e/business/authorized_business_api_e2e.json") or {}
+    stage4_preflight = load_optional("preflight/stage4_preflight.json") or {}
     run_id = os.environ.get("AGENTGUARD_RUN_ID", "standalone")
     credentials_present = all(
         os.environ.get(name)
@@ -207,13 +207,22 @@ def main() -> int:
             remote_urls = [line for line in completed.stdout.splitlines() if line.strip()]
 
     openbao_verdict = local_suite_verdict(
-        openbao, "openbao_kms_ha_e2e.json", run_id, "completed_ha_test_environment"
+        openbao,
+        "e2e/openbao/openbao_kms_ha_e2e.json",
+        run_id,
+        "completed_ha_test_environment",
     )
     openbao_raft_verdict = local_suite_verdict(
-        openbao_raft, "openbao_raft_ha_e2e.json", run_id, "completed_ha_test_environment"
+        openbao_raft,
+        "e2e/openbao/openbao_raft_ha_e2e.json",
+        run_id,
+        "completed_ha_test_environment",
     )
     qemu_verdict = local_suite_verdict(
-        qemu, "qemu_native_isolation_e2e.json", run_id, "completed_test_environment"
+        qemu,
+        "e2e/isolation/qemu_native_isolation_e2e.json",
+        run_id,
+        "completed_test_environment",
     )
     stage4_status = str(stage4_preflight.get("status", ""))
     stage4_evidence_valid = (
@@ -296,7 +305,7 @@ def main() -> int:
                 f"awaiting={stage4_summary.get('awaiting_authorized_input', 0)}，"
                 f"blocked={stage4_summary.get('blocked_external_environment', 0)}；"
                 "production_ready=false，product_validation_completed=false；"
-                "报告=reports/stage4_preflight.json"
+                "报告=reports/preflight/stage4_preflight.json"
             ),
             "blocker": (
                 "预检只核对本地前置条件、非密配置和授权输入，不替代KVM、跨故障域、"
@@ -323,7 +332,7 @@ def main() -> int:
                 "completed_authorized_data"
                 if redaction
                 and redaction.get("status") == "passed"
-                and evidence_fresh("authorized_data_redaction.json")
+                and evidence_fresh("e2e/business/authorized_data_redaction.json")
                 and evidence_current(redaction, run_id)
                 else "awaiting_authorized_input"
             ),
@@ -359,7 +368,7 @@ def main() -> int:
                 "与当前提交历史匹配的CI实测证据 > 当前机器新鲜实测证据 > "
                 "历史环境检查与历史失败记录"
             ),
-            "report": "reports/evidence_precedence.json",
+            "report": "reports/status/evidence_precedence.json",
             "head_commit": resolver.head_commit,
             "claims": {
                 "opa_envoy_container_e2e": envoy_claim.as_dict(),
@@ -385,7 +394,9 @@ def main() -> int:
         },
         "remote_urls": remote_urls,
     }
-    json_path = REPORTS / "productionization_status.json"
+    status_reports = REPORTS / "status"
+    status_reports.mkdir(parents=True, exist_ok=True)
+    json_path = status_reports / "productionization_status.json"
     json_path.write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
@@ -409,7 +420,7 @@ def main() -> int:
 
 因此本机缺少容器运行时产生的历史失败**不会**覆盖 GitHub Linux Runner 的成功结果；
 被取代的历史文件保留原始测量值，并在文件内 `superseded_by` 字段注明测试时间、
-测试环境与取代它的新证据。裁决明细见 `reports/evidence_precedence.json`。
+测试环境与取代它的新证据。裁决明细见 `reports/status/evidence_precedence.json`。
 
 | 内容 | 状态 | 当前证据 | 尚缺条件/边界 |
 |---|---|---|---|
@@ -430,7 +441,9 @@ QEMU 独立 Linux 来宾内核隔离、OPA-Envoy 与 ToolHive 的 Linux 容器 E
 `awaiting_authorized_input`、`blocked_external_environment`、
 `configuration_prepared_not_verified` 三种状态，不能自动伪造为完成。
 """
-    (REPORTS / "productionization_status.md").write_text(markdown, encoding="utf-8")
+    (status_reports / "productionization_status.md").write_text(
+        markdown, encoding="utf-8"
+    )
     print(
         json.dumps(
             {

@@ -15,7 +15,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-STATE = ROOT / "reports" / "qemu_container_host"
+STATE = ROOT / "reports" / "e2e" / "isolation" / "qemu_container_host"
 KEY = STATE / "id_ed25519"
 ARCHIVE = STATE / "agentguard-container-e2e.tar.gz"
 TOOLHIVE_ARCHIVE = (
@@ -28,7 +28,7 @@ TOOLHIVE_URL = (
     f"v{TOOLHIVE_VERSION}/toolhive_{TOOLHIVE_VERSION}_linux_amd64.tar.gz"
 )
 TOOLHIVE_SHA256 = "6b6b1533cdb1b5840fd65792a8dc6e73547f28043e3e8fc111f7d9e557a96a78"
-REPORT = ROOT / "reports" / "qemu_container_product_e2e.json"
+REPORT = ROOT / "reports" / "e2e" / "isolation" / "qemu_container_product_e2e.json"
 
 
 def run(command: list[str], *, check: bool = True, timeout: int | None = None):
@@ -118,6 +118,7 @@ def sha256_file(path: Path) -> str:
 
 
 def write_report(payload: dict) -> None:
+    REPORT.parent.mkdir(parents=True, exist_ok=True)
     REPORT.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
@@ -221,11 +222,17 @@ def main() -> int:
             result.stdout + result.stderr, encoding="utf-8"
         )
         scp(
-            f"root@127.0.0.1:{GUEST_ROOT}/reports/container_product_e2e_attempt.json",
-            str(ROOT / "reports" / "container_product_e2e_attempt.json"),
+            f"root@127.0.0.1:{GUEST_ROOT}/reports/e2e/network/container_product_e2e_attempt.json",
+            str(ROOT / "reports" / "e2e" / "network" / "container_product_e2e_attempt.json"),
         )
         detail = json.loads(
-            (ROOT / "reports" / "container_product_e2e_attempt.json").read_text(
+            (
+                ROOT
+                / "reports"
+                / "e2e"
+                / "network"
+                / "container_product_e2e_attempt.json"
+            ).read_text(
                 encoding="utf-8"
             )
         )
@@ -241,11 +248,11 @@ def main() -> int:
             "checks_total": detail.get("total", 0),
             "elapsed_seconds": round(time.monotonic() - started_at, 3),
             "evidence": [
-                "reports/qemu_container_host/live_container_host.json",
-                "reports/qemu_container_host/guest_provision.log",
-                "reports/qemu_container_host/guest_inventory.log",
-                "reports/qemu_container_host/container_e2e_console.log",
-                "reports/container_product_e2e_attempt.json",
+                "reports/e2e/isolation/qemu_container_host/live_container_host.json",
+                "reports/e2e/isolation/qemu_container_host/guest_provision.log",
+                "reports/e2e/isolation/qemu_container_host/guest_inventory.log",
+                "reports/e2e/isolation/qemu_container_host/container_e2e_console.log",
+                "reports/e2e/network/container_product_e2e_attempt.json",
             ],
         }
         write_report(report)

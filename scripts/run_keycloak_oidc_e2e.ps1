@@ -54,7 +54,8 @@ $env:KC_BOOTSTRAP_ADMIN_PASSWORD = "Ad-$([Guid]::NewGuid().ToString('N'))!9a"
 $env:AGENTGUARD_KEYCLOAK_OFFICE_PASSWORD = $officePassword
 $env:AGENTGUARD_KEYCLOAK_FINANCE_PASSWORD = $financePassword
 $env:AGENTGUARD_KEYCLOAK_APPROVER_PASSWORD = $approverPassword
-$logDir = Join-Path $projectRoot "reports"
+$logDir = Join-Path $projectRoot "reports\e2e\identity"
+New-Item -ItemType Directory -Path $logDir -Force | Out-Null
 $stdout = Join-Path $logDir "keycloak_stdout.log"
 $stderr = Join-Path $logDir "keycloak_stderr.log"
 $process = Start-Process -FilePath $kcBat.FullName -ArgumentList @(
@@ -78,7 +79,7 @@ try {
         }
     }
     if (-not $ready) {
-        throw "Keycloak was not ready within 120 seconds; inspect reports/keycloak_stderr.log"
+        throw "Keycloak was not ready within 120 seconds; inspect reports/e2e/identity/keycloak_stderr.log"
     }
     & (Join-Path $projectRoot ".venv\Scripts\python.exe") (Join-Path $projectRoot "identity\run_keycloak_e2e.py")
     if ($LASTEXITCODE -ne 0) {

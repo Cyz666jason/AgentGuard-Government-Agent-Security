@@ -65,7 +65,7 @@ class ServiceConfig:
     opa_startup_timeout_seconds: float = 15.0
 
     # 票据与状态
-    state_dir: str = str(PROJECT_ROOT / "reports" / "service_state")
+    state_dir: str = str(PROJECT_ROOT / "reports" / "runtime" / "service_state")
     ticket_ttl_seconds: int = 30
     enable_local_adapters: bool = False
 

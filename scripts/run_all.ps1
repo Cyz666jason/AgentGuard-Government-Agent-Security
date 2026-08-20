@@ -7,7 +7,7 @@ $ErrorActionPreference = 'Stop'
 $OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $opaPath = Join-Path $projectRoot 'tools\opa.exe'
-$reportDir = Join-Path $projectRoot 'reports'
+$reportDir = Join-Path $projectRoot 'reports\core'
 New-Item -ItemType Directory -Path $reportDir -Force | Out-Null
 
 & (Join-Path $PSScriptRoot 'bootstrap_opa.ps1')
@@ -46,4 +46,4 @@ finally {
 & $Python (Join-Path $PSScriptRoot 'evaluate.py') --opa $opaPath
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-Write-Host "全部检查通过。报告目录：$reportDir"
+Write-Host "全部检查通过。核心报告目录：$reportDir"

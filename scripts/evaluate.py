@@ -17,6 +17,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+CORE_REPORT_DIR = ROOT / "reports" / "core"
+RUNTIME_DIR = ROOT / "reports" / "runtime"
 
 
 def report_path(path: Path) -> str:
@@ -60,7 +62,7 @@ def locate_opa(explicit: str | None) -> Path:
 def evaluate_case(opa: Path, case: dict) -> tuple[dict, float]:
     # Windows 下 OPA 从 Python 管道读取 --stdin-input，以及接收含中文的绝对
     # --data/--input 路径时，部分构建会得到空输入。把参数改成项目内相对路径。
-    input_path = ROOT / "reports" / ".eval_input.json"
+    input_path = RUNTIME_DIR / "eval_input.json"
     input_path.parent.mkdir(parents=True, exist_ok=True)
     input_path.write_text(
         json.dumps(case["input"], ensure_ascii=False), encoding="utf-8"
@@ -74,7 +76,7 @@ def evaluate_case(opa: Path, case: dict) -> tuple[dict, float]:
         "--data",
         "data",
         "--input",
-        "reports/.eval_input.json",
+        "reports/runtime/eval_input.json",
         "data.agent.guard.decision",
     ]
     started = time.perf_counter()
@@ -180,7 +182,7 @@ def main() -> int:
         },
     }
 
-    report_dir = ROOT / "reports"
+    report_dir = CORE_REPORT_DIR
     report_dir.mkdir(parents=True, exist_ok=True)
     with (report_dir / "evaluation_results.csv").open("w", encoding="utf-8-sig", newline="") as stream:
         writer = csv.DictWriter(stream, fieldnames=list(rows[0].keys()))

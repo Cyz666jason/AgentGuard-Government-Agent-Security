@@ -45,11 +45,11 @@ STALE_PHRASES_WHEN_PUBLISHED = (
 
 DOCUMENTS = (
     "README.md",
-    "docs/已完成范围与缺漏问题.md",
-    "docs/答辩速答.md",
-    "reports/productionization_status.md",
-    "reports/open_source_route_progress.md",
-    "reports/full_security_evaluation_report.md",
+    "docs/overview/已完成范围与缺漏问题.md",
+    "docs/presentation/答辩速答.md",
+    "reports/status/productionization_status.md",
+    "reports/status/open_source_route_progress.md",
+    "reports/core/full_security_evaluation_report.md",
 )
 
 
@@ -75,11 +75,13 @@ def main() -> int:
     )
     published = resolver.resolve("github_public_release").verdict is True
 
-    status = load("productionization_status.json") or {}
-    route = load("open_source_route_progress.json") or {}
-    full = load("full_security_evaluation_summary.json") or {}
-    stage4 = load("stage4_preflight.json") or {}
-    public_smoke = load("public_benchmark_fixture_smoke.json") or {}
+    status = load("status/productionization_status.json") or {}
+    route = load("status/open_source_route_progress.json") or {}
+    full = load("core/full_security_evaluation_summary.json") or {}
+    stage4 = load("preflight/stage4_preflight.json") or {}
+    public_smoke = load(
+        "evaluation/public-benchmarks/public_benchmark_fixture_smoke.json"
+    ) or {}
 
     # 1. 跨报告一致性
     route_envoy = bool(route.get("environment", {}).get("opa_envoy_product_e2e_tested"))
@@ -193,7 +195,7 @@ def main() -> int:
         failures.append(f"文档仍包含已被证据推翻的表述：{stale_hits}")
 
     # 5. 被取代的历史文件必须带说明
-    precedence = load("evidence_precedence.json") or {}
+    precedence = load("status/evidence_precedence.json") or {}
     missing_annotation: list[str] = []
     for claim in precedence.get("claims", {}).values():
         for stale in claim.get("superseded_evidence", []):
@@ -220,7 +222,9 @@ def main() -> int:
         "total": len(checks),
         "failures": failures,
     }
-    (REPORTS / "status_consistency_check.json").write_text(
+    status_report_dir = REPORTS / "status"
+    status_report_dir.mkdir(parents=True, exist_ok=True)
+    (status_report_dir / "status_consistency_check.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
     print(json.dumps({k: report[k] for k in ("status", "passed", "total", "failures")}, ensure_ascii=False))

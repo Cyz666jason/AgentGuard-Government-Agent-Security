@@ -35,7 +35,7 @@ try {
         & $venvPython .\integrations\redact_dataset.py `
             --input $AuthorizedJsonl `
             --output (Join-Path $redactedDir 'authorized_redacted.jsonl') `
-            --report (Join-Path $projectRoot 'reports\authorized_data_redaction.json')
+            --report (Join-Path $projectRoot 'reports\e2e\business\authorized_data_redaction.json')
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     }
 

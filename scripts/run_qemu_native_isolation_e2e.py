@@ -19,7 +19,7 @@ ISO = ROOT / "third_party" / "downloads" / "alpine-virt-3.24.1-x86_64.iso"
 SHA_FILE = ISO.with_suffix(ISO.suffix + ".sha256")
 KERNEL = ROOT / "third_party" / "downloads" / "vmlinuz-virt"
 INITRAMFS = ROOT / "third_party" / "downloads" / "initramfs-virt"
-REPORT = ROOT / "reports" / "qemu_native_isolation_e2e.json"
+REPORT = ROOT / "reports" / "e2e" / "isolation" / "qemu_native_isolation_e2e.json"
 
 
 def sha256(path: Path) -> str:
@@ -31,6 +31,7 @@ def sha256(path: Path) -> str:
 
 
 def main() -> int:
+    REPORT.parent.mkdir(parents=True, exist_ok=True)
     if not all(path.exists() for path in (QEMU, ISO, SHA_FILE, KERNEL, INITRAMFS)):
         raise RuntimeError("QEMU或Alpine启动文件缺失")
     expected = SHA_FILE.read_text(encoding="utf-8-sig").strip().split()[0].lower()

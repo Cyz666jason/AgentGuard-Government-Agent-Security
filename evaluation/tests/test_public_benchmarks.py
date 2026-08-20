@@ -310,7 +310,13 @@ class CommandLineTests(unittest.TestCase):
         self.assertEqual(0, result.returncode, result.stderr)
         for benchmark in REVISIONS:
             payload = json.loads(
-                (ROOT / f"reports/public_benchmark_{benchmark}_fixture.json").read_text(encoding="utf-8")
+                (
+                    ROOT
+                    / "reports"
+                    / "evaluation"
+                    / "public-benchmarks"
+                    / f"public_benchmark_{benchmark}_fixture.json"
+                ).read_text(encoding="utf-8")
             )
             self.assertEqual("synthetic_fixture", payload["data_source_type"])
             self.assertTrue(payload["uses_synthetic_fixtures"])

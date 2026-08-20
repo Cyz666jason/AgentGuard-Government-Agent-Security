@@ -78,9 +78,13 @@ def main() -> int:
     wsl_present = shutil.which("wsl.exe") is not None
     docker_present = shutil.which("docker") is not None
     linux_available = wsl_distribution_available()
-    openbao_report = ROOT / "reports" / "openbao_kms_ha_e2e.json"
-    openbao_raft_report = ROOT / "reports" / "openbao_raft_ha_e2e.json"
-    qemu_report = ROOT / "reports" / "qemu_native_isolation_e2e.json"
+    openbao_report = ROOT / "reports" / "e2e" / "openbao" / "openbao_kms_ha_e2e.json"
+    openbao_raft_report = (
+        ROOT / "reports" / "e2e" / "openbao" / "openbao_raft_ha_e2e.json"
+    )
+    qemu_report = (
+        ROOT / "reports" / "e2e" / "isolation" / "qemu_native_isolation_e2e.json"
+    )
     report = {
         "tested_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         # The exact workstation name is not needed to reproduce the test and

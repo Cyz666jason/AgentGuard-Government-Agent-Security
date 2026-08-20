@@ -16,7 +16,7 @@ import pycdlib
 
 
 ROOT = Path(__file__).resolve().parents[1]
-STATE = ROOT / "reports" / "qemu_container_host"
+STATE = ROOT / "reports" / "e2e" / "isolation" / "qemu_container_host"
 QEMU_SOURCE = ROOT / "third_party" / "runtime" / "qemu"
 ISO_SOURCE = ROOT / "third_party" / "downloads" / "alpine-virt-3.24.1-x86_64.iso"
 

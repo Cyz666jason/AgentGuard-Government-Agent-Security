@@ -51,7 +51,7 @@ def main() -> None:
         else:
             raise RuntimeError("OPA REST 服务未就绪")
 
-        state_dir = PROJECT_ROOT / "reports" / "network_e2e_state"
+        state_dir = PROJECT_ROOT / "reports" / "e2e" / "network" / "network_e2e_state"
         gateway = build_gateway(
             state_dir,
             secret=b"N" * 32,
@@ -103,7 +103,11 @@ def main() -> None:
                 "opa_outage": outage,
             },
         }
-        (PROJECT_ROOT / "reports" / "network_enforcement_e2e.json").write_text(
+        report_path = (
+            PROJECT_ROOT / "reports" / "e2e" / "network" / "network_enforcement_e2e.json"
+        )
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.write_text(
             json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
         )
         print(json.dumps({"passed": report["passed"], "total": report["total"]}))

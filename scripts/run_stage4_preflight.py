@@ -31,8 +31,9 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CONFIG = ROOT / "deployment" / "stage4" / "stage4.preflight.example.json"
-DEFAULT_REPORT = ROOT / "reports" / "stage4_preflight.json"
-DEFAULT_MARKDOWN = ROOT / "reports" / "stage4_preflight.md"
+PREFLIGHT_REPORT_DIR = ROOT / "reports" / "preflight"
+DEFAULT_REPORT = PREFLIGHT_REPORT_DIR / "stage4_preflight.json"
+DEFAULT_MARKDOWN = PREFLIGHT_REPORT_DIR / "stage4_preflight.md"
 
 BLOCKED = "blocked_external_environment"
 AWAITING = "awaiting_authorized_input"

@@ -19,7 +19,7 @@ if str(ROOT) not in sys.path:
 
 from evidence.precedence import EvidenceResolver  # noqa: E402
 
-REPORT = ROOT / "reports" / "evidence_precedence.json"
+REPORT = ROOT / "reports" / "status" / "evidence_precedence.json"
 
 TRACKED_CLAIMS = (
     "opa_envoy_container_e2e",

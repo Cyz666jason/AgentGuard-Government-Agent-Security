@@ -57,9 +57,11 @@ class OpaClient:
         trusted_request["context"]["server_time"] = (
             datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         )
-        reports_dir = self.project_root / "reports"
-        reports_dir.mkdir(parents=True, exist_ok=True)
-        relative_input = Path("reports") / f".approval-{uuid.uuid4().hex}.json"
+        runtime_dir = self.project_root / "reports" / "runtime"
+        runtime_dir.mkdir(parents=True, exist_ok=True)
+        relative_input = (
+            Path("reports") / "runtime" / f"approval-{uuid.uuid4().hex}.json"
+        )
         absolute_input = self.project_root / relative_input
         absolute_input.write_text(
             json.dumps(trusted_request, ensure_ascii=False, indent=2), encoding="utf-8"

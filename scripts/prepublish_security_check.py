@@ -12,7 +12,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REPORT = ROOT / "reports" / "prepublish_security_check.json"
+REPORT = ROOT / "reports" / "status" / "prepublish_security_check.json"
 PATTERNS = {
     "github_token": re.compile(rb"(?:ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})"),
     "aws_access_key": re.compile(rb"AKIA[0-9A-Z]{16}"),
@@ -56,6 +56,7 @@ def candidate_files() -> list[Path]:
 
 
 def main() -> int:
+    REPORT.parent.mkdir(parents=True, exist_ok=True)
     findings: list[dict[str, str]] = []
     scanned = 0
     skipped_binary = 0

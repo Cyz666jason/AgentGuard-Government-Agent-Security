@@ -37,7 +37,7 @@ AgentGuard（身份校验 → OPA → 票据 → 安全内核 → 审计）
 $env:AGENTGUARD_MCP_BASE_URL = 'http://127.0.0.1:8080'
 $env:AGENTGUARD_MCP_IDENTITY_MODE = 'loopback_static_dev'
 $env:AGENTGUARD_MCP_DEV_SUBJECT_FILE = (Resolve-Path '.\integrations\openclaw_mcp\dev-subject.example.json')
-python -m integrations.openclaw_mcp.protocol_probe --report .\reports\openclaw_mcp_protocol_probe.json
+python -m integrations.openclaw_mcp.protocol_probe --report .\reports\e2e\openclaw\openclaw_mcp_protocol_probe.json
 ```
 
 报告会保存命令、版本、输入、输出和进程退出码，并明确标记
@@ -75,7 +75,7 @@ openclaw mcp probe agentguard-notices --json
 `doctor --probe` 和真实 `tools/list`，发现且只发现
 `agentguard-notices__list_notices`。同时，确定性 MCP 客户端已通过真实 AgentGuard
 测试链完成一次低风险 `tools/call`。完整命令、输入、输出、退出码与边界说明见
-`reports/openclaw_mcp_integration.json`。
+`reports/e2e/openclaw/openclaw_mcp_integration.json`。
 
 由于没有使用经授权的模型凭据执行 OpenClaw agent 回合，目前不能写
 “OpenClaw 模型已自主调用工具”；准确表述是“OpenClaw 实机注册与工具发现完成，

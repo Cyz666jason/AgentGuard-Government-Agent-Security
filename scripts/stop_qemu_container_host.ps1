@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$pidFile = Join-Path $projectRoot 'reports\qemu_container_host\qemu.pid'
+$pidFile = Join-Path $projectRoot 'reports\e2e\isolation\qemu_container_host\qemu.pid'
 if (Test-Path -LiteralPath $pidFile) {
     $processId = [int](Get-Content -LiteralPath $pidFile -Raw)
     $process = Get-Process -Id $processId -ErrorAction SilentlyContinue
