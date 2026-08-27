@@ -1,7 +1,7 @@
 # 验证证据清单
 
-生成时间：`2026-08-28T05:38:32+08:00`（中国标准时间）
-测试源提交：`HEAD`；source tree hash：`ed4f04fe35750a80b6cf5eff81655677d5cf4717`
+生成时间：`2026-08-28T05:44:32+08:00`（中国标准时间）
+测试源提交：`HEAD`；source tree hash：`97bd76d518c1c93b9cacae9533ad7b3ef1ba57c0`
 测试开始时工作树干净：`False`；清单生成时工作树干净：`False`
 
 ## 环境
@@ -17,10 +17,10 @@
 | OPA核心策略测试 | 0 | passed | 2026-08-28T05:08:22+08:00 | `reports/core/full_opa_tests.txt` |
 | OPA-Envoy部署策略测试 | 0 | passed | 2026-08-28T05:08:22+08:00 | `reports/e2e/network/opa_envoy_policy_tests.txt` |
 | Python全量安全回归 | 0 | passed | 2026-08-28T05:09:35+08:00 | `reports/core/full_python_tests.txt` |
-| OPA核心55例评测 | 0 | passed | 2026-08-28T05:08:26+08:00 | `reports/core/evaluation_results.csv`；`reports/core/evaluation_summary.json`；`reports/core/evaluation_report.md` |
+| OPA核心55例评测 | 0 | passed | 2026-08-28T05:41:09+08:00 | `reports/core/evaluation_results.csv`；`reports/core/evaluation_summary.json`；`reports/core/evaluation_report.md` |
 | 阶段4只读预检 | 2 | blocked_external_environment | 2026-08-28T05:35:06+08:00 | `reports/preflight/stage4_preflight.json`；`reports/preflight/stage4_preflight.md` |
-| 发布前敏感信息扫描 | 0 | passed | 2026-08-28T05:38:26.592787+08:00 | `reports/status/prepublish_security_check.json` |
-| 状态一致性检查 | 0 | passed | 2026-08-28T05:38:26+08:00 | `reports/status/status_consistency_check.json` |
+| 发布前敏感信息扫描 | 0 | passed | 2026-08-28T05:44:23.526669+08:00 | `reports/status/prepublish_security_check.json` |
+| 状态一致性检查 | 0 | passed | 2026-08-28T05:44:24+08:00 | `reports/status/status_consistency_check.json` |
 | 项目内OpenClaw安装与命令可用性 | 0 | passed | 2026-08-27T04:31:40.3898995+08:00 | `reports/e2e/openclaw/openclaw_installation.json`；`reports/e2e/openclaw/openclaw_installation.md` |
 | OpenClaw固定5例模型fixture | 0 | passed | 2026-08-27T18:19:45.1861768Z | `reports/e2e/openclaw/openclaw_agentguard_model_dataset.json` |
 | OpenClaw CLI真实模型回合 | 0 | passed | 2026-08-27T18:21:08.1738251Z | `reports/e2e/openclaw/openclaw_agentguard_model_turn.json` |
@@ -49,7 +49,7 @@
 | installation_report | `reports/e2e/openclaw/openclaw_installation.json` | `7b655cc19681214abfad8762dc77c104065605484e0d9b75988b4fd285e533a3` |
 | remote_mcp_e2e_report | `reports/e2e/openclaw/openclaw_remote_mcp_e2e.json` | `538fbf102a526b4e08203351ea0cdcc5bd11a9321f819c39e4629a6209c9ab54` |
 | remote_mcp_e2e_summary | `reports/e2e/openclaw/openclaw_remote_mcp_e2e.md` | `4a5fe6fb5a853311355427b490b23edb37529ee160f95028b1125182658ed793` |
-| evaluation_report | `reports/core/evaluation_summary.json` | `e0a0c107bdd67dd8b6a106559aa86ba0191aa2c861cd6b3ff7191f7e3fcc4686` |
+| evaluation_report | `reports/core/evaluation_summary.json` | `a1c778ec196c325e3ed1ca7a735ec5ec14b6c9c805710144dd3210d5fcd0cbb1` |
 | test_log | `reports/core/full_python_tests.txt` | `25c0c6dfacd1ca8619fc38820e1cebeb76415a3e3668e17da2ca4b6a15eefae5` |
 | test_log | `reports/core/full_opa_tests.txt` | `c13bf55306d5eb2efe7bbe19fe5c1c091338955a1c231fba2be0944b2e45e564` |
 

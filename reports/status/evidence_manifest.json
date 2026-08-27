@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-08-28T05:38:32+08:00",
+  "generated_at": "2026-08-28T05:44:32+08:00",
   "timezone": "中国标准时间",
   "tested_source_commit": "HEAD",
-  "source_tree_hash": "ed4f04fe35750a80b6cf5eff81655677d5cf4717",
+  "source_tree_hash": "97bd76d518c1c93b9cacae9533ad7b3ef1ba57c0",
   "working_tree_clean": false,
   "working_tree_clean_at_test_start": false,
   "environment": {
@@ -57,7 +57,7 @@
       "command": ".venv\\Scripts\\python.exe scripts\\evaluate.py --opa tools\\opa.exe",
       "exit_code": 0,
       "result": "passed",
-      "executed_at": "2026-08-28T05:08:26+08:00",
+      "executed_at": "2026-08-28T05:41:09+08:00",
       "version": "Version: 1.19.0",
       "input_scope": "datasets/agent_guard_cases.jsonl；55 synthetic project cases",
       "evidence": [
@@ -85,7 +85,7 @@
       "command": ".venv\\Scripts\\python.exe scripts\\prepublish_security_check.py",
       "exit_code": 0,
       "result": "passed",
-      "executed_at": "2026-08-28T05:38:26.592787+08:00",
+      "executed_at": "2026-08-28T05:44:23.526669+08:00",
       "version": "Python 3.12.13",
       "input_scope": "Git已跟踪文件与未忽略新文件；私密值不写入报告",
       "evidence": [
@@ -97,7 +97,7 @@
       "command": ".venv\\Scripts\\python.exe scripts\\check_status_consistency.py",
       "exit_code": 0,
       "result": "passed",
-      "executed_at": "2026-08-28T05:38:26+08:00",
+      "executed_at": "2026-08-28T05:44:24+08:00",
       "version": "Python 3.12.13",
       "input_scope": "状态报告、阶段4边界、公开fixture与历史证据标注",
       "evidence": [
@@ -230,7 +230,7 @@
     {
       "path": "reports/core/evaluation_summary.json",
       "kind": "evaluation_report",
-      "sha256": "e0a0c107bdd67dd8b6a106559aa86ba0191aa2c861cd6b3ff7191f7e3fcc4686"
+      "sha256": "a1c778ec196c325e3ed1ca7a735ec5ec14b6c9c805710144dd3210d5fcd0cbb1"
     },
     {
       "path": "reports/core/full_python_tests.txt",
