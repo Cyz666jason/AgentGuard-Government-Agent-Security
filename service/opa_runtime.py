@@ -81,8 +81,12 @@ class ResidentOpaProcess:
                 "data",
             ],
             cwd=self.project_root,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            # OPA emits one access-log line per request. Keeping unread PIPEs
+            # here eventually fills the Windows pipe buffer and blocks the
+            # policy server, making AgentGuard fail readiness with a timeout.
+            # The service does not consume these streams, so discard them.
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
             creationflags=creation_flags,
         )
         deadline = time.monotonic() + self.startup_timeout_seconds
@@ -115,9 +119,6 @@ class ResidentOpaProcess:
             except subprocess.TimeoutExpired:
                 process.kill()
                 process.wait(timeout=timeout)
-        for stream in (process.stdout, process.stderr):
-            if stream is not None:
-                stream.close()
 
     def __enter__(self) -> "ResidentOpaProcess":
         return self.start()

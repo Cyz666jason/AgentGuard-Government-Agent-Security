@@ -612,6 +612,21 @@ class ResidentOpaProcessTests(ServiceTestBase):
         finally:
             service.close()
 
+    def test_resident_opa_does_not_leave_unread_output_pipes(self) -> None:
+        """OPA access logs must not block the long-running policy server."""
+
+        resident = ResidentOpaProcess(
+            PROJECT_ROOT,
+            address=f"127.0.0.1:{free_port()}",
+            startup_timeout_seconds=40.0,
+        ).start()
+        try:
+            self.assertIsNotNone(resident.process)
+            self.assertIsNone(resident.process.stdout)
+            self.assertIsNone(resident.process.stderr)
+        finally:
+            resident.stop()
+
     def test_unbindable_address_reports_startup_failure(self) -> None:
         """OPA 无法绑定时必须报错，不能静默当成已就绪。"""
 

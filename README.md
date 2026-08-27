@@ -8,7 +8,7 @@
 
 项目不是静态调研材料，已经使用 OpenClaw 2026.7.1-2、Keycloak 26.7.1、OPA 1.19.0、LangGraph 1.2.10、Wasmtime 47.0.1、OpenBao 2.6.1 和 QEMU 11.1.0 在测试机实际运行并生成测试报告。
 
-> 快速入口：[2026-08-20 项目最新进展](docs/overview/项目最新进展_20260820.md) · [OpenClaw 接入说明](docs/integrations/OpenClaw接入判断与基础版说明.md) · [OpenClaw 实测报告](reports/e2e/openclaw/openclaw_mcp_integration.md) · [文档导航](docs/README.md) · [测试证据导航](reports/README.md)
+> 快速入口：[2026-08-27 OpenClaw 接入与模型回环证据](docs/integrations/OpenClaw接入判断与基础版说明.md) · [Control UI 真实回合](reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.md) · [CLI 真实模型回合](reports/e2e/openclaw/openclaw_agentguard_model_turn.md) · [5 例固定模型测试集](reports/e2e/openclaw/openclaw_agentguard_model_dataset.md) · [文档导航](docs/README.md) · [测试证据导航](reports/README.md)
 
 ## 仓库导航
 
@@ -41,7 +41,7 @@
 15. **生产接入流水线**：真实业务适配器要求 HTTPS、CA、主机白名单、幂等键与审批；真实数据在进入评估前执行确定性去标识和秘密删除。
 16. **公开基准适配**：完成 AgentDojo、InjecAgent、AgentHarm 的离线转换、严格校验、去重和独立分母评测管线；6 条自编 fixture 只用于验证管线合同，不冒充真实基准成绩。
 17. **阶段4执行门禁**：完成 Kata/Firecracker、跨故障域 OpenBao、Kubernetes mTLS/NetworkPolicy、身份 HA/MFA、真实业务与授权数据的非密模板、只读预检和验收清单。
-18. **OpenClaw 最小接入**：实现一个纯标准库的 stdio MCP Server，只暴露只读公告查询；OpenClaw 实机注册、`doctor --probe` 与 `tools/list` 已完成，低风险 `tools/call` 已贯通真实 AgentGuard 测试链并明确区分模型回合边界。
+18. **OpenClaw 最小接入**：实现一个纯标准库的 stdio MCP Server，只暴露只读公告查询；项目内 OpenClaw 实机注册、Control UI、`doctor --probe` 与 `tools/list` 已验证，经授权中转模型也已在真实 agent 回合主动调用该工具并贯通 AgentGuard 测试链。
 
 ## 技术位置
 
@@ -77,7 +77,7 @@ OPA 负责“算出决定”，网关负责“执行决定”。只有 OPA 而�
 | 两个生产策略文件覆盖率 | 100% |
 | 全部 Rego 文件覆盖率（包含测试代码） | 99.61% |
 | OPA 纯策略基准 | 约 0.35-0.36 ms/次 |
-| 身份/审批/网关/内核/MCP/公开评测/阶段4预检 Python 测试 | 173/173 通过 |
+| 身份/审批/网关/内核/MCP/公开评测/阶段4预检 Python 测试 | 174/174（以最新实际回归报告为准） |
 | OPA-Envoy 网络前置策略测试 | 4/4 通过 |
 | 完整链路关键演示与实服检查 | 23/23 通过 |
 | Keycloak/OIDC 真实端到端 | 7/7 通过 |
@@ -89,12 +89,44 @@ OPA 负责“算出决定”，网关负责“执行决定”。只有 OPA 而�
 | OPA-Envoy + ToolHive Linux 容器 E2E（GitHub Actions） | 10/10 通过 |
 | 公开基准适配器契约测试 | 6/6 自编 fixture 通过（非上游真实成绩） |
 | 阶段4外部环境只读预检 | 5 个域已检查；当前 4 个外部环境阻塞、1 个等待授权输入 |
-| OpenClaw × AgentGuard 最小接入 | 9/9 通过（实机注册/工具发现 + 协议层低风险调用） |
+| OpenClaw × AgentGuard 接入 | 最小协议链 9/9、可视化链 16/16、已认证网页回合 16/16、CLI 真实模型回合 14/14 通过 |
 | 阻断或沙箱攻击误执行次数 | 0 |
 
 Python完整依赖已写入 `requirements-lock.txt` 并包含包哈希；CI 使用 `--require-hashes` 安装。GitHub Actions 与产品容器镜像均固定到提交或 SHA-256 摘要。
 
 批量评测脚本逐条启动 OPA CLI，耗时会随机器负载波动，最新均值与 P95 以[自动进度看板](reports/status/open_source_route_progress.md)为准；该值主要包含进程启动和策略加载，不是 sidecar、Wasm 或 Go SDK 常驻部署的纯决策延迟。
+
+## 在 OpenClaw Control UI 中使用 AgentGuard
+
+OpenClaw 固定安装在被 Git 忽略的 `third_party/runtime/openclaw-client`，所有脚本只调用该项目内入口，不依赖全局 `openclaw`。首次准备、模型配置、启动和验证：
+
+```powershell
+$node = Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe'
+
+.\scripts\setup_openclaw_agentguard_demo.ps1 -NodePath $node
+.\scripts\configure_openclaw_agentguard_model.ps1 -NodePath $node
+.\scripts\start_openclaw_agentguard_demo.ps1 -NodePath $node
+.\scripts\verify_openclaw_agentguard_demo.ps1 -NodePath $node
+.\scripts\verify_openclaw_agentguard_model_turn.ps1 -NodePath $node
+```
+
+模型配置脚本使用不可见的安全输入提示。API Key 只保存在被 Git 忽略、限制当前用户访问的 `integrations/openclaw_mcp/.e2e_state/visual-demo/state/.env`；`openclaw.json` 只保存环境 SecretRef。不要把密钥写进命令参数、README、报告或浏览器 URL。
+
+启动脚本同时准备本机隔离 AgentGuard/OPA 测试后端，并输出实际 `control_ui_url`。默认端口为 `18789`；若已被占用，会选择空闲回环端口。本次运行地址为 `http://127.0.0.1:18790/`。Gateway token 不打印、不写报告；首次认证只应在本机 Control UI 内完成。
+
+本演示只注册 `agentguard-notices`，只允许 `list_notices`，并设置 `supportsParallelToolCalls=false`。可视化报告证明 Gateway、Control UI、MCP 注册和 schema；[已认证网页回合](reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.md)证明用户在 Control UI 新会话中亲眼看到模型发起 `limit=2` 的工具调用、两条结果与 `side_effect=false`；CLI 模型回合报告提供另一条可自动复核的转录和 AgentGuard/OPA 审计链。这些证据都不能混为生产验收。
+
+手工复现网页回合时，打开启动脚本输出的 `control_ui_url`，仅在本机页面的 Gateway Token 输入框中使用被 Git 忽略的 `runtime/gateway-token.txt`，不要把 token 放进 URL、命令行、截图或报告。连接后新建会话并发送：`请调用 agentguard-notices 的 list_notices 工具，查询 2 条公告。你必须实际调用该工具，参数必须是 {"limit":2}；只能依据工具结果回答，并明确说明该操作没有副作用。` 展开工具卡即可核对输入和输出。
+
+停止、清除隔离状态或完整移除项目内 runtime：
+
+```powershell
+.\scripts\stop_openclaw_agentguard_demo.ps1 -NodePath $node
+.\scripts\stop_openclaw_agentguard_demo.ps1 -NodePath $node -RemoveDemoState
+.\scripts\stop_openclaw_agentguard_demo.ps1 -NodePath $node -RemoveDemoState -RemoveProjectLocalOpenClaw
+```
+
+停止脚本只处理 PID、启动时间、可执行文件和命令行均与演示记录匹配的进程；不会因为端口冲突而停止未知进程。`-RemoveDemoState` 会永久删除隔离模型凭据、会话、日志和测试状态，`-RemoveProjectLocalOpenClaw` 还会删除被忽略的项目内 OpenClaw runtime。
 
 ## 一键复现
 
@@ -186,7 +218,7 @@ OPA→LangGraph→强制网关→Wasmtime 的完整审批链路已经实际跑�
 - `enforcement/signers.py`、`enforcement/ledgers.py`、`approval/credentials.py`：OpenBao Transit票据/审批密钥外置、版本轮换和KV v2 CAS共享核销，实服10/10；三节点Raft选主、复制与leader故障切换8/8。
 - `scripts/run_qemu_native_isolation_e2e.py`：QEMU独立Linux guest kernel、Alpine用户态与只读校验启动介质隔离，实测11/11。
 - `integrations/`：获批真实API、真实数据以及 OpenClaw 只读 MCP 的安全接入入口；未提供生产凭据或数据时默认跳过并明确报告。
-- [`integrations/openclaw_mcp/`](integrations/openclaw_mcp/)：单一只读 MCP 工具、可信身份边界、OpenClaw 示例配置和协议测试；所有业务调用固定经过 AgentGuard `/invoke`。接入判断见[专题说明](docs/integrations/OpenClaw接入判断与基础版说明.md)，实测命令、输出和证据边界见[OpenClaw E2E 报告](reports/e2e/openclaw/openclaw_mcp_integration.md)。
+- [`integrations/openclaw_mcp/`](integrations/openclaw_mcp/)：单一只读 MCP 工具、可信身份边界、OpenClaw 示例配置和协议测试；所有业务调用固定经过 AgentGuard `/invoke`。接入判断见[专题说明](docs/integrations/OpenClaw接入判断与基础版说明.md)，确定性协议证据见[最小 E2E 报告](reports/e2e/openclaw/openclaw_mcp_integration.md)，模型自主调用证据见[真实模型回合报告](reports/e2e/openclaw/openclaw_agentguard_model_turn.md)。
 
 ## 作为 OPA 服务运行
 
@@ -252,7 +284,7 @@ Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8181/v1/data/agent/guard/de
 - 工具适配器已经真实读写隔离 SQLite 测试业务库，但不会调用真实银行、ERP、生产文件或系统命令。
 - 当前 55 个样例是合成的政企安全测试数据，不包含真实个人信息，部署前应结合单位制度、资源目录和密级规则扩充；公开数据集（AgentDojo / InjecAgent / AgentHarm）已提供转换器、校验器与独立分母评测入口，原始数据需按各自许可证自行获取，本仓库不重分发也不虚构样本。
 - 真实业务URL、令牌、CA和单位日志没有被提供，因此只完成安全接入代码和自动预检，不能把测试样例表述成生产E2E。
-- OpenClaw 2026.7.1-2 已实机完成 MCP 注册、`doctor --probe` 和 `tools/list`；低风险调用由确定性 MCP 客户端完成，不是使用模型凭据的 OpenClaw agent 回合。生产仍需逐用户 OIDC/OAuth、mTLS 与模型回合审计。
+- OpenClaw 2026.7.1-2 已实机完成项目内安装、Control UI、MCP 注册、`doctor --probe`、`tools/list` 和经授权中转模型的真实 agent 工具回合。该回合使用回环静态测试身份与隔离合成公告，不是生产接入；生产仍需逐用户 OIDC/OAuth、mTLS、网络隔离、真实授权数据与持续模型回合审计。
 - [`reports/preflight/stage4_preflight.json`](reports/preflight/stage4_preflight.json) 始终区分“配置已准备”与“产品已实测”；预检通过也不会把 `production_ready` 或 `product_validation_completed` 改为真。
 - 公开 GitHub 仓库已发布（[`reports/status/github_publication.json`](reports/status/github_publication.json) 实测匿名可读、可见性 public）。已开源不等于已生产就绪；密钥、授权数据与运行态状态目录仍被 `.gitignore` 与发布前秘密扫描挡在仓库外。
 

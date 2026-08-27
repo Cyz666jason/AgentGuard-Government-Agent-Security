@@ -22,6 +22,7 @@ NETWORK_REPORT_DIR = REPORT_DIR / "e2e" / "network"
 IDENTITY_REPORT_DIR = REPORT_DIR / "e2e" / "identity"
 OPENBAO_REPORT_DIR = REPORT_DIR / "e2e" / "openbao"
 ISOLATION_REPORT_DIR = REPORT_DIR / "e2e" / "isolation"
+OPENCLAW_REPORT_DIR = REPORT_DIR / "e2e" / "openclaw"
 PUBLIC_BENCHMARK_REPORT_DIR = REPORT_DIR / "evaluation" / "public-benchmarks"
 PREFLIGHT_REPORT_DIR = REPORT_DIR / "preflight"
 STATUS_REPORT_DIR = REPORT_DIR / "status"
@@ -73,6 +74,115 @@ def result_row(name: str, result: dict[str, Any], evidence: str) -> dict[str, An
     }
 
 
+def openclaw_check_row(
+    name: str,
+    report: dict[str, Any] | None,
+    evidence: str,
+    *,
+    passed: int,
+    total: int,
+) -> dict[str, Any]:
+    """Normalize OpenClaw evidence without treating a missing report as a pass.
+
+    OpenClaw model evidence is intentionally kept in its own denominators.  The
+    model dataset (5 fixed synthetic cases), CLI turn checks and Control UI turn
+    checks must not be added to the Python/OPA or demonstration totals.
+    """
+
+    checks = report.get("checks") if isinstance(report, dict) else None
+    checks_ok = isinstance(checks, dict) and bool(checks) and all(
+        value is True for value in checks.values()
+    )
+    report_ok = (
+        isinstance(report, dict)
+        and report.get("status") == "passed_with_declared_scope"
+        and checks_ok
+        and total > 0
+        and passed == total
+    )
+    return {
+        "name": name,
+        "passed": passed if report_ok else 0,
+        "total": total,
+        "pass_rate": round(passed / total, 6) if report_ok and total else 0.0,
+        "status": "passed" if report_ok else "not_run_or_missing",
+        "evidence": evidence,
+        "checked_at": report.get("generated_at") if isinstance(report, dict) else None,
+        "scope": "test_only_synthetic_fixture" if isinstance(report, dict) else None,
+    }
+
+
+def load_openclaw_evidence() -> dict[str, Any]:
+    """Load the three independent OpenClaw model evidence reports."""
+
+    dataset = load_optional_json(
+        OPENCLAW_REPORT_DIR / "openclaw_agentguard_model_dataset.json"
+    )
+    model_turn = load_optional_json(
+        OPENCLAW_REPORT_DIR / "openclaw_agentguard_model_turn.json"
+    )
+    control_ui = load_optional_json(
+        OPENCLAW_REPORT_DIR / "openclaw_agentguard_control_ui_turn.json"
+    )
+
+    dataset_summary = dataset.get("summary", {}) if isinstance(dataset, dict) else {}
+    dataset_total = int(dataset_summary.get("total_cases", 0) or 0)
+    dataset_passed = int(dataset_summary.get("passed_cases", 0) or 0)
+
+    def check_counts(report: dict[str, Any] | None) -> tuple[int, int]:
+        checks = report.get("checks", {}) if isinstance(report, dict) else {}
+        if not isinstance(checks, dict) or not checks:
+            return 0, 0
+        total = len(checks)
+        return sum(1 for value in checks.values() if value is True), total
+
+    model_passed, model_total = check_counts(model_turn)
+    ui_passed, ui_total = check_counts(control_ui)
+    rows = [
+        openclaw_check_row(
+            "OpenClaw模型固定合成测试集",
+            dataset,
+            "reports/e2e/openclaw/openclaw_agentguard_model_dataset.json",
+            passed=dataset_passed,
+            total=dataset_total,
+        ),
+        openclaw_check_row(
+            "OpenClaw CLI真实模型回合",
+            model_turn,
+            "reports/e2e/openclaw/openclaw_agentguard_model_turn.json",
+            passed=model_passed,
+            total=model_total,
+        ),
+        openclaw_check_row(
+            "OpenClaw Control UI真实模型回合",
+            control_ui,
+            "reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.json",
+            passed=ui_passed,
+            total=ui_total,
+        ),
+    ]
+    generated_at = max(
+        (
+            str(report.get("generated_at"))
+            for report in (dataset, model_turn, control_ui)
+            if isinstance(report, dict) and report.get("generated_at")
+        ),
+        default=None,
+    )
+    return {
+        "reports": {
+            "dataset": dataset,
+            "model_turn": model_turn,
+            "control_ui": control_ui,
+        },
+        "rows": rows,
+        "checked_at": generated_at,
+        "all_passed": bool(rows) and all(row["status"] == "passed" for row in rows),
+        "dataset_total": dataset_total,
+        "dataset_passed": dataset_passed,
+    }
+
+
 def main() -> int:
     full = load_json(CORE_REPORT_DIR / "full_security_evaluation_summary.json")
     evaluation = load_json(CORE_REPORT_DIR / "evaluation_summary.json")
@@ -85,6 +195,7 @@ def main() -> int:
     stage4_preflight = load_optional_json(
         PREFLIGHT_REPORT_DIR / "stage4_preflight.json"
     ) or {}
+    openclaw = load_openclaw_evidence()
 
     public_benchmarks = public_smoke.get("benchmarks", {})
     public_fixture_contract_passed = (
@@ -203,6 +314,7 @@ def main() -> int:
             full["qemu_native_isolation_e2e"],
             "reports/e2e/isolation/qemu_native_isolation_e2e.json",
         ),
+        *openclaw["rows"],
     ]
 
     resolver = EvidenceResolver(PROJECT_ROOT)
@@ -301,6 +413,31 @@ def main() -> int:
         },
         "route": route,
         "test_metrics": metrics,
+        "openclaw_model_e2e": {
+            "status": "passed_with_declared_scope" if openclaw["all_passed"] else "not_run_or_missing",
+            "checked_at": openclaw["checked_at"],
+            "dataset": {
+                "passed": openclaw["dataset_passed"],
+                "total": openclaw["dataset_total"],
+                "evidence": "reports/e2e/openclaw/openclaw_agentguard_model_dataset.json",
+                "data_type": "fixed_synthetic_fixture",
+                "public_benchmark": False,
+            },
+            "cli_model_turn_evidence": "reports/e2e/openclaw/openclaw_agentguard_model_turn.json",
+            "control_ui_model_turn_evidence": "reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.json",
+            "only_allowed_tool": "agentguard-notices__list_notices",
+            "unexpected_tool_call_count": (
+                int((openclaw["reports"]["dataset"] or {}).get("summary", {}).get("unexpected_tool_call_count", 0))
+                if isinstance(openclaw["reports"]["dataset"], dict)
+                else 0
+            ),
+            "side_effect_result_count": (
+                int((openclaw["reports"]["dataset"] or {}).get("summary", {}).get("side_effect_result_count", 0))
+                if isinstance(openclaw["reports"]["dataset"], dict)
+                else 0
+            ),
+            "scope_boundary": "5个固定合成fixture，仅覆盖当前隔离回环配置；不是公开基准或生产安全结论。",
+        },
         "policy_effect_metrics": {
             "effect_accuracy": evaluation["effect_accuracy"],
             "reason_code_accuracy": evaluation["reason_code_accuracy"],
@@ -329,6 +466,14 @@ def main() -> int:
             ),
             "data_type": "synthetic",
             "warning": "83是三层测试定义数量，不是可以相加后称为83/83的单一准确率分母。",
+            "openclaw_model_fixture": {
+                "total_cases": openclaw["dataset_total"],
+                "passed_cases": openclaw["dataset_passed"],
+                "evidence": "reports/e2e/openclaw/openclaw_agentguard_model_dataset.json",
+                "data_type": "fixed_synthetic_fixture",
+                "is_public_benchmark": False,
+                "boundary": "固定5例只验证当前模型、工具过滤和隔离回环；不得泛化为公开基准或生产安全结论。",
+            },
             "public_benchmark_support": {
                 "adapter_contract_passed": public_fixture_contract_passed,
                 "uses_synthetic_fixtures": public_smoke.get(
@@ -391,6 +536,7 @@ def main() -> int:
                 "本测试机未安装 Docker，WSL 命令存在但没有 Linux 发行版；"
                 "容器类 E2E 因此在 GitHub Linux Runner 上执行并取得实测证据。"
             ),
+            "openclaw_model_e2e_checked_at": openclaw["checked_at"],
         },
         "publication": {
             "github_public_release": publication_claim.verdict is True,
@@ -475,6 +621,13 @@ def main() -> int:
             f"- 策略数据危险动作误放行：{evaluation['unsafe_allow_count']}；完整链路危险动作误执行：{unsafe_execution_count}。",
             f"- OPA CLI逐例端到端：均值{latency['mean']} ms，P95 {latency['p95']} ms；该值包含进程启动，不代表常驻服务纯策略延迟。",
             f"- 全部Rego文件总覆盖率：{float(coverage['coverage']):.2f}%。",
+            "",
+            "## OpenClaw 模型回环证据",
+            "",
+            f"- 核验时间：`{openclaw['checked_at'] or '未记录'}`；总体状态：`{'passed_with_declared_scope' if openclaw['all_passed'] else 'not_run_or_missing'}`。",
+            f"- 固定合成模型测试集：{openclaw['dataset_passed']}/{openclaw['dataset_total']}；CLI 与 Control UI 真实模型回合分别独立记录在 `reports/e2e/openclaw/openclaw_agentguard_model_turn.json` 和 `reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.json`。",
+            "- 当前配置只允许 `agentguard-notices__list_notices`；5 个用例是项目自有固定 synthetic fixture，不是 AgentDojo、InjecAgent、AgentHarm 等公开基准成绩。",
+            "- 回环静态开发身份、隔离合成 SQLite 与 loopback 服务仅用于测试；生产仍需 requester-scoped OIDC、TLS/mTLS、网络隔离和授权业务凭据。",
             "",
             "## 未完成边界",
             "",

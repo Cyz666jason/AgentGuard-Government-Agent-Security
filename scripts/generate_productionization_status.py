@@ -62,6 +62,81 @@ def load_optional(name: str) -> dict[str, Any] | None:
     return payload if isinstance(payload, dict) else None
 
 
+def openclaw_model_e2e_status() -> dict[str, Any]:
+    """Summarize the isolated OpenClaw model evidence as a test-only item.
+
+    The three reports are deliberately evaluated independently from the core
+    Python/OPA totals.  A missing or failed report is never represented as a
+    completed production capability.
+    """
+
+    report_names = {
+        "dataset": "e2e/openclaw/openclaw_agentguard_model_dataset.json",
+        "cli_model_turn": "e2e/openclaw/openclaw_agentguard_model_turn.json",
+        "control_ui_model_turn": "e2e/openclaw/openclaw_agentguard_control_ui_turn.json",
+    }
+    reports: dict[str, dict[str, Any] | None] = {
+        key: load_optional(path) for key, path in report_names.items()
+    }
+
+    def report_passed(payload: dict[str, Any] | None) -> bool:
+        if not isinstance(payload, dict) or payload.get("status") != "passed_with_declared_scope":
+            return False
+        checks = payload.get("checks")
+        return isinstance(checks, dict) and bool(checks) and all(
+            value is True for value in checks.values()
+        )
+
+    all_passed = all(report_passed(payload) for payload in reports.values())
+    dataset_summary = (reports["dataset"] or {}).get("summary", {})
+    dataset_passed = int(dataset_summary.get("passed_cases", 0) or 0)
+    dataset_total = int(dataset_summary.get("total_cases", 0) or 0)
+
+    def check_count(payload: dict[str, Any] | None) -> tuple[int, int]:
+        checks = payload.get("checks", {}) if isinstance(payload, dict) else {}
+        if not isinstance(checks, dict):
+            return 0, 0
+        return sum(1 for value in checks.values() if value is True), len(checks)
+
+    cli_passed, cli_total = check_count(reports["cli_model_turn"])
+    ui_passed, ui_total = check_count(reports["control_ui_model_turn"])
+    generated_at = max(
+        (
+            str(payload.get("generated_at"))
+            for payload in reports.values()
+            if isinstance(payload, dict) and payload.get("generated_at")
+        ),
+        default=None,
+    )
+    status = "completed_test_environment" if all_passed else "not_run_or_missing"
+    evidence = (
+        "reports/e2e/openclaw/openclaw_agentguard_model_dataset.json；"
+        "reports/e2e/openclaw/openclaw_agentguard_model_turn.json；"
+        "reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.json"
+    )
+    if all_passed:
+        evidence += (
+            f"（核验时间={generated_at}；固定合成模型测试集={dataset_passed}/{dataset_total}；"
+            f"CLI检查={cli_passed}/{cli_total}；Control UI检查={ui_passed}/{ui_total}）"
+        )
+    else:
+        evidence += "（缺少完整通过证据或检查未通过，未宣称完成）"
+    return {
+        "status": status,
+        "checked_at": generated_at,
+        "evidence": evidence,
+        "dataset_passed": dataset_passed,
+        "dataset_total": dataset_total,
+        "cli_passed": cli_passed,
+        "cli_total": cli_total,
+        "control_ui_passed": ui_passed,
+        "control_ui_total": ui_total,
+        "only_allowed_tool": "agentguard-notices__list_notices",
+        "scope": "loopback_static_dev_identity_and_isolated_synthetic_sqlite",
+        "all_passed": all_passed,
+    }
+
+
 def evidence_fresh(name: str, maximum_age_hours: float = 24.0) -> bool:
     path = REPORTS / name
     if not path.exists():
@@ -184,6 +259,7 @@ def main() -> int:
     secret_scan = load_optional("status/prepublish_security_check.json") or {}
     business_api = load_optional("e2e/business/authorized_business_api_e2e.json") or {}
     stage4_preflight = load_optional("preflight/stage4_preflight.json") or {}
+    openclaw_e2e = openclaw_model_e2e_status()
     run_id = os.environ.get("AGENTGUARD_RUN_ID", "standalone")
     credentials_present = all(
         os.environ.get(name)
@@ -349,6 +425,20 @@ def main() -> int:
                 else "GitHub CLI和网页均未登录；不能代替用户创建账号或凭据"
             ),
         },
+        {
+            "item": "OpenClaw模型、CLI与Control UI回环E2E（测试范围）",
+            "status": openclaw_e2e["status"],
+            "checked_at": openclaw_e2e["checked_at"],
+            "evidence": openclaw_e2e["evidence"],
+            "blocker": (
+                "固定5例合成模型测试集、CLI真实模型回合和已认证Control UI回合均通过；"
+                "仅限回环静态开发身份、隔离合成SQLite与只读工具，不代表生产接入"
+                if openclaw_e2e["all_passed"]
+                else "OpenClaw模型回环证据缺失或未完整通过；不会把未运行内容写成完成"
+            ),
+            "scope": openclaw_e2e["scope"],
+            "only_allowed_tool": openclaw_e2e["only_allowed_tool"],
+        },
     ]
 
     production_ready_blockers = [
@@ -382,6 +472,7 @@ def main() -> int:
         "production_ready": False,
         "production_ready_blockers": production_ready_blockers,
         "external_status_vocabulary": sorted(EXTERNAL_STATUSES),
+        "openclaw_model_e2e": openclaw_e2e,
         "items": items,
         "installed_tools": {
             "git": command_available("git"),
@@ -436,7 +527,7 @@ def main() -> int:
 
 已经自动完成 OpenBao 外部密钥与共享票据状态验证、三节点 Raft 选主/复制/主节点故障切换、
 QEMU 独立 Linux 来宾内核隔离、OPA-Envoy 与 ToolHive 的 Linux 容器 E2E（GitHub Actions 实测）、
-公开仓库发布、真实业务 HTTPS 接入代码、生产数据脱敏流水线，以及阶段4只读预检与验收模板。需要 Linux/KVM、多台服务器、
+OpenClaw 固定合成模型测试集与 CLI/Control UI 回环模型回合（测试范围）、公开仓库发布、真实业务 HTTPS 接入代码、生产数据脱敏流水线，以及阶段4只读预检与验收模板。需要 Linux/KVM、多台服务器、
 单位授权数据或真实预生产凭据的项目保留为外部阻塞，只允许使用
 `awaiting_authorized_input`、`blocked_external_environment`、
 `configuration_prepared_not_verified` 三种状态，不能自动伪造为完成。

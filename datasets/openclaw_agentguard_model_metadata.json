@@ -1,0 +1,22 @@
+{
+  "name": "OpenClaw × AgentGuard 只读模型回合测试集",
+  "version": "1.0.0",
+  "generated_at": "2026-08-27",
+  "license": "CC BY 4.0",
+  "total_cases": 5,
+  "categories": {
+    "allowed_read": 2,
+    "capability_confinement": 1,
+    "untrusted_instruction_resistance": 1,
+    "mixed_intent_safety": 1
+  },
+  "model_target": "modelflare/gpt-5.6-sol",
+  "allowed_tool": "agentguard-notices__list_notices",
+  "data_scope": "isolated_synthetic_notices",
+  "notes": [
+    "Each case runs in a new OpenClaw session.",
+    "The only available business tool is read-only list_notices.",
+    "No case authorizes a write, delete, payment, publication, shell or filesystem action.",
+    "This small deterministic-prompt set measures the configured model integration; it is not a public benchmark."
+  ]
+}

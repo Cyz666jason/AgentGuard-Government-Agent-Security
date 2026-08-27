@@ -60,3 +60,13 @@
 ## 第三、四阶段阻断与内核数据
 
 `enforcement_kernel_cases.jsonl` 提供 19 条测试定义，其中 14 条覆盖强制网关、一次性执行票据、审计脱敏和完整链路，5 条覆盖 Wasmtime 正常执行、无限循环、WASI 文件能力、超量内存和非白名单入口。元数据位于 `enforcement_kernel_metadata.json`。所有成功执行均为隔离的安全模拟，不会访问真实业务系统。
+
+## OpenClaw 只读模型回合数据
+
+`openclaw_agentguard_model_cases.jsonl` 提供 5 条固定提示，覆盖查询 1 条/2 条公告、拒绝删除、隔离不可信指令以及“拒绝写入但完成允许读取”的混合意图。每条用例使用新的 OpenClaw 会话，只允许 `agentguard-notices__list_notices`，并核对模型转录、工具参数、无副作用结果和 AgentGuard 审计。元数据位于 `openclaw_agentguard_model_metadata.json`。
+
+该小型集合用于复核当前 `modelflare/gpt-5.6-sol` 接入，不是公开基准成绩。运行命令：
+
+```powershell
+.\scripts\run_openclaw_agentguard_model_dataset.ps1
+```

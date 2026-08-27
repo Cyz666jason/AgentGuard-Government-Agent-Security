@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """汇总测试机上的权限、审批、阻断和安全内核实测证据。"""
 
 from __future__ import annotations
@@ -5,7 +6,7 @@ from __future__ import annotations
 import json
 import re
 import sys
-from datetime import date
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +20,7 @@ IDENTITY_REPORTS = REPORTS / "e2e" / "identity"
 OPENBAO_REPORTS = REPORTS / "e2e" / "openbao"
 ISOLATION_REPORTS = REPORTS / "e2e" / "isolation"
 PREFLIGHT_REPORTS = REPORTS / "preflight"
+OPENCLAW_REPORTS = REPORTS / "e2e" / "openclaw"
 
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -35,6 +37,85 @@ CI_TIERS = {TIER_CI_HEAD, TIER_CI_ANCESTOR, TIER_CI_UNRELATED}
 
 def load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8-sig"))
+
+
+def load_optional_json(path: Path) -> dict[str, Any] | None:
+    if not path.is_file():
+        return None
+    try:
+        payload = load_json(path)
+    except (OSError, json.JSONDecodeError):
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
+def openclaw_evidence_summary() -> dict[str, Any]:
+    """Read OpenClaw model evidence without merging its denominators into demos."""
+
+    paths = {
+        "dataset": OPENCLAW_REPORTS / "openclaw_agentguard_model_dataset.json",
+        "model_turn": OPENCLAW_REPORTS / "openclaw_agentguard_model_turn.json",
+        "control_ui_turn": OPENCLAW_REPORTS / "openclaw_agentguard_control_ui_turn.json",
+    }
+    reports = {name: load_optional_json(path) for name, path in paths.items()}
+
+    def passed_with_scope(payload: dict[str, Any] | None) -> bool:
+        if not isinstance(payload, dict) or payload.get("status") != "passed_with_declared_scope":
+            return False
+        checks = payload.get("checks")
+        return isinstance(checks, dict) and bool(checks) and all(
+            value is True for value in checks.values()
+        )
+
+    def checks_count(payload: dict[str, Any] | None) -> dict[str, int]:
+        checks = payload.get("checks", {}) if isinstance(payload, dict) else {}
+        if not isinstance(checks, dict):
+            return {"passed": 0, "total": 0}
+        return {"passed": sum(1 for value in checks.values() if value is True), "total": len(checks)}
+
+    dataset_summary = (reports["dataset"] or {}).get("summary", {})
+    dataset_total = int(dataset_summary.get("total_cases", 0) or 0)
+    dataset_passed = int(dataset_summary.get("passed_cases", 0) or 0)
+    model_counts = checks_count(reports["model_turn"])
+    ui_counts = checks_count(reports["control_ui_turn"])
+    generated_at = max(
+        (
+            str(payload.get("generated_at"))
+            for payload in reports.values()
+            if isinstance(payload, dict) and payload.get("generated_at")
+        ),
+        default=None,
+    )
+    complete = (
+        passed_with_scope(reports["dataset"])
+        and passed_with_scope(reports["model_turn"])
+        and passed_with_scope(reports["control_ui_turn"])
+        and dataset_total > 0
+        and dataset_passed == dataset_total
+    )
+    return {
+        "status": "passed_with_declared_scope" if complete else "not_run_or_missing",
+        "checked_at": generated_at,
+        "dataset": {
+            "passed": dataset_passed,
+            "total": dataset_total,
+            "evidence": "reports/e2e/openclaw/openclaw_agentguard_model_dataset.json",
+            "data_type": "fixed_synthetic_fixture",
+            "public_benchmark": False,
+        },
+        "model_turn": {
+            **model_counts,
+            "evidence": "reports/e2e/openclaw/openclaw_agentguard_model_turn.json",
+        },
+        "control_ui_turn": {
+            **ui_counts,
+            "evidence": "reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.json",
+        },
+        "only_allowed_tool": "agentguard-notices__list_notices",
+        "unexpected_tool_call_count": int(dataset_summary.get("unexpected_tool_call_count", 0) or 0),
+        "side_effect_result_count": int(dataset_summary.get("side_effect_result_count", 0) or 0),
+        "scope_boundary": "5个固定合成fixture，仅覆盖当前隔离回环配置；不是公开基准或生产安全结论。",
+    }
 
 
 def test_count(text: str) -> tuple[int, bool]:
@@ -83,6 +164,7 @@ def main() -> int:
     openbao_e2e = load_json(OPENBAO_REPORTS / "openbao_kms_ha_e2e.json")
     openbao_raft_e2e = load_json(OPENBAO_REPORTS / "openbao_raft_ha_e2e.json")
     qemu_e2e = load_json(ISOLATION_REPORTS / "qemu_native_isolation_e2e.json")
+    openclaw = openclaw_evidence_summary()
 
     checks = {
         "低风险动作经网关与 Wasmtime 执行": demos["allow"]["status"] == "executed_isolated",
@@ -208,6 +290,29 @@ def main() -> int:
             "next": "按许可取得公开基准并生成真实策略预测；获得数据授权后运行脱敏脚本，隔离训练/调参与盲测数据并开展回放",
         },
     ])
+    if openclaw["status"] == "passed_with_declared_scope":
+        gaps.append(
+            {
+                "severity": "中",
+                "item": "OpenClaw 模型回环已通过，但仍限测试范围",
+                "reason": (
+                    f"固定合成模型测试集 {openclaw['dataset']['passed']}/{openclaw['dataset']['total']}、"
+                    f"CLI 检查 {openclaw['model_turn']['passed']}/{openclaw['model_turn']['total']}、"
+                    f"Control UI 检查 {openclaw['control_ui_turn']['passed']}/{openclaw['control_ui_turn']['total']} "
+                    "均有独立证据；调用只允许 agentguard-notices__list_notices，身份为回环静态开发身份，数据为隔离合成 SQLite"
+                ),
+                "next": "生产前补 requester-scoped OIDC、TLS/mTLS、网络零旁路、授权业务凭据与持续模型回合审计；不得把5例fixture当作公开基准",
+            }
+        )
+    else:
+        gaps.append(
+            {
+                "severity": "中",
+                "item": "OpenClaw 模型回环证据未完整生成",
+                "reason": "未找到同时通过的固定模型测试集、CLI真实模型回合和Control UI回合报告，本次不宣称模型E2E完成",
+                "next": "在隔离测试环境补齐三份OpenClaw证据；凭据只从安全环境变量读取，不写入仓库",
+            }
+        )
     if publication_claim.verdict is True:
         gaps.append(
             {
@@ -231,7 +336,7 @@ def main() -> int:
         )
     summary = {
         "name": "AgentGuard 负责部分完整实测",
-        "generated_at": date.today().isoformat(),
+        "generated_at": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
         "completed_scope": [
             "Keycloak/OIDC 可信身份",
             "OPA 权限策略",
@@ -245,6 +350,11 @@ def main() -> int:
             *(
                 ["OPA-Envoy与ToolHive Linux容器E2E（CI测试环境）"]
                 if container_e2e_done
+                else []
+            ),
+            *(
+                ["OpenClaw固定合成模型测试集与CLI/Control UI回环模型回合（测试范围）"]
+                if openclaw["status"] == "passed_with_declared_scope"
                 else []
             ),
         ],
@@ -299,6 +409,7 @@ def main() -> int:
             "passed": qemu_e2e["passed"],
             "total": qemu_e2e["total"],
         },
+        "openclaw_model_e2e": openclaw,
         "demonstration_checks": checks,
         "demonstration_passed": sum(checks.values()),
         "demonstration_total": len(checks),
@@ -324,7 +435,7 @@ def main() -> int:
 
 ## 总结
 
-原先列出的高优先级缺口均已完成测试级补齐：真实 Keycloak/OIDC {keycloak_e2e['passed']}/{keycloak_e2e['total']}、常驻 OPA REST 网络强制链路 {network_e2e['passed']}/{network_e2e['total']}、OpenBao共享审批/票据 {openbao_e2e['passed']}/{openbao_e2e['total']}、QEMU隔离 {qemu_e2e['passed']}/{qemu_e2e['total']}。测试机上 OPA 单元测试 {opa_passed}/{opa_total} 通过，OPA-Envoy 网络策略测试 {envoy_passed}/{envoy_total} 通过，OPA 数据集 {summary['opa_dataset']['passed']}/{summary['opa_dataset']['total']} 通过，Python 身份/审批/网关/内核测试 {summary['python_security_tests']['passed']}/{python_total} 通过，关键演示与新增端到端检查 {summary['demonstration_passed']}/{summary['demonstration_total']} 通过；危险、拒绝、重放、篡改、身份伪造和沙箱攻击场景的误执行次数为 0。
+原先列出的高优先级缺口均已完成测试级补齐：真实 Keycloak/OIDC {keycloak_e2e['passed']}/{keycloak_e2e['total']}、常驻 OPA REST 网络强制链路 {network_e2e['passed']}/{network_e2e['total']}、OpenBao共享审批/票据 {openbao_e2e['passed']}/{openbao_e2e['total']}、QEMU隔离 {qemu_e2e['passed']}/{qemu_e2e['total']}。测试机上 OPA 单元测试 {opa_passed}/{opa_total} 通过，OPA-Envoy 网络策略测试 {envoy_passed}/{envoy_total} 通过，OPA 数据集 {summary['opa_dataset']['passed']}/{summary['opa_dataset']['total']} 通过，Python 身份/审批/网关/内核测试 {summary['python_security_tests']['passed']}/{python_total} 通过，关键演示与新增端到端检查 {summary['demonstration_passed']}/{summary['demonstration_total']} 通过；OpenClaw 固定合成模型测试集 {openclaw['dataset']['passed']}/{openclaw['dataset']['total']}，CLI 与 Control UI 回合分别保留独立检查；危险、拒绝、重放、篡改、身份伪造和沙箱攻击场景的误执行次数为 0。
 
 ## 已完成内容
 
@@ -343,6 +454,15 @@ def main() -> int:
 - OPA / LangGraph / Wasmtime：{machine['components']['opa']} / {machine['components']['langgraph']} / {machine['components']['wasmtime']}
 - 本机容器条件：Docker={machine['container_environment']['docker_cli_available']}；Linux 发行版={machine['container_environment']['linux_distribution_available']}
 - 容器 E2E 执行环境：{summary['container_product_e2e']['environment']}，{summary['container_product_e2e']['passed']}/{summary['container_product_e2e']['total']} 通过，证据 `{summary['container_product_e2e']['evidence']}`
+
+## OpenClaw 模型回环（测试范围）
+
+- 核验时间：`{openclaw['checked_at'] or '未记录'}`；状态：`{openclaw['status']}`。
+- 固定合成模型测试集：{openclaw['dataset']['passed']}/{openclaw['dataset']['total']}，证据 `{openclaw['dataset']['evidence']}`。
+- CLI 真实模型回合检查：{openclaw['model_turn']['passed']}/{openclaw['model_turn']['total']}，证据 `{openclaw['model_turn']['evidence']}`。
+- 已认证 Control UI 真实模型回合检查：{openclaw['control_ui_turn']['passed']}/{openclaw['control_ui_turn']['total']}，证据 `{openclaw['control_ui_turn']['evidence']}`。
+- 所有模型工具调用均限于 `{openclaw['only_allowed_tool']}`；非允许工具调用 `{openclaw['unexpected_tool_call_count']}`，副作用结果 `{openclaw['side_effect_result_count']}`。
+- 该5例测试集是固定 synthetic fixture，不是公开基准；身份为回环静态开发身份、数据为隔离合成公告，不能据此宣称生产就绪。
 
 ## 关键攻击与故障验证
 

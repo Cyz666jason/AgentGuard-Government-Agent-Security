@@ -1,16 +1,16 @@
 # OpenClaw 接入判断与基础版说明
 
 > 项目：AgentGuard 政企智能体权限、审批、阻断与安全内核原型
-> 结论日期：2026-08-20
+> 结论日期：2026-08-27
 > 基础版范围：仅开放一个低风险、只读的内部公告查询工具
 
 ## 一、结论摘要
 
 本组系统原来没有可由 OpenClaw 直接消费的标准 MCP Server，主要入口是 AgentGuard 的 REST 强制执行端点和内部 Python 模块，因此原始系统不能“零改造”接入。当前已经增加一个薄型 stdio MCP 适配器；它不复制权限和业务逻辑，只把固定的 `list_notices` 调用转换为 AgentGuard `POST /invoke` 请求。基于当前仓库版本，OpenClaw 已可直接注册该适配器，不需要修改 AgentGuard 核心。
 
-基础版开发难度评定为**低**，且已完成实机注册与工具发现。OpenClaw 2026.7.1-2（提交 `0790d9f`）实际完成了 `mcp set`、`doctor --probe` 和 `mcp probe`，发现唯一工具 `agentguard-notices__list_notices`，相关进程退出码均为 0。另有一次确定性 MCP `tools/call` 调用了真实本机 AgentGuard、OPA、一次性票据、Wasmtime 和隔离测试公告 SQLite，返回 2 条记录且 `side_effect=false`。
+基础版开发难度评定为**低**，且已完成实机注册与工具发现。OpenClaw 2026.7.1-2（提交 `0790d9f`）实际完成了 `mcp set`、`doctor --probe` 和 `mcp probe`，发现唯一工具 `agentguard-notices__list_notices`，相关进程退出码均为 0。另有一次确定性 MCP `tools/call` 调用了真实本机 AgentGuard、OPA、一次性票据、Wasmtime 和隔离测试公告 SQLite，返回 2 条记录且 `side_effect=false`。2026-08-27 又在同一隔离回环配置中使用 `modelflare/gpt-5.6-sol` 完成固定 5 例合成模型测试集（5/5）、CLI 真实模型回合（14/14 检查）和已认证 Control UI 真实模型回合（16/16 检查）。
 
-证据边界必须保持清楚：OpenClaw 的 `probe` 实际建立了 MCP 会话并执行工具发现，但它本身不执行 `tools/call`；低风险调用由项目内的确定性 MCP 协议客户端完成，不是 OpenClaw 模型回合。由于没有获批的模型凭据，当前不得表述为“OpenClaw 模型已自主调用工具”。
+证据边界必须保持清楚：OpenClaw 的 `probe` 实际建立了 MCP 会话并执行工具发现；低风险协议调用、CLI 模型回合和 Control UI 模型回合分别有独立报告，不能互相替代。模型凭据只通过被 Git 忽略状态中的环境变量引用使用，报告不记录密钥。模型测试集是 5 个固定 synthetic fixture，不是 AgentDojo、InjecAgent、AgentHarm 等公开基准；当前身份是回环静态开发身份、数据是隔离合成公告，不能据此宣称生产接入或普遍安全结论。
 
 ## 二、系统接口盘点
 
@@ -36,7 +36,7 @@
 | 6 | 是否必须经过 AgentGuard | **必须。**即使是低风险查询，也要经过可信身份、OPA 决策、适配器注册检查、动作摘要、短时一次性票据、安全内核和审计；高风险动作还必须先暂停并取得绑定 `task_id + 完整 action` 摘要的审批凭证。MCP 客户端的只读提示只是提示，不能代替服务端强制控制。 |
 | 7 | 是否存在旁路 | 代码中的 MCP 适配器自身没有数据库或业务凭据，只能调用 `/invoke`；但部署层仍可能出现旁路：OpenClaw 自带 shell/浏览器/文件工具、业务数据库或 API 的直连网络、把生产凭据放到 Agent 主机、直接导入内部 SDK/业务适配器、误启开发身份、暴露 OPA 管理面或工具后端端口。生产必须通过工具白名单、网络策略、mTLS、凭据隔离和后端票据核销封死这些路径。 |
 | 8 | 基础版开发难度 | **低，已完成。**原因是已有稳定 REST 强制执行点，只需做窄参数和窄响应的协议转换。若扩展到每用户身份、远程高可用 MCP、审批交互和写操作，难度为中到高。 |
-| 9 | 生产化还缺什么 | 每用户短时 OIDC/OAuth 与撤销/轮换、HTTPS/mTLS、Requester 与会话强绑定、OpenClaw 模型回合实测、OpenClaw 内置工具收敛、后端网络零旁路、真实业务凭据与授权脱敏数据、AgentGuard/OPA/OpenBao 高可用、跨故障域部署、并发与故障注入、审计对账/SIEM、证书和制品供应链治理。 |
+| 9 | 生产化还缺什么 | 每用户短时 OIDC/OAuth 与撤销/轮换、HTTPS/mTLS、Requester 与会话强绑定、OpenClaw 模型回合的持续审计与生产身份验证、OpenClaw 内置工具收敛、后端网络零旁路、真实业务凭据与授权脱敏数据、AgentGuard/OPA/OpenBao 高可用、跨故障域部署、并发与故障注入、审计对账/SIEM、证书和制品供应链治理。 |
 
 ## 四、为什么选择 MCP
 
@@ -170,18 +170,22 @@ flowchart LR
 | 低风险调用 | 确定性 MCP 客户端执行 `tools/call list_notices(limit=2)`，返回 2 条测试公告，`side_effect=false`，退出码 0 |
 | AgentGuard 链路 | readiness 通过；OPA canary、签名和票据状态均健康；审计记录为 `database.query/query`、`G000_EXECUTED`，未记录票据值 |
 | 汇总检查 | 9/9 通过，状态 `passed_with_declared_scope` |
+| 固定模型测试集 | `modelflare/gpt-5.6-sol` 执行 5 个固定合成 fixture，5/5 通过；非公开基准 |
+| CLI 真实模型回合 | 模型主动调用唯一允许的 `agentguard-notices__list_notices`，14/14 检查通过，退出码 0 |
+| 已认证 Control UI 真实模型回合 | 新会话中模型主动调用 `list_notices(limit=2)`，16/16 检查通过，工具卡、结果与无副作用结论可见 |
+| 模型回合边界 | 核验时间以三份报告 `generated_at` 为准；回环静态开发身份、隔离合成 SQLite，`production_ready=false` |
 
 ### 9.2 可以与不可以使用的表述
 
 可以写：
 
-> OpenClaw 2026.7.1-2 已在测试机完成 MCP Server 实机注册、`doctor --probe` 和 `tools/list`；一个只读公告工具已由确定性 MCP 协议客户端调用真实 AgentGuard 测试链并成功返回，业务副作用为否。
+> OpenClaw 2026.7.1-2 已在测试机完成 MCP Server 实机注册、`doctor --probe` 和 `tools/list`；在隔离回环配置中，`modelflare/gpt-5.6-sol` 的固定 5 例 synthetic fixture、CLI 真实模型回合和已认证 Control UI 回合均通过，模型只调用 `agentguard-notices__list_notices`，工具结果显示无业务副作用。
 
 不可以写：
 
-> OpenClaw 模型已经自主调用 AgentGuard 工具，或已经完成生产接入。
+> OpenClaw 已经完成生产接入，或 5 个模型 fixture 足以证明对所有提示注入、越权和业务场景都安全。
 
-原因是当前未配置获批的模型凭据，没有运行 OpenClaw agent 模型回合；实测身份是回环静态测试身份，数据是隔离合成公告，且 `production_ready=false`。
+原因是模型证据只覆盖固定 5 例合成 fixture 和当前隔离配置；实测身份是回环静态开发身份，数据是隔离合成公告，生产仍缺 requester-scoped OIDC、TLS/mTLS、网络零旁路、授权业务凭据和持续审计，且 `production_ready=false`。
 
 ### 9.3 证据文件
 
@@ -190,6 +194,9 @@ flowchart LR
 | `reports/e2e/openclaw/openclaw_mcp_integration.json` | 主证据：每一步命令、版本、开始时间、耗时、输入、输出、stderr、退出码、检查项和证据边界 |
 | `reports/e2e/openclaw/openclaw_mcp_integration.md` | 主证据的中文摘要 |
 | `reports/e2e/openclaw/openclaw_mcp_protocol_probe.json` | 独立协议兼容证据；明确标注 `openclaw_runtime_used=false` |
+| `reports/e2e/openclaw/openclaw_agentguard_model_dataset.json/.md` | 5 个固定合成 fixture 的逐例模型回合、工具调用、审计配对和边界检查 |
+| `reports/e2e/openclaw/openclaw_agentguard_model_turn.json/.md` | CLI 单次真实模型回合及 AgentGuard/OPA 审计证据 |
+| `reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.json/.md` | 已认证 Control UI 模型回合、工具卡可见性和截图哈希证据 |
 
 主报告已经对项目路径、临时目录和临时测试秘密做占位替换，且 `secret_values_recorded=false`。命令证据中的低风险调用与 OpenClaw 探针也分开保存，避免混淆证据来源。
 
@@ -200,7 +207,7 @@ flowchart LR
 | OpenClaw 内置 shell、浏览器、文件等工具可能绕过 AgentGuard | 本基础版只收敛新增 MCP 工具，不能自动接管 OpenClaw 的其他工具 | 在 OpenClaw 与运行环境同时使用 allowlist/sandbox；生产 Agent 不授予能直连业务系统的通用工具 |
 | 业务 API/数据库直连 | 适配器代码不含数据库连接，但部署网络尚未形成单位级证明 | 后端只接受 AgentGuard 票据或 mTLS 身份；用 NetworkPolicy/防火墙关闭其他来源 |
 | 共享静态 token 导致身份混同 | 本次仅使用回环静态测试身份 | 使用 requester-scoped 短时 OIDC/OAuth；按用户/会话隔离连接，支持撤销与轮换 |
-| OpenClaw 模型回合未测试 | 未配置获批模型凭据 | 在隔离测试环境运行一次真实 agent 回合，保存提示、工具选择、调用结果和退出状态 |
+| OpenClaw 模型回环 | 固定 5 例 synthetic fixture、CLI 14/14、Control UI 16/16 已通过；仅限当前回环静态开发身份和只读工具 | 生产前使用 requester-scoped OIDC、授权数据和持续审计重复验证；不要把 fixture 结果当公开基准 |
 | 真实业务凭据与数据 | 未提供，当前为隔离合成公告和测试付款账本 | 经授权提供最小权限凭据与脱敏数据，完成读取、审批写入、失败回滚和审计对账 |
 | 写入、删除、发布、运维 MCP 工具 | 未开放，这是有意的安全边界 | 每个动作单独建窄工具、固定资源范围、独立审批规则、幂等/补偿机制和负面测试 |
 | 高可用与跨故障域 | 基础版为本机测试链 | AgentGuard、OPA、OpenBao、身份服务和审计存储跨故障域部署，验证故障切换和一致性 |
@@ -210,7 +217,7 @@ flowchart LR
 
 ## 十一、复现命令
 
-以下命令在仓库根目录的 PowerShell 中运行。完整 E2E 会使用临时状态目录和临时测试秘密，启动真实本机 AgentGuard 与常驻 OPA，完成 OpenClaw 注册、探针和低风险调用，并自动清理服务。
+以下命令在仓库根目录的 PowerShell 中运行。完整 E2E 会使用临时状态目录和临时测试秘密，启动真实本机 AgentGuard 与常驻 OPA，完成 OpenClaw 注册、探针和低风险调用，并自动清理服务。模型测试脚本只从被 Git 忽略的状态文件读取环境变量引用，不接受把 API Key 写进命令、报告或代码。
 
 ### 11.1 MCP 适配器专项测试
 
@@ -301,6 +308,22 @@ $LASTEXITCODE
 
 该命令只应称为“协议兼容测试”，因为报告会明确记录 `openclaw_runtime_used=false`。
 
+### 11.5 固定模型测试集与真实模型回合证据
+
+在已完成模型配置并启动隔离演示服务后，运行：
+
+```powershell
+pwsh.exe -NoProfile -ExecutionPolicy Bypass `
+  -File .\scripts\run_openclaw_agentguard_model_dataset.ps1 `
+  -NodePath $nodeExe
+
+pwsh.exe -NoProfile -ExecutionPolicy Bypass `
+  -File .\scripts\verify_openclaw_agentguard_model_turn.ps1 `
+  -NodePath $nodeExe
+```
+
+两条命令分别生成固定 5 例模型测试集和 CLI 单回合证据；已认证 Control UI 回合由浏览器页面产生独立报告。成功报告会保留退出码、模型/提供方、工具选择、AgentGuard 审计配对和 `side_effect`，但不会记录 API Key、Gateway token 或票据值。测试集是项目自有 synthetic fixture，不能当作公开基准或生产验收。
+
 ## 十二、官方资料
 
 - [OpenClaw 官方 MCP CLI 文档](https://docs.openclaw.ai/cli/mcp)：说明 `mcp.servers`、`set/add`、`doctor --probe` 和 `probe`；官方同时明确 `probe` 用于建立连接并列出能力。
@@ -313,6 +336,6 @@ $LASTEXITCODE
 
 ## 十三、最终判断
 
-本组系统接入 OpenClaw 的**基础版已经完成**：OpenClaw 能实际注册和发现一个只读 MCP 工具，该工具只能通过 AgentGuard 执行，协议低风险调用也已贯通真实本机安全链。当前成果适合做课题演示、接口验证和后续扩展基线。
+本组系统接入 OpenClaw 的**基础版和模型回环验证已经完成**：OpenClaw 能实际注册和发现一个只读 MCP 工具，该工具只能通过 AgentGuard 执行；固定 5 例 synthetic fixture、CLI 真实模型回合和已认证 Control UI 回合均已保存独立证据。当前成果适合做课题演示、接口验证和后续扩展基线。
 
-当前成果**不是生产完成**：尚未运行有真实模型凭据的 OpenClaw agent 回合，尚未使用真实用户 OIDC、生产业务凭据或生产数据，也尚未在单位网络中证明所有直连路径都被封闭。后续应先完成 requester-scoped 身份、网络零旁路和真实只读业务验证，再逐个评估是否开放写入、付款、发布或运维工具。
+当前成果**不是生产完成**：模型回合使用回环静态开发身份、隔离合成公告和单一只读工具，尚未使用真实用户 OIDC、生产业务凭据或生产数据，也尚未在单位网络中证明所有直连路径都被封闭。后续应先完成 requester-scoped 身份、网络零旁路、真实只读业务验证和持续模型回合审计，再逐个评估是否开放写入、付款、发布或运维工具。
