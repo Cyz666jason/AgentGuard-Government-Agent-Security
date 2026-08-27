@@ -2,12 +2,17 @@
   "schema_version": "1.0",
   "generated_at": "2026-08-20T09:41:30.639378+00:00",
   "status": "passed_with_declared_scope",
-  "claim": "OpenClaw 2026.7.1-2 实机注册、doctor 和 MCP tools/list 已完成；一个只读工具已通过确定性 MCP tools/call 调用真实 AgentGuard 测试链。未配置模型凭据，故未执行 OpenClaw agent 模型回合，不能表述为“OpenClaw 模型自主调用完成”。",
+  "claim": "本历史报告（2026-08-20）记录 OpenClaw 2026.7.1-2 实机注册、doctor、MCP tools/list 和确定性只读 tools/call；该报告范围当时未配置模型凭据，因此没有执行模型回合。后续 2026-08-27 模型回合证据见 openclaw_agentguard_model_dataset、openclaw_agentguard_model_turn 和 openclaw_agentguard_control_ui_turn 报告。",
   "scope": {
     "openclaw_runtime_registration": "completed",
     "openclaw_live_tools_list": "completed",
     "low_risk_call": "completed_by_deterministic_mcp_client_against_real_agentguard",
-    "openclaw_model_driven_tool_call": "not_run_no_authorized_model_credentials",
+    "openclaw_model_driven_tool_call": "not_run_in_this_historical_report",
+    "follow_up_model_evidence": [
+      "reports/e2e/openclaw/openclaw_agentguard_model_dataset.json",
+      "reports/e2e/openclaw/openclaw_agentguard_model_turn.json",
+      "reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.json"
+    ],
     "identity": "loopback_static_dev_test_only",
     "data": "isolated_synthetic_notice_sqlite",
     "production_ready": false
@@ -426,7 +431,8 @@
   ],
   "limitations": [
     "OpenClaw probe establishes a real MCP session and performs tools/list; it does not call tools/call.",
-    "The low-risk tools/call was deterministic protocol testing, not a model-driven OpenClaw agent turn.",
+    "The low-risk tools/call in this historical report was deterministic protocol testing, not a model-driven OpenClaw agent turn; later model-driven evidence is recorded separately.",
+    "This report covers the 2026-08-20 registration/protocol scope only; do not use its model-turn field as a statement about later independent model evidence.",
     "The identity is an operator-configured loopback test identity, not a real per-user OIDC token.",
     "The returned notices come from isolated synthetic SQLite test data, not production data.",
     "Production still requires requester-scoped OIDC/OAuth, HTTPS/mTLS, network isolation, HA state and authorized business credentials."

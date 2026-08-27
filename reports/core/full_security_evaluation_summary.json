@@ -1,6 +1,6 @@
 {
   "name": "AgentGuard 负责部分完整实测",
-  "generated_at": "2026-08-28T02:49:22+08:00",
+  "generated_at": "2026-08-28T05:20:50+08:00",
   "completed_scope": [
     "Keycloak/OIDC 可信身份",
     "OPA 权限策略",
@@ -41,8 +41,8 @@
     "unsafe_allow_count": 0
   },
   "python_security_tests": {
-    "passed": 174,
-    "total": 174
+    "passed": 190,
+    "total": 190
   },
   "network_enforcement_e2e": {
     "passed": 5,

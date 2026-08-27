@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-08-28T02:49:22+08:00",
+  "generated_at": "2026-08-28T05:18:02+08:00",
   "project": "AgentGuard 政企智能体权限、审批、阻断与安全内核",
   "contest_focus": "面向工具调用和任务执行的安全约束与审批控制",
   "overall": {
@@ -14,7 +14,7 @@
   "evidence_precedence": {
     "rule": "与当前提交历史匹配的CI实测证据 > 当前机器新鲜实测证据 > 历史环境检查与历史失败记录",
     "report": "reports/status/evidence_precedence.json",
-    "head_commit": "db9cd855aae48ac899f2ca69e8d025cb4142b495",
+    "head_commit": "93717e3ade5095dff02f5dfc86508015914505ac",
     "claims": {
       "opa_envoy_container_e2e": {
         "claim": "opa_envoy_container_e2e",
@@ -28,7 +28,7 @@
           "tested_at": "2026-08-14T10:40:28.621959+00:00",
           "environment": "github_actions/ubuntu-latest",
           "commit": "167b2b0445ca9b93a980f44271dc15a8aebd7853",
-          "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 5 个提交，未被这次 CI 覆盖"
+          "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 6 个提交，未被这次 CI 覆盖"
         },
         "superseded_evidence": [
           {
@@ -67,7 +67,7 @@
           "tested_at": "2026-08-14T10:40:28.621959+00:00",
           "environment": "github_actions/ubuntu-latest",
           "commit": "167b2b0445ca9b93a980f44271dc15a8aebd7853",
-          "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 5 个提交，未被这次 CI 覆盖"
+          "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 6 个提交，未被这次 CI 覆盖"
         },
         "superseded_evidence": [
           {
@@ -182,8 +182,8 @@
     },
     {
       "name": "身份/审批/网关/内核Python测试",
-      "passed": 174,
-      "total": 174,
+      "passed": 190,
+      "total": 190,
       "pass_rate": 1.0,
       "status": "passed",
       "evidence": "reports/core/full_python_tests.txt"
@@ -293,10 +293,10 @@
     "invalid_approval_block_rate": 1.0,
     "unsafe_allow_count": 0,
     "cli_end_to_end_latency_ms": {
-      "mean": 62.704,
-      "median": 62.349,
-      "p95": 67.192,
-      "max": 70.218,
+      "mean": 72.558,
+      "median": 73.101,
+      "p95": 78.391,
+      "max": 80.597,
       "note": "包含每个用例启动一次 OPA CLI 的进程开销，不代表 sidecar/嵌入式部署时的纯策略延迟。"
     },
     "rego_total_coverage": 99.6063

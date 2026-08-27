@@ -1,0 +1,472 @@
+{
+  "checks": {
+    "audit_contains_required_correlation_fields": true,
+    "audit_keeps_user_a_and_b_distinct": true,
+    "both_users_readonly_call_has_no_side_effect": true,
+    "cross_user_session_is_403": true,
+    "dangerous_tools_are_not_callable": true,
+    "external_bearer_not_forwarded_to_backend": true,
+    "invalid_token_is_401": true,
+    "issuer_audience_resource_exp_and_scope_enforced": true,
+    "missing_token_is_401": true,
+    "prompt_identity_override_is_rejected": true,
+    "protected_resource_metadata_available": true,
+    "report_contains_no_credential_like_values": true,
+    "report_scope_declares_no_model_turn": true,
+    "report_scope_declares_no_public_deployment": true,
+    "request_id_links_preflight_and_result_audit": true,
+    "runner_completed_without_exception": true,
+    "tenant_scope_is_preserved_per_user": true,
+    "tools_list_only_exposes_readonly_tool": true,
+    "two_independent_sessions_initialized": true,
+    "wrong_origin_is_403": true
+  },
+  "claim": "真实回环 HTTP 请求已完成远程 MCP 认证、双用户会话隔离、tools/list 和只读 tools/call；本地使用合成 OIDC 与合成公告数据；本报告只覆盖远程传输/认证协议范围，不执行公网部署或 OpenClaw 模型回合，独立模型证据见对应模型报告。",
+  "evidence": {
+    "audit": [
+      {
+        "client_id": "openclaw-public-test",
+        "opa_decision": "not_evaluated",
+        "operation": "query",
+        "reason_code": "MCP_AUDIT_PRECHECK",
+        "request_id": "remote-user-a-call",
+        "result_status": "pending",
+        "session_id": "7bdce5deab3f4317852494d6470f0997",
+        "stage": "preflight",
+        "subject_id": "synthetic-user-a",
+        "token_recorded": false,
+        "tool": "list_notices"
+      },
+      {
+        "client_id": "openclaw-public-test",
+        "opa_decision": "allow",
+        "operation": "query",
+        "reason_code": "G000_EXECUTED",
+        "request_id": "remote-user-a-call",
+        "result_status": "executed_isolated",
+        "session_id": "7bdce5deab3f4317852494d6470f0997",
+        "stage": "result",
+        "subject_id": "synthetic-user-a",
+        "token_recorded": false,
+        "tool": "list_notices"
+      },
+      {
+        "client_id": "openclaw-public-test",
+        "opa_decision": "not_evaluated",
+        "operation": "query",
+        "reason_code": "MCP_AUDIT_PRECHECK",
+        "request_id": "remote-user-b-call",
+        "result_status": "pending",
+        "session_id": "2d309860216a404bb6861ceda98911b8",
+        "stage": "preflight",
+        "subject_id": "synthetic-user-b",
+        "token_recorded": false,
+        "tool": "list_notices"
+      },
+      {
+        "client_id": "openclaw-public-test",
+        "opa_decision": "allow",
+        "operation": "query",
+        "reason_code": "G000_EXECUTED",
+        "request_id": "remote-user-b-call",
+        "result_status": "executed_isolated",
+        "session_id": "2d309860216a404bb6861ceda98911b8",
+        "stage": "result",
+        "subject_id": "synthetic-user-b",
+        "token_recorded": false,
+        "tool": "list_notices"
+      }
+    ],
+    "backend": {
+      "authorization_headers_forwarded": false,
+      "request_count": 2,
+      "subjects": [
+        "synthetic-user-a",
+        "synthetic-user-b"
+      ],
+      "tenants": [
+        "tenant-a",
+        "tenant-b"
+      ]
+    },
+    "endpoint": "http://127.0.0.1:<EPHEMERAL_PORT>/mcp",
+    "protected_resource_metadata": {
+      "authorization_servers": [
+        "https://issuer.example.test/realms/agentguard"
+      ],
+      "bearer_methods_supported": [
+        "header"
+      ],
+      "http_status": 200,
+      "resource": "https://mcp.example.test/mcp",
+      "scopes_supported": [
+        "agentguard.notices.read"
+      ]
+    },
+    "requests": [
+      {
+        "http_status": 401,
+        "initialized": false,
+        "is_error": null,
+        "jsonrpc_error_code": null,
+        "name": "missing_token",
+        "profile": null,
+        "reason_code": "MCP_A_TOKEN_MISSING",
+        "request_id": "remote-missing-token",
+        "row_count": null,
+        "session_issued": false,
+        "side_effect": null,
+        "tool_names": []
+      },
+      {
+        "http_status": 401,
+        "initialized": false,
+        "is_error": null,
+        "jsonrpc_error_code": null,
+        "name": "invalid_token",
+        "profile": null,
+        "reason_code": "MCP_A_TOKEN_INVALID",
+        "request_id": "remote-invalid-token",
+        "row_count": null,
+        "session_issued": false,
+        "side_effect": null,
+        "tool_names": []
+      },
+      {
+        "http_status": 401,
+        "initialized": false,
+        "is_error": null,
+        "jsonrpc_error_code": null,
+        "name": "expired_token",
+        "profile": null,
+        "reason_code": "MCP_A_TOKEN_EXPIRED",
+        "request_id": "remote-expired_token",
+        "row_count": null,
+        "session_issued": false,
+        "side_effect": null,
+        "tool_names": []
+      },
+      {
+        "http_status": 401,
+        "initialized": false,
+        "is_error": null,
+        "jsonrpc_error_code": null,
+        "name": "bad_issuer",
+        "profile": null,
+        "reason_code": "MCP_A_ISSUER_INVALID",
+        "request_id": "remote-bad_issuer",
+        "row_count": null,
+        "session_issued": false,
+        "side_effect": null,
+        "tool_names": []
+      },
+      {
+        "http_status": 401,
+        "initialized": false,
+        "is_error": null,
+        "jsonrpc_error_code": null,
+        "name": "bad_audience",
+        "profile": null,
+        "reason_code": "MCP_A_AUDIENCE_INVALID",
+        "request_id": "remote-bad_audience",
+        "row_count": null,
+        "session_issued": false,
+        "side_effect": null,
+        "tool_names": []
+      },
+      {
+        "http_status": 401,
+        "initialized": false,
+        "is_error": null,
+        "jsonrpc_error_code": null,
+        "name": "bad_resource",
+        "profile": null,
+        "reason_code": "MCP_A_RESOURCE_INVALID",
+        "request_id": "remote-bad_resource",
+        "row_count": null,
+        "session_issued": false,
+        "side_effect": null,
+        "tool_names": []
+      },
+      {
+        "http_status": 403,
+        "initialized": false,
+        "is_error": null,
+        "jsonrpc_error_code": null,
+        "name": "missing_scope",
+        "profile": null,
+        "reason_code": "MCP_A_SCOPE_FORBIDDEN",
+        "request_id": "remote-missing_scope",
+        "row_count": null,
+        "session_issued": false,
+        "side_effect": null,
+        "tool_names": []
+      },
+      {
+        "http_status": 403,
+        "initialized": false,
+        "is_error": null,
+        "jsonrpc_error_code": null,
+        "name": "wrong_origin",
+        "profile": null,
+        "reason_code": "MCP_H_ORIGIN_FORBIDDEN",
+        "request_id": "remote-wrong-origin",
+        "row_count": null,
+        "session_issued": false,
+        "side_effect": null,
+        "tool_names": []
+      },
+      {
+        "http_status": 200,
+        "initialized": true,
+        "is_error": null,
+        "jsonrpc_error_code": null,
+        "name": "initialize",
+        "profile": "user_a",
+        "reason_code": null,
+        "request_id": "remote-user_a-initialize",
+        "row_count": null,
+        "session_issued": true,
+        "side_effect": null,
+        "tool_names": []
+      },
+      {
+        "http_status": 200,
+        "initialized": true,
+        "is_error": null,
+        "jsonrpc_error_code": null,
+        "name": "initialize",
+        "profile": "user_b",
+        "reason_code": null,
+        "request_id": "remote-user_b-initialize",
+        "row_count": null,
+        "session_issued": true,
+        "side_effect": null,
+        "tool_names": []
+      },
+      {
+        "http_status": 200,
+        "initialized": false,
+        "is_error": null,
+        "jsonrpc_error_code": null,
+        "name": "tools_list",
+        "profile": "user_a",
+        "reason_code": null,
+        "request_id": "remote-user-a-tools-list",
+        "row_count": null,
+        "session_issued": true,
+        "side_effect": null,
+        "tool_names": [
+          "list_notices"
+        ]
+      },
+      {
+        "http_status": 200,
+        "initialized": false,
+        "is_error": null,
+        "jsonrpc_error_code": null,
+        "name": "tools_list",
+        "profile": "user_b",
+        "reason_code": null,
+        "request_id": "remote-user-b-tools-list",
+        "row_count": null,
+        "session_issued": true,
+        "side_effect": null,
+        "tool_names": [
+          "list_notices"
+        ]
+      },
+      {
+        "http_status": 200,
+        "initialized": false,
+        "is_error": false,
+        "jsonrpc_error_code": null,
+        "name": "readonly_call",
+        "profile": "user_a",
+        "reason_code": "G000_EXECUTED",
+        "request_id": "remote-user-a-call",
+        "row_count": 1,
+        "session_issued": true,
+        "side_effect": false,
+        "tool_names": []
+      },
+      {
+        "http_status": 200,
+        "initialized": false,
+        "is_error": false,
+        "jsonrpc_error_code": null,
+        "name": "readonly_call",
+        "profile": "user_b",
+        "reason_code": "G000_EXECUTED",
+        "request_id": "remote-user-b-call",
+        "row_count": 1,
+        "session_issued": true,
+        "side_effect": false,
+        "tool_names": []
+      },
+      {
+        "http_status": 403,
+        "initialized": false,
+        "is_error": null,
+        "jsonrpc_error_code": null,
+        "name": "cross_user_session",
+        "profile": null,
+        "reason_code": "MCP_H_SESSION_IDENTITY_MISMATCH",
+        "request_id": "remote-cross-user-session",
+        "row_count": null,
+        "session_issued": false,
+        "side_effect": null,
+        "tool_names": []
+      },
+      {
+        "http_status": 200,
+        "initialized": false,
+        "is_error": null,
+        "jsonrpc_error_code": -32602,
+        "name": "prompt_impersonation",
+        "profile": null,
+        "reason_code": null,
+        "request_id": "remote-prompt-impersonation",
+        "row_count": null,
+        "session_issued": false,
+        "side_effect": null,
+        "tool_names": []
+      },
+      {
+        "http_status": 200,
+        "initialized": false,
+        "is_error": null,
+        "jsonrpc_error_code": -32602,
+        "name": "dangerous_tool",
+        "profile": null,
+        "reason_code": null,
+        "request_id": "remote-dangerous-40",
+        "row_count": null,
+        "session_issued": false,
+        "side_effect": null,
+        "tool_names": []
+      },
+      {
+        "http_status": 200,
+        "initialized": false,
+        "is_error": null,
+        "jsonrpc_error_code": -32602,
+        "name": "dangerous_tool",
+        "profile": null,
+        "reason_code": null,
+        "request_id": "remote-dangerous-41",
+        "row_count": null,
+        "session_issued": false,
+        "side_effect": null,
+        "tool_names": []
+      },
+      {
+        "http_status": 200,
+        "initialized": false,
+        "is_error": null,
+        "jsonrpc_error_code": -32602,
+        "name": "dangerous_tool",
+        "profile": null,
+        "reason_code": null,
+        "request_id": "remote-dangerous-42",
+        "row_count": null,
+        "session_issued": false,
+        "side_effect": null,
+        "tool_names": []
+      },
+      {
+        "http_status": 200,
+        "initialized": false,
+        "is_error": null,
+        "jsonrpc_error_code": -32602,
+        "name": "dangerous_tool",
+        "profile": null,
+        "reason_code": null,
+        "request_id": "remote-dangerous-43",
+        "row_count": null,
+        "session_issued": false,
+        "side_effect": null,
+        "tool_names": []
+      }
+    ],
+    "users": {
+      "user_a": {
+        "call": {
+          "backend_requests_added": 1,
+          "http_status": 200,
+          "initialized": false,
+          "is_error": false,
+          "jsonrpc_error_code": null,
+          "reason_code": "G000_EXECUTED",
+          "row_count": 1,
+          "session_issued": true,
+          "side_effect": false,
+          "tool_names": []
+        },
+        "session_id": "7bdce5deab3f4317852494d6470f0997",
+        "subject_id": "synthetic-user-a",
+        "tenant_id": "tenant-a",
+        "tool_names": [
+          "list_notices"
+        ]
+      },
+      "user_b": {
+        "call": {
+          "backend_requests_added": 1,
+          "http_status": 200,
+          "initialized": false,
+          "is_error": false,
+          "jsonrpc_error_code": null,
+          "reason_code": "G000_EXECUTED",
+          "row_count": 1,
+          "session_issued": true,
+          "side_effect": false,
+          "tool_names": []
+        },
+        "session_id": "2d309860216a404bb6861ceda98911b8",
+        "subject_id": "synthetic-user-b",
+        "tenant_id": "tenant-b",
+        "tool_names": [
+          "list_notices"
+        ]
+      }
+    }
+  },
+  "evidence_sha256": "b94b688ce8e8dceff9d32420098898b12ae446d5c1291e8386b2320c4c2ac1e7",
+  "generated_at": "2026-08-27T21:31:40.293071+00:00",
+  "limitations": [
+    "本地 E2E 使用合成 OIDC 验证器，不替代 Keycloak/JWKS 外部验收。",
+    "本地 E2E 使用隔离合成公告数据，不连接真实业务 API。",
+    "本报告范围未运行 OpenClaw 模型回合，不能用本报告单独声称模型自主调用工具；模型回合由独立报告覆盖。",
+    "公网 HTTPS、DNS、Ingress/mTLS、HA、NetworkPolicy 与真实用户授权仍需外部环境验收。",
+    "production_ready=false 必须保持不变。"
+  ],
+  "schema_version": "1.0",
+  "scope": {
+    "dual_user_identity_isolation": "completed_local",
+    "independent_model_evidence": [
+      "reports/e2e/openclaw/openclaw_agentguard_model_dataset.json",
+      "reports/e2e/openclaw/openclaw_agentguard_model_turn.json",
+      "reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.json"
+    ],
+    "oidc": "deterministic_synthetic_verifier",
+    "openclaw_cli_registration": "not_run_external_runtime_not_required_for_transport_test",
+    "openclaw_model_driven_tool_call": "not_run_in_this_transport_e2e_scope",
+    "production_ready": false,
+    "public_deployment": "not_run",
+    "remote_http_transport": "completed_local_loopback"
+  },
+  "sensitive_scan": {
+    "api_key_pattern_matches": 0,
+    "authorization_headers_recorded": false,
+    "findings": [],
+    "raw_credentials_recorded": false
+  },
+  "status": "passed_with_declared_scope",
+  "test_type": "remote_mcp_local_dual_user_e2e",
+  "versions": {
+    "adapter": "0.1.0",
+    "mcp_protocol": "2025-11-25",
+    "python": "3.12.13"
+  }
+}

@@ -2,13 +2,17 @@
   "schema_version": "1.0",
   "generated_at": "2026-08-27T18:15:26.7596731Z",
   "status": "passed_with_declared_scope",
-  "claim": "项目内 OpenClaw Gateway 的 Control UI 已可访问；OpenClaw 已实际注册、诊断并发现唯一的 AgentGuard 只读 MCP 工具。未运行 relay/model 回合或 tools/call，不能表述为模型自主调用或生产接入完成。",
+  "claim": "项目内 OpenClaw Gateway 的 Control UI 已可访问；OpenClaw 已实际注册、诊断并发现唯一的 AgentGuard 只读 MCP 工具。本可视化演示范围不运行 relay/model 回合或 tools/call；独立模型回合证据见对应模型报告，不能据本演示单独表述为模型自主调用或生产接入完成。",
   "scope": {
     "control_ui": "gateway_http_page_verified",
     "openclaw_mcp_registration_and_tools_list": "real_project_local_runtime",
     "protocol_schema": "separate_tools_list_only_probe",
     "deterministic_low_risk_call_evidence": "reports/e2e/openclaw/openclaw_mcp_integration.json",
-    "relay_model_turn": "not_run",
+    "relay_model_turn": "not_run_in_this_demo_scope",
+    "independent_model_evidence": [
+      "reports/e2e/openclaw/openclaw_agentguard_model_turn.json",
+      "reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.json"
+    ],
     "production_ready": false
   },
   "versions": {
@@ -184,7 +188,7 @@
     "Gateway is bound only to loopback and uses a local temporary token that is stored only below the Git-ignored visual-demo runtime directory and the child-process environment.",
     "The Control UI HTTP response proves the page is served; this report deliberately does not transfer the Gateway token into a browser or execute an authenticated UI session.",
     "OpenClaw mcp probe establishes a real MCP session and performs tools/list, but it does not perform tools/call.",
-    "The protocol probe uses --skip-call. The separate model-turn evidence is required before claiming a model-driven tool call.",
+    "The protocol probe uses --skip-call. This demo scope deliberately omits a model turn; separate model-turn evidence is required before claiming a model-driven tool call.",
     "This report does not record a model API key or model provider credential."
   ]
 }

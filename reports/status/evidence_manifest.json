@@ -1,11 +1,11 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-08-28T03:15:21+08:00",
+  "generated_at": "2026-08-28T05:31:59+08:00",
   "timezone": "中国标准时间",
-  "tested_source_commit": "db9cd855aae48ac899f2ca69e8d025cb4142b495",
-  "source_tree_hash": "f84cbfbd14a5b8b5688e26a9b41cb6661379662b",
+  "tested_source_commit": "HEAD",
+  "source_tree_hash": "09b0d9c023c36e88fe1bb5303f7f70192f3e9ee2",
   "working_tree_clean": false,
-  "working_tree_clean_at_test_start": true,
+  "working_tree_clean_at_test_start": false,
   "environment": {
     "os": "Windows-11-10.0.26200-SP0",
     "python": "Python 3.12.13",
@@ -21,7 +21,7 @@
       "command": "tools\\opa.exe test policy tests data --fail-on-empty",
       "exit_code": 0,
       "result": "passed",
-      "executed_at": "2026-08-28T03:08:47+08:00",
+      "executed_at": "2026-08-28T05:08:22+08:00",
       "version": "Version: 1.19.0",
       "input_scope": "policy tests data；31 cases",
       "evidence": [
@@ -33,7 +33,7 @@
       "command": "tools\\opa.exe test deployment\\opa-envoy --fail-on-empty",
       "exit_code": 0,
       "result": "passed",
-      "executed_at": "2026-08-28T03:08:46+08:00",
+      "executed_at": "2026-08-28T05:08:22+08:00",
       "version": "Version: 1.19.0",
       "input_scope": "deployment/opa-envoy；4 cases",
       "evidence": [
@@ -45,9 +45,9 @@
       "command": ".venv\\Scripts\\python.exe -m enforcement.run_tests",
       "exit_code": 0,
       "result": "passed",
-      "executed_at": "2026-08-28T02:48:51+08:00",
+      "executed_at": "2026-08-28T05:09:35+08:00",
       "version": "Python 3.12.13",
-      "input_scope": "身份、审批、网关、内核、公开fixture与阶段4测试；174 tests",
+      "input_scope": "身份、审批、网关、内核、公开fixture与阶段4测试；190 tests",
       "evidence": [
         "reports/core/full_python_tests.txt"
       ]
@@ -57,7 +57,7 @@
       "command": ".venv\\Scripts\\python.exe scripts\\evaluate.py --opa tools\\opa.exe",
       "exit_code": 0,
       "result": "passed",
-      "executed_at": "2026-08-28T02:48:55+08:00",
+      "executed_at": "2026-08-28T05:08:26+08:00",
       "version": "Version: 1.19.0",
       "input_scope": "datasets/agent_guard_cases.jsonl；55 synthetic project cases",
       "evidence": [
@@ -71,7 +71,7 @@
       "command": ".venv\\Scripts\\python.exe scripts\\run_stage4_preflight.py",
       "exit_code": 2,
       "result": "blocked_external_environment",
-      "executed_at": "2026-08-28T02:36:53+08:00",
+      "executed_at": "2026-08-28T05:09:36+08:00",
       "version": "Python 3.12.13",
       "input_scope": "非密配置与授权输入前置条件；不替代产品级环境验证",
       "evidence": [
@@ -85,7 +85,7 @@
       "command": ".venv\\Scripts\\python.exe scripts\\prepublish_security_check.py",
       "exit_code": 0,
       "result": "passed",
-      "executed_at": "2026-08-28T03:15:20.975754+08:00",
+      "executed_at": "2026-08-28T05:31:51.289926+08:00",
       "version": "Python 3.12.13",
       "input_scope": "Git已跟踪文件与未忽略新文件；私密值不写入报告",
       "evidence": [
@@ -97,7 +97,7 @@
       "command": ".venv\\Scripts\\python.exe scripts\\check_status_consistency.py",
       "exit_code": 0,
       "result": "passed",
-      "executed_at": "2026-08-28T03:15:21+08:00",
+      "executed_at": "2026-08-28T05:31:50+08:00",
       "version": "Python 3.12.13",
       "input_scope": "状态报告、阶段4边界、公开fixture与历史证据标注",
       "evidence": [
@@ -155,6 +155,20 @@
         "reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.json"
       ],
       "notes": "本轮复用已保存的真实模型证据，未重新调用模型；报告明确标注其测试时间和隔离范围。"
+    },
+    {
+      "name": "OpenClaw远程MCP双用户HTTP E2E",
+      "command": ".venv\\Scripts\\python.exe scripts\\run_openclaw_remote_mcp_e2e.py",
+      "exit_code": 0,
+      "result": "passed",
+      "executed_at": "2026-08-27T21:31:40.293071+00:00",
+      "version": "MCP 2025-11-25 / Python 3",
+      "input_scope": "local loopback Streamable HTTP；synthetic OIDC；two isolated users；read-only list_notices",
+      "evidence": [
+        "reports/e2e/openclaw/openclaw_remote_mcp_e2e.json",
+        "reports/e2e/openclaw/openclaw_remote_mcp_e2e.md"
+      ],
+      "notes": "本地回环远程传输/认证协议证据；不代表公网部署或模型回合，production_ready=false。"
     }
   ],
   "artifact_hashes": [
@@ -196,7 +210,7 @@
     {
       "path": "reports/e2e/openclaw/openclaw_agentguard_visual_demo.json",
       "kind": "protocol_and_visual_report",
-      "sha256": "bb6ed73a54c92475b5f09966100e37fed049ca5acfbe42e72acfed418101a2ed"
+      "sha256": "308531f7c874933282eb61e57ffb617395e68a10afa9bf883a498e91c29f305f"
     },
     {
       "path": "reports/e2e/openclaw/openclaw_installation.json",
@@ -204,19 +218,29 @@
       "sha256": "7b655cc19681214abfad8762dc77c104065605484e0d9b75988b4fd285e533a3"
     },
     {
+      "path": "reports/e2e/openclaw/openclaw_remote_mcp_e2e.json",
+      "kind": "remote_mcp_e2e_report",
+      "sha256": "6ac620d468bd719e337738832dc3782ba972c1ee4db73843d1a4666998644c2b"
+    },
+    {
+      "path": "reports/e2e/openclaw/openclaw_remote_mcp_e2e.md",
+      "kind": "remote_mcp_e2e_summary",
+      "sha256": "ac3b764ea04652de9b1ea591598985a1f0d8d4e2e167acd7badedd7a2e57be4c"
+    },
+    {
       "path": "reports/core/evaluation_summary.json",
       "kind": "evaluation_report",
-      "sha256": "12f2361c3112cc0e64bdd7e1fdf8900721f51ca69dbf1445424d0f827651b2de"
+      "sha256": "e0a0c107bdd67dd8b6a106559aa86ba0191aa2c861cd6b3ff7191f7e3fcc4686"
     },
     {
       "path": "reports/core/full_python_tests.txt",
       "kind": "test_log",
-      "sha256": "ba049137cbc60f0efed8548ee8c4f186a19e4d5af1520bbea1e341a04a00db12"
+      "sha256": "25c0c6dfacd1ca8619fc38820e1cebeb76415a3e3668e17da2ca4b6a15eefae5"
     },
     {
       "path": "reports/core/full_opa_tests.txt",
       "kind": "test_log",
-      "sha256": "d013e81ed357419e26e116d49c6555d0831d874049ff0044729ce4a47db74fe3"
+      "sha256": "c13bf55306d5eb2efe7bbe19fe5c1c091338955a1c231fba2be0944b2e45e564"
     }
   ],
   "local_ignored_evidence_hashes": [

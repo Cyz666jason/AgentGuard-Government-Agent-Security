@@ -28,3 +28,12 @@
 - OpenClaw mcp probe establishes a real MCP session and performs tools/list, but it does not perform tools/call.
 - The protocol probe uses --skip-call. The separate model-turn evidence is required before claiming a model-driven tool call.
 - This report does not record a model API key or model provider credential.
+
+独立模型回合证据：
+
+- `reports/e2e/openclaw/openclaw_agentguard_model_dataset.json`
+- `reports/e2e/openclaw/openclaw_agentguard_model_turn.json`
+- `reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.json`
+
+上述报告分别覆盖固定模型测试集、CLI 真实模型回合和已认证 Control UI 模型回合；
+它们不改变本演示仅覆盖 Gateway/注册/诊断/发现的范围，也不代表公网部署或生产就绪。

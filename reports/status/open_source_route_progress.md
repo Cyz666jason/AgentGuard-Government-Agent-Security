@@ -1,6 +1,6 @@
 # AgentGuard 开源路线自动进度看板
 
-> 自动生成时间：2026-08-28T02:49:22+08:00
+> 自动生成时间：2026-08-28T05:18:02+08:00
 > 当前测试机范围：**通过**；生产就绪：**否**。
 
 ## 五阶段路线
@@ -20,7 +20,7 @@
 | OPA/Rego单元测试 | 31/31 | `reports/core/full_opa_tests.txt` |
 | OPA-Envoy前置策略测试 | 4/4 | `reports/e2e/network/opa_envoy_policy_tests.txt` |
 | 三态策略数据集 | 55/55 | `reports/core/evaluation_summary.json` |
-| 身份/审批/网关/内核Python测试 | 174/174 | `reports/core/full_python_tests.txt` |
+| 身份/审批/网关/内核Python测试 | 190/190 | `reports/core/full_python_tests.txt` |
 | 常驻OPA REST网络链路 | 5/5 | `reports/e2e/network/network_enforcement_e2e.json` |
 | Keycloak/OIDC真实链路 | 7/7 | `reports/e2e/identity/keycloak_oidc_e2e.json` |
 | 完整链路演示检查 | 23/23 | `reports/core/full_security_evaluation_summary.json` |
@@ -37,7 +37,7 @@
 - 公开基准适配：AgentDojo、InjecAgent、AgentHarm 三套转换/校验/独立分母管线已通过各2条自编fixture；未导入上游原始数据，不是公开基准成绩。
 - 阶段4只读预检：`blocked_external_environment`；产品验证完成：否，生产就绪：否。
 - 策略数据危险动作误放行：0；完整链路危险动作误执行：0。
-- OPA CLI逐例端到端：均值62.704 ms，P95 67.192 ms；该值包含进程启动，不代表常驻服务纯策略延迟。
+- OPA CLI逐例端到端：均值72.558 ms，P95 78.391 ms；该值包含进程启动，不代表常驻服务纯策略延迟。
 - 全部Rego文件总覆盖率：99.61%。
 
 ## OpenClaw 模型回环证据

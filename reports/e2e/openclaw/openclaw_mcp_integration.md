@@ -7,7 +7,7 @@
 
 ## 可对外表述
 
-OpenClaw 2026.7.1-2 实机注册、doctor 和 MCP tools/list 已完成；一个只读工具已通过确定性 MCP tools/call 调用真实 AgentGuard 测试链。未配置模型凭据，故未执行 OpenClaw agent 模型回合，不能表述为“OpenClaw 模型自主调用完成”。
+本历史报告生成于 2026-08-20，记录了 OpenClaw 2026.7.1-2 的实机注册、doctor、MCP tools/list 和确定性只读 tools/call。该报告范围当时未配置模型凭据，因此没有执行 OpenClaw agent 模型回合；这不是对后续模型证据的否定。2026-08-27 的独立模型回合证据见 `openclaw_agentguard_model_dataset.*`、`openclaw_agentguard_model_turn.*` 和 `openclaw_agentguard_control_ui_turn.*`。
 
 ## 实测结果
 
@@ -29,7 +29,7 @@ OpenClaw 2026.7.1-2 实机注册、doctor 和 MCP tools/list 已完成；一个�
 - 返回条数：`2`
 - 副作用：`False`
 - 调用层级：确定性 MCP `tools/call` → 真实本机 AgentGuard → OPA → 一次性票据 → Wasmtime → 隔离测试公告 SQLite。
-- 限定：本次没有使用模型凭据运行 OpenClaw agent 回合，因此不写“OpenClaw 模型已自主调用工具”。
+- 限定：本历史报告范围没有使用模型凭据运行 OpenClaw agent 回合，因此本报告不单独声称模型自主调用；后续模型回合由独立报告记录。
 
 ## 证据边界
 
@@ -37,3 +37,4 @@ OpenClaw 2026.7.1-2 实机注册、doctor 和 MCP tools/list 已完成；一个�
 - OpenClaw `probe` 证明真实 MCP 连接与 `tools/list`；它不执行 `tools/call`。
 - 低风险调用由项目内确定性 MCP 客户端执行，输入、输出和退出码保存在同名 JSON 报告。
 - 使用的是隔离测试身份与隔离测试数据，不是生产用户凭据或生产数据。
+- 本报告只代表 2026-08-20 的注册/协议测试范围；后续模型证据、远程 HTTP 传输证据和生产化验收必须分别查看各自报告。

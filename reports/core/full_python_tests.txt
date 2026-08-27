@@ -1,4 +1,4 @@
-test_cas_collision_is_replay_only_when_exact_record_exists (approval.tests.test_credentials.OpenBaoApprovalLedgerTests.test_cas_collision_is_replay_only_when_exact_record_exists) ... ok
+﻿test_cas_collision_is_replay_only_when_exact_record_exists (approval.tests.test_credentials.OpenBaoApprovalLedgerTests.test_cas_collision_is_replay_only_when_exact_record_exists) ... ok
 test_unexplained_http_400_is_not_misreported_as_replay (approval.tests.test_credentials.OpenBaoApprovalLedgerTests.test_unexplained_http_400_is_not_misreported_as_replay) ... ok
 test_approval_resumes_and_executes_once (approval.tests.test_workflow.ApprovalWorkflowTests.test_approval_resumes_and_executes_once) ... ok
 test_approval_without_trusted_approver_authenticator_is_rejected (approval.tests.test_workflow.ApprovalWorkflowTests.test_approval_without_trusted_approver_authenticator_is_rejected) ... ok
@@ -12,6 +12,8 @@ test_rejection_never_executes (approval.tests.test_workflow.ApprovalWorkflowTest
 test_self_approval_is_blocked (approval.tests.test_workflow.ApprovalWorkflowTests.test_self_approval_is_blocked) ... ok
 test_unauthorized_approver_role_is_blocked (approval.tests.test_workflow.ApprovalWorkflowTests.test_unauthorized_approver_role_is_blocked) ... ok
 test_invalid_clearance_is_rejected (identity.tests.test_oidc.OidcClaimMappingTests.test_invalid_clearance_is_rejected) ... ok
+test_jwks_fetch_rejects_redirects (identity.tests.test_oidc.OidcClaimMappingTests.test_jwks_fetch_rejects_redirects)
+The strict PyJWT client must not follow a JWKS 30x response. ... ok
 test_missing_mfa_is_rejected (identity.tests.test_oidc.OidcClaimMappingTests.test_missing_mfa_is_rejected) ... ok
 test_request_json_subject_is_overwritten (identity.tests.test_oidc.OidcClaimMappingTests.test_request_json_subject_is_overwritten) ... ok
 test_signature_tamper_changes_decoded_bytes (identity.tests.test_oidc.OidcClaimMappingTests.test_signature_tamper_changes_decoded_bytes) ... ok
@@ -58,6 +60,21 @@ test_redaction_masks_secrets_and_pseudonymizes_identifiers (integrations.tests.t
 test_side_effect_requires_explicit_preproduction_gate (integrations.tests.test_integrations.ProductionIntegrationTests.test_side_effect_requires_explicit_preproduction_gate) ... ok
 test_uncertain_write_outcome_is_marked_for_reconciliation (integrations.tests.test_integrations.ProductionIntegrationTests.test_uncertain_write_outcome_is_marked_for_reconciliation) ... ok
 test_unexpected_business_adapter_failure_is_fail_closed (integrations.tests.test_integrations.ProductionIntegrationTests.test_unexpected_business_adapter_failure_is_fail_closed) ... ok
+test_content_type_encoding_and_protocol_are_strict (integrations.openclaw_mcp.tests.test_http_server.RemoteHttpMcpTests.test_content_type_encoding_and_protocol_are_strict) ... ok
+test_expired_token_is_rejected (integrations.openclaw_mcp.tests.test_http_server.RemoteHttpMcpTests.test_expired_token_is_rejected) ... ok
+test_initialize_list_and_call_bind_user_and_do_not_forward_token (integrations.openclaw_mcp.tests.test_http_server.RemoteHttpMcpTests.test_initialize_list_and_call_bind_user_and_do_not_forward_token) ... ok
+test_invalid_request_id_is_rejected_before_execution (integrations.openclaw_mcp.tests.test_http_server.RemoteHttpMcpTests.test_invalid_request_id_is_rejected_before_execution) ... ok
+test_issuer_audience_resource_and_client_are_checked (integrations.openclaw_mcp.tests.test_http_server.RemoteHttpMcpTests.test_issuer_audience_resource_and_client_are_checked) ... ok
+test_mfa_requirement_is_consistent_and_can_only_be_disabled_explicitly (integrations.openclaw_mcp.tests.test_http_server.RemoteHttpMcpTests.test_mfa_requirement_is_consistent_and_can_only_be_disabled_explicitly) ... ok
+test_missing_scope_is_403 (integrations.openclaw_mcp.tests.test_http_server.RemoteHttpMcpTests.test_missing_scope_is_403) ... ok
+test_missing_token_is_401_with_bearer_challenge (integrations.openclaw_mcp.tests.test_http_server.RemoteHttpMcpTests.test_missing_token_is_401_with_bearer_challenge) ... ok
+test_protected_resource_metadata_is_public_and_secret_free (integrations.openclaw_mcp.tests.test_http_server.RemoteHttpMcpTests.test_protected_resource_metadata_is_public_and_secret_free) ... ok
+test_remote_listener_requires_explicit_tls_termination_and_audit (integrations.openclaw_mcp.tests.test_http_server.RemoteHttpMcpTests.test_remote_listener_requires_explicit_tls_termination_and_audit) ... ok
+test_remote_resource_and_authorization_urls_require_https (integrations.openclaw_mcp.tests.test_http_server.RemoteHttpMcpTests.test_remote_resource_and_authorization_urls_require_https) ... ok
+test_session_cannot_be_reused_by_another_user (integrations.openclaw_mcp.tests.test_http_server.RemoteHttpMcpTests.test_session_cannot_be_reused_by_another_user) ... ok
+test_session_rejects_scope_or_role_changes_for_same_subject (integrations.openclaw_mcp.tests.test_http_server.RemoteHttpMcpTests.test_session_rejects_scope_or_role_changes_for_same_subject) ... ok
+test_unknown_tool_is_not_callable (integrations.openclaw_mcp.tests.test_http_server.RemoteHttpMcpTests.test_unknown_tool_is_not_callable) ... ok
+test_wrong_origin_is_403 (integrations.openclaw_mcp.tests.test_http_server.RemoteHttpMcpTests.test_wrong_origin_is_403) ... ok
 test_oidc_mode_requires_operator_supplied_token (integrations.openclaw_mcp.tests.test_mcp_server.AdapterConfigTests.test_oidc_mode_requires_operator_supplied_token) ... ok
 test_remote_plaintext_agentguard_is_rejected (integrations.openclaw_mcp.tests.test_mcp_server.AdapterConfigTests.test_remote_plaintext_agentguard_is_rejected) ... ok
 test_static_identity_is_loopback_only (integrations.openclaw_mcp.tests.test_mcp_server.AdapterConfigTests.test_static_identity_is_loopback_only) ... ok
@@ -77,7 +94,7 @@ test_no_evidence_yields_none_not_false (evidence.tests.test_precedence.ResolveRe
 test_same_tier_prefers_later_test_time (evidence.tests.test_precedence.ResolveRecordsTests.test_same_tier_prefers_later_test_time) ... ok
 test_unmeasured_records_do_not_decide (evidence.tests.test_precedence.ResolveRecordsTests.test_unmeasured_records_do_not_decide) ... ok
 test_ci_failure_at_head_is_not_masked_by_stale_local_success (evidence.tests.test_precedence.ResolverIntegrationTests.test_ci_failure_at_head_is_not_masked_by_stale_local_success)
-CI �ڵ�ǰ�ύʧ��ʱ�������������ɵı����ɹ���¼�ڸǡ� ... ok
+CI 在当前提交失败时，不允许被更旧的本机成功记录掩盖。 ... ok
 test_fresh_local_failure_overrides_unrelated_ci_success (evidence.tests.test_precedence.ResolverIntegrationTests.test_fresh_local_failure_overrides_unrelated_ci_success) ... ok
 test_head_commit_evidence_ranks_above_ancestor (evidence.tests.test_precedence.ResolverIntegrationTests.test_head_commit_evidence_ranks_above_ancestor) ... ok
 test_missing_reports_yield_no_evidence (evidence.tests.test_precedence.ResolverIntegrationTests.test_missing_reports_yield_no_evidence) ... ok
@@ -110,7 +127,7 @@ test_connection_refused_is_reported_as_unavailable (service.tests.test_service.D
 test_dependency_recovery_flips_readiness_back (service.tests.test_service.DependencyFailureTests.test_dependency_recovery_flips_readiness_back) ... ok
 test_identity_is_blocking_when_declared_required (service.tests.test_service.DependencyFailureTests.test_identity_is_blocking_when_declared_required) ... ok
 test_identity_unavailable_blocks_invoke_when_oidc_required (service.tests.test_service.DependencyFailureTests.test_identity_unavailable_blocks_invoke_when_oidc_required)
-���� OIDC �� discovery ʧ��ʱ��/invoke ����ܾ������Ƿ��С� ... ok
+启用 OIDC 但 discovery 失败时，/invoke 必须拒绝而不是放行。 ... ok
 test_invoke_fails_closed_when_opa_is_unavailable (service.tests.test_service.DependencyFailureTests.test_invoke_fails_closed_when_opa_is_unavailable) ... ok
 test_malformed_opa_response_is_not_ready (service.tests.test_service.DependencyFailureTests.test_malformed_opa_response_is_not_ready) ... ok
 test_slow_dependency_times_out_and_is_not_ready (service.tests.test_service.DependencyFailureTests.test_slow_dependency_times_out_and_is_not_ready) ... ok
@@ -121,7 +138,7 @@ test_oversized_body_is_rejected_before_policy_evaluation (service.tests.test_ser
 test_require_approval_returns_pending_not_execution (service.tests.test_service.InvokeContractTests.test_require_approval_returns_pending_not_execution) ... ok
 test_unknown_path_returns_404 (service.tests.test_service.InvokeContractTests.test_unknown_path_returns_404) ... ok
 test_healthz_stays_200_while_opa_is_down (service.tests.test_service.LivenessVersusReadinessTests.test_healthz_stays_200_while_opa_is_down)
-��������������룺OPA �ҵ���Ӧ�ñ���ϵͳ�������̡� ... ok
+存活与就绪必须分离：OPA 挂掉不应让编排系统重启进程。 ... ok
 test_readyz_reports_each_dependency_separately (service.tests.test_service.LivenessVersusReadinessTests.test_readyz_reports_each_dependency_separately) ... ok
 test_signer_and_ticket_state_are_probed_independently_of_opa (service.tests.test_service.LivenessVersusReadinessTests.test_signer_and_ticket_state_are_probed_independently_of_opa) ... ok
 test_missing_binary_is_reported (service.tests.test_service.ResidentOpaProcessTests.test_missing_binary_is_reported) ... ok
@@ -131,7 +148,7 @@ OPA access logs must not block the long-running policy server. ... ok
 test_service_manages_resident_opa_lifecycle (service.tests.test_service.ResidentOpaProcessTests.test_service_manages_resident_opa_lifecycle) ... ok
 test_stop_before_start_is_safe (service.tests.test_service.ResidentOpaProcessTests.test_stop_before_start_is_safe) ... ok
 test_unbindable_address_reports_startup_failure (service.tests.test_service.ResidentOpaProcessTests.test_unbindable_address_reports_startup_failure)
-OPA �޷���ʱ���뱨�������ܾ�Ĭ�����Ѿ����� ... ok
+OPA 无法绑定时必须报错，不能静默当成已就绪。 ... ok
 test_close_is_idempotent (service.tests.test_service.StartupAndShutdownTests.test_close_is_idempotent) ... ok
 test_context_manager_closes_service (service.tests.test_service.StartupAndShutdownTests.test_context_manager_closes_service) ... ok
 test_service_starts_and_serves_all_endpoints (service.tests.test_service.StartupAndShutdownTests.test_service_starts_and_serves_all_endpoints) ... ok
@@ -171,7 +188,6 @@ test_every_domain_uses_the_restricted_status_contract (deployment.stage4.tests.t
 test_example_config_is_truthfully_blocked_on_windows (deployment.stage4.tests.test_stage4_preflight.Stage4PreflightTests.test_example_config_is_truthfully_blocked_on_windows) ... ok
 test_exit_code_contract (deployment.stage4.tests.test_stage4_preflight.Stage4PreflightTests.test_exit_code_contract) ... ok
 test_invalid_redaction_salt_never_passes_preflight (deployment.stage4.tests.test_stage4_preflight.Stage4PreflightTests.test_invalid_redaction_salt_never_passes_preflight) ... ok
-stage4_config_invalid: Stage 4 config bad-config.json is invalid JSON at line 1, column 2
 test_malformed_config_returns_exit_code_one_without_path_leak (deployment.stage4.tests.test_stage4_preflight.Stage4PreflightTests.test_malformed_config_returns_exit_code_one_without_path_leak) ... ok
 test_manifest_hash_expiry_side_effects_and_fields_are_enforced (deployment.stage4.tests.test_stage4_preflight.Stage4PreflightTests.test_manifest_hash_expiry_side_effects_and_fields_are_enforced) ... ok
 test_markdown_keeps_the_evidence_boundary (deployment.stage4.tests.test_stage4_preflight.Stage4PreflightTests.test_markdown_keeps_the_evidence_boundary) ... ok
@@ -180,6 +196,6 @@ test_ready_external_environment_without_secrets_awaits_authorisation (deployment
 test_secret_values_are_not_serialized (deployment.stage4.tests.test_stage4_preflight.Stage4PreflightTests.test_secret_values_are_not_serialized) ... ok
 
 ----------------------------------------------------------------------
-Ran 174 tests in 57.688s
+Ran 190 tests in 66.997s
 
 OK
