@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-08-28T05:31:59+08:00",
+  "generated_at": "2026-08-28T05:38:32+08:00",
   "timezone": "中国标准时间",
   "tested_source_commit": "HEAD",
-  "source_tree_hash": "09b0d9c023c36e88fe1bb5303f7f70192f3e9ee2",
+  "source_tree_hash": "ed4f04fe35750a80b6cf5eff81655677d5cf4717",
   "working_tree_clean": false,
   "working_tree_clean_at_test_start": false,
   "environment": {
@@ -71,7 +71,7 @@
       "command": ".venv\\Scripts\\python.exe scripts\\run_stage4_preflight.py",
       "exit_code": 2,
       "result": "blocked_external_environment",
-      "executed_at": "2026-08-28T05:09:36+08:00",
+      "executed_at": "2026-08-28T05:35:06+08:00",
       "version": "Python 3.12.13",
       "input_scope": "非密配置与授权输入前置条件；不替代产品级环境验证",
       "evidence": [
@@ -85,7 +85,7 @@
       "command": ".venv\\Scripts\\python.exe scripts\\prepublish_security_check.py",
       "exit_code": 0,
       "result": "passed",
-      "executed_at": "2026-08-28T05:31:51.289926+08:00",
+      "executed_at": "2026-08-28T05:38:26.592787+08:00",
       "version": "Python 3.12.13",
       "input_scope": "Git已跟踪文件与未忽略新文件；私密值不写入报告",
       "evidence": [
@@ -97,7 +97,7 @@
       "command": ".venv\\Scripts\\python.exe scripts\\check_status_consistency.py",
       "exit_code": 0,
       "result": "passed",
-      "executed_at": "2026-08-28T05:31:50+08:00",
+      "executed_at": "2026-08-28T05:38:26+08:00",
       "version": "Python 3.12.13",
       "input_scope": "状态报告、阶段4边界、公开fixture与历史证据标注",
       "evidence": [
@@ -161,7 +161,7 @@
       "command": ".venv\\Scripts\\python.exe scripts\\run_openclaw_remote_mcp_e2e.py",
       "exit_code": 0,
       "result": "passed",
-      "executed_at": "2026-08-27T21:31:40.293071+00:00",
+      "executed_at": "2026-08-27T21:35:05.845970+00:00",
       "version": "MCP 2025-11-25 / Python 3",
       "input_scope": "local loopback Streamable HTTP；synthetic OIDC；two isolated users；read-only list_notices",
       "evidence": [
@@ -220,12 +220,12 @@
     {
       "path": "reports/e2e/openclaw/openclaw_remote_mcp_e2e.json",
       "kind": "remote_mcp_e2e_report",
-      "sha256": "6ac620d468bd719e337738832dc3782ba972c1ee4db73843d1a4666998644c2b"
+      "sha256": "538fbf102a526b4e08203351ea0cdcc5bd11a9321f819c39e4629a6209c9ab54"
     },
     {
       "path": "reports/e2e/openclaw/openclaw_remote_mcp_e2e.md",
       "kind": "remote_mcp_e2e_summary",
-      "sha256": "ac3b764ea04652de9b1ea591598985a1f0d8d4e2e167acd7badedd7a2e57be4c"
+      "sha256": "4a5fe6fb5a853311355427b490b23edb37529ee160f95028b1125182658ed793"
     },
     {
       "path": "reports/core/evaluation_summary.json",

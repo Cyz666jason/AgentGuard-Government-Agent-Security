@@ -1,6 +1,6 @@
 # Stage 4 external-environment preflight
 
-- Generated: 2026-08-28T05:09:36.557402+08:00
+- Generated: 2026-08-28T05:35:06.493541+08:00
 - Overall status: `blocked_external_environment`
 - Result class: `blocked_external_environment`
 - Configuration valid: yes
