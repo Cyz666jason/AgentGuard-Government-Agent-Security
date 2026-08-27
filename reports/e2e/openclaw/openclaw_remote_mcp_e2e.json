@@ -31,7 +31,7 @@
         "reason_code": "MCP_AUDIT_PRECHECK",
         "request_id": "remote-user-a-call",
         "result_status": "pending",
-        "session_id": "c7b2c0f4a1be4a05981e49d7eaadd46e",
+        "session_id": "2c4b39871e084f629ccacb6d2f0b1239",
         "stage": "preflight",
         "subject_id": "synthetic-user-a",
         "token_recorded": false,
@@ -44,7 +44,7 @@
         "reason_code": "G000_EXECUTED",
         "request_id": "remote-user-a-call",
         "result_status": "executed_isolated",
-        "session_id": "c7b2c0f4a1be4a05981e49d7eaadd46e",
+        "session_id": "2c4b39871e084f629ccacb6d2f0b1239",
         "stage": "result",
         "subject_id": "synthetic-user-a",
         "token_recorded": false,
@@ -57,7 +57,7 @@
         "reason_code": "MCP_AUDIT_PRECHECK",
         "request_id": "remote-user-b-call",
         "result_status": "pending",
-        "session_id": "aa2d8a7bcc0d440f8cc6029e4c98a622",
+        "session_id": "ace68a7a24ab435aba98eac42d72b2e1",
         "stage": "preflight",
         "subject_id": "synthetic-user-b",
         "token_recorded": false,
@@ -70,7 +70,7 @@
         "reason_code": "G000_EXECUTED",
         "request_id": "remote-user-b-call",
         "result_status": "executed_isolated",
-        "session_id": "aa2d8a7bcc0d440f8cc6029e4c98a622",
+        "session_id": "ace68a7a24ab435aba98eac42d72b2e1",
         "stage": "result",
         "subject_id": "synthetic-user-b",
         "token_recorded": false,
@@ -403,7 +403,7 @@
           "side_effect": false,
           "tool_names": []
         },
-        "session_id": "c7b2c0f4a1be4a05981e49d7eaadd46e",
+        "session_id": "2c4b39871e084f629ccacb6d2f0b1239",
         "subject_id": "synthetic-user-a",
         "tenant_id": "tenant-a",
         "tool_names": [
@@ -423,7 +423,7 @@
           "side_effect": false,
           "tool_names": []
         },
-        "session_id": "aa2d8a7bcc0d440f8cc6029e4c98a622",
+        "session_id": "ace68a7a24ab435aba98eac42d72b2e1",
         "subject_id": "synthetic-user-b",
         "tenant_id": "tenant-b",
         "tool_names": [
@@ -432,8 +432,8 @@
       }
     }
   },
-  "evidence_sha256": "af539fdbe67915a30a1e2c3afb75460a1d6e73d1a761d0a5965401db1aadb0d1",
-  "generated_at": "2026-08-27T21:35:05.845970+00:00",
+  "evidence_sha256": "91b5391e19532335b15518ed79d55a47e8db401e677466f8681e0a8aec9ec2fe",
+  "generated_at": "2026-08-27T21:49:20.708080+00:00",
   "limitations": [
     "本地 E2E 使用合成 OIDC 验证器，不替代 Keycloak/JWKS 外部验收。",
     "本地 E2E 使用隔离合成公告数据，不连接真实业务 API。",

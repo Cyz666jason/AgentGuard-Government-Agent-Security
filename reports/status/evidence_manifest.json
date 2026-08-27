@@ -1,14 +1,14 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-08-28T05:44:32+08:00",
+  "generated_at": "2026-08-28T05:57:20+08:00",
   "timezone": "中国标准时间",
-  "tested_source_commit": "HEAD",
-  "source_tree_hash": "97bd76d518c1c93b9cacae9533ad7b3ef1ba57c0",
+  "tested_source_commit": "1df5102",
+  "source_tree_hash": "dc914431ff6c6b123c9ef2f80354b62b38cf2e40",
   "working_tree_clean": false,
-  "working_tree_clean_at_test_start": false,
+  "working_tree_clean_at_test_start": true,
   "environment": {
-    "os": "Windows-11-10.0.26200-SP0",
-    "python": "Python 3.12.13",
+    "os": "Windows-10-10.0.26100-SP0",
+    "python": "Python 3.8.6",
     "opa": "Version: 1.19.0",
     "node": "v24.19.0",
     "pnpm": "11.19.0",
@@ -21,7 +21,7 @@
       "command": "tools\\opa.exe test policy tests data --fail-on-empty",
       "exit_code": 0,
       "result": "passed",
-      "executed_at": "2026-08-28T05:08:22+08:00",
+      "executed_at": "2026-08-28T05:50:59+08:00",
       "version": "Version: 1.19.0",
       "input_scope": "policy tests data；31 cases",
       "evidence": [
@@ -33,7 +33,7 @@
       "command": "tools\\opa.exe test deployment\\opa-envoy --fail-on-empty",
       "exit_code": 0,
       "result": "passed",
-      "executed_at": "2026-08-28T05:08:22+08:00",
+      "executed_at": "2026-08-28T05:50:59+08:00",
       "version": "Version: 1.19.0",
       "input_scope": "deployment/opa-envoy；4 cases",
       "evidence": [
@@ -45,8 +45,8 @@
       "command": ".venv\\Scripts\\python.exe -m enforcement.run_tests",
       "exit_code": 0,
       "result": "passed",
-      "executed_at": "2026-08-28T05:09:35+08:00",
-      "version": "Python 3.12.13",
+      "executed_at": "2026-08-28T05:54:36+08:00",
+      "version": "Python 3.8.6",
       "input_scope": "身份、审批、网关、内核、公开fixture与阶段4测试；190 tests",
       "evidence": [
         "reports/core/full_python_tests.txt"
@@ -57,7 +57,7 @@
       "command": ".venv\\Scripts\\python.exe scripts\\evaluate.py --opa tools\\opa.exe",
       "exit_code": 0,
       "result": "passed",
-      "executed_at": "2026-08-28T05:41:09+08:00",
+      "executed_at": "2026-08-28T05:48:59+08:00",
       "version": "Version: 1.19.0",
       "input_scope": "datasets/agent_guard_cases.jsonl；55 synthetic project cases",
       "evidence": [
@@ -71,8 +71,8 @@
       "command": ".venv\\Scripts\\python.exe scripts\\run_stage4_preflight.py",
       "exit_code": 2,
       "result": "blocked_external_environment",
-      "executed_at": "2026-08-28T05:35:06+08:00",
-      "version": "Python 3.12.13",
+      "executed_at": "2026-08-28T05:49:10+08:00",
+      "version": "Python 3.8.6",
       "input_scope": "非密配置与授权输入前置条件；不替代产品级环境验证",
       "evidence": [
         "reports/preflight/stage4_preflight.json",
@@ -85,8 +85,8 @@
       "command": ".venv\\Scripts\\python.exe scripts\\prepublish_security_check.py",
       "exit_code": 0,
       "result": "passed",
-      "executed_at": "2026-08-28T05:44:23.526669+08:00",
-      "version": "Python 3.12.13",
+      "executed_at": "2026-08-28T05:56:48.481897+08:00",
+      "version": "Python 3.8.6",
       "input_scope": "Git已跟踪文件与未忽略新文件；私密值不写入报告",
       "evidence": [
         "reports/status/prepublish_security_check.json"
@@ -97,8 +97,8 @@
       "command": ".venv\\Scripts\\python.exe scripts\\check_status_consistency.py",
       "exit_code": 0,
       "result": "passed",
-      "executed_at": "2026-08-28T05:44:24+08:00",
-      "version": "Python 3.12.13",
+      "executed_at": "2026-08-28T05:57:13+08:00",
+      "version": "Python 3.8.6",
       "input_scope": "状态报告、阶段4边界、公开fixture与历史证据标注",
       "evidence": [
         "reports/status/status_consistency_check.json"
@@ -161,7 +161,7 @@
       "command": ".venv\\Scripts\\python.exe scripts\\run_openclaw_remote_mcp_e2e.py",
       "exit_code": 0,
       "result": "passed",
-      "executed_at": "2026-08-27T21:35:05.845970+00:00",
+      "executed_at": "2026-08-27T21:49:20.708080+00:00",
       "version": "MCP 2025-11-25 / Python 3",
       "input_scope": "local loopback Streamable HTTP；synthetic OIDC；two isolated users；read-only list_notices",
       "evidence": [
@@ -220,27 +220,27 @@
     {
       "path": "reports/e2e/openclaw/openclaw_remote_mcp_e2e.json",
       "kind": "remote_mcp_e2e_report",
-      "sha256": "538fbf102a526b4e08203351ea0cdcc5bd11a9321f819c39e4629a6209c9ab54"
+      "sha256": "122fa06c5195aa60789c8b744afc8e42bce7dd380d04c9eb8922c69c5fbd9533"
     },
     {
       "path": "reports/e2e/openclaw/openclaw_remote_mcp_e2e.md",
       "kind": "remote_mcp_e2e_summary",
-      "sha256": "4a5fe6fb5a853311355427b490b23edb37529ee160f95028b1125182658ed793"
+      "sha256": "584ea991d0a9401b4c224bb8d71711fc7dc5349c3dae31d2460f667d637c8f5a"
     },
     {
       "path": "reports/core/evaluation_summary.json",
       "kind": "evaluation_report",
-      "sha256": "a1c778ec196c325e3ed1ca7a735ec5ec14b6c9c805710144dd3210d5fcd0cbb1"
+      "sha256": "2d534965d62f8d36bb98e1f15ae417d09b62337b1928ee167e832f374c757497"
     },
     {
       "path": "reports/core/full_python_tests.txt",
       "kind": "test_log",
-      "sha256": "25c0c6dfacd1ca8619fc38820e1cebeb76415a3e3668e17da2ca4b6a15eefae5"
+      "sha256": "35d18505580fd856984c0edbc25e144e752cc097d0a575f76ba1e46157055f84"
     },
     {
       "path": "reports/core/full_opa_tests.txt",
       "kind": "test_log",
-      "sha256": "c13bf55306d5eb2efe7bbe19fe5c1c091338955a1c231fba2be0944b2e45e564"
+      "sha256": "9360935d8c7a0ddb80986ebb35f172c7a4030d3929e72ec797db3f37567dd348"
     }
   ],
   "local_ignored_evidence_hashes": [

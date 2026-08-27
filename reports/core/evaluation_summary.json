@@ -10,10 +10,10 @@
   "invalid_approval_block_rate": 1.0,
   "unsafe_allow_count": 0,
   "cli_end_to_end_latency_ms": {
-    "mean": 71.133,
-    "median": 72.188,
-    "p95": 77.239,
-    "max": 88.399,
+    "mean": 66.089,
+    "median": 65.451,
+    "p95": 69.753,
+    "max": 77.44,
     "note": "包含每个用例启动一次 OPA CLI 的进程开销，不代表 sidecar/嵌入式部署时的纯策略延迟。"
   },
   "confusion_matrix": {

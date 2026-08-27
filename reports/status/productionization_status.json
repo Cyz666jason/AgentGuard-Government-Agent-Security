@@ -1,10 +1,10 @@
 {
   "run_id": "standalone",
-  "generated_at": "2026-08-28T05:18:11.189708+08:00",
+  "generated_at": "2026-08-28T05:57:07.198853+08:00",
   "evidence_precedence": {
     "rule": "与当前提交历史匹配的CI实测证据 > 当前机器新鲜实测证据 > 历史环境检查与历史失败记录",
     "report": "reports/status/evidence_precedence.json",
-    "head_commit": "93717e3ade5095dff02f5dfc86508015914505ac",
+    "head_commit": "1df51026d4dd765dc533fbdf3521031f3d87e79c",
     "claims": {
       "opa_envoy_container_e2e": {
         "claim": "opa_envoy_container_e2e",
@@ -18,7 +18,7 @@
           "tested_at": "2026-08-14T10:40:28.621959+00:00",
           "environment": "github_actions/ubuntu-latest",
           "commit": "167b2b0445ca9b93a980f44271dc15a8aebd7853",
-          "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 6 个提交，未被这次 CI 覆盖"
+          "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 12 个提交，未被这次 CI 覆盖"
         },
         "superseded_evidence": [
           {
@@ -57,7 +57,7 @@
           "tested_at": "2026-08-14T10:40:28.621959+00:00",
           "environment": "github_actions/ubuntu-latest",
           "commit": "167b2b0445ca9b93a980f44271dc15a8aebd7853",
-          "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 6 个提交，未被这次 CI 覆盖"
+          "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 12 个提交，未被这次 CI 覆盖"
         },
         "superseded_evidence": [
           {
@@ -146,26 +146,26 @@
     {
       "item": "OPA-Envoy产品容器E2E",
       "status": "completed_ci_test_environment",
-      "evidence": "reports/e2e/network/github_actions_container_product_e2e.json（ci_evidence_ancestor_commit，环境=github_actions/ubuntu-latest，测试时间=2026-08-14T10:40:28.621959+00:00）：GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 6 个提交，未被这次 CI 覆盖；已取代的历史记录：reports/e2e/network/container_product_e2e_attempt.json（local_fresh_evidence，2026-08-28T02:38:32.469688+08:00）；reports/preflight/test_machine_environment.json（historical_environment_check，2026-08-20T17:03:55+08:00）",
+      "evidence": "reports/e2e/network/github_actions_container_product_e2e.json（ci_evidence_ancestor_commit，环境=github_actions/ubuntu-latest，测试时间=2026-08-14T10:40:28.621959+00:00）：GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 12 个提交，未被这次 CI 覆盖；已取代的历史记录：reports/e2e/network/container_product_e2e_attempt.json（local_fresh_evidence，2026-08-28T02:38:32.469688+08:00）；reports/preflight/test_machine_environment.json（historical_environment_check，2026-08-20T17:03:55+08:00）",
       "blocker": "已在 GitHub Linux Runner 容器环境实测；本机 Windows 无 Docker/Podman，生产仍需 mTLS 与 NetworkPolicy 加固"
     },
     {
       "item": "ToolHive MCP容器E2E",
       "status": "completed_ci_test_environment",
-      "evidence": "CLI/checksum=True；reports/e2e/network/github_actions_container_product_e2e.json（ci_evidence_ancestor_commit，环境=github_actions/ubuntu-latest，测试时间=2026-08-14T10:40:28.621959+00:00）：GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 6 个提交，未被这次 CI 覆盖；已取代的历史记录：reports/e2e/network/container_product_e2e_attempt.json（local_fresh_evidence，2026-08-28T02:38:32.469688+08:00）；reports/preflight/test_machine_environment.json（historical_environment_check，2026-08-20T17:03:55+08:00）；reports/preflight/toolhive_environment_check.json（historical_environment_check，2026-08-07T08:43:13+08:00）",
+      "evidence": "CLI/checksum=True；reports/e2e/network/github_actions_container_product_e2e.json（ci_evidence_ancestor_commit，环境=github_actions/ubuntu-latest，测试时间=2026-08-14T10:40:28.621959+00:00）：GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 12 个提交，未被这次 CI 覆盖；已取代的历史记录：reports/e2e/network/container_product_e2e_attempt.json（local_fresh_evidence，2026-08-28T02:38:32.469688+08:00）；reports/preflight/test_machine_environment.json（historical_environment_check，2026-08-20T17:03:55+08:00）；reports/preflight/toolhive_environment_check.json（historical_environment_check，2026-08-07T08:43:13+08:00）",
       "blocker": "已在 GitHub Linux Runner 观察到命名 MCP 工作负载容器运行；doctor 在临时 Runner 上返回 1，仅作环境提示不作功能判定"
     },
     {
       "item": "外部密钥与共享票据状态",
       "status": "completed_ha_test_environment",
-      "evidence": "OpenBao Transit+KV 10/10（run_id=standalone，测试时间=2026-08-28T02:36:24.652309+08:00，证据年龄=2.7h，fresh）；三节点Raft故障切换 8/8（run_id=standalone，测试时间=2026-08-28T02:37:19.110116+08:00，证据年龄=2.68h，fresh）",
+      "evidence": "OpenBao Transit+KV 10/10（run_id=standalone，测试时间=2026-08-28T02:36:24.652309+08:00，证据年龄=3.35h，fresh）；三节点Raft故障切换 8/8（run_id=standalone，测试时间=2026-08-28T02:37:19.110116+08:00，证据年龄=3.33h，fresh）",
       "evidence_freshness": "fresh",
       "blocker": "本机三进程已验证HA；正式生产仍需跨故障域、TLS、自动解封、备份恢复和容量压测"
     },
     {
       "item": "原生程序独立来宾内核隔离",
       "status": "completed_test_environment",
-      "evidence": "QEMU guest kernel 11/11（run_id=standalone，测试时间=2026-08-28T02:38:21.799585+08:00，证据年龄=2.66h，fresh）",
+      "evidence": "QEMU guest kernel 11/11（run_id=standalone，测试时间=2026-08-28T02:38:21.799585+08:00，证据年龄=3.31h，fresh）",
       "evidence_freshness": "fresh",
       "blocker": "不是Kata/Firecracker，当前为TCG软件模拟且无KVM"
     },

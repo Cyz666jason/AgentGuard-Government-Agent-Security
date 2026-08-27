@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-08-28T05:18:02+08:00",
+  "generated_at": "2026-08-28T05:57:00+08:00",
   "project": "AgentGuard 政企智能体权限、审批、阻断与安全内核",
   "contest_focus": "面向工具调用和任务执行的安全约束与审批控制",
   "overall": {
@@ -14,7 +14,7 @@
   "evidence_precedence": {
     "rule": "与当前提交历史匹配的CI实测证据 > 当前机器新鲜实测证据 > 历史环境检查与历史失败记录",
     "report": "reports/status/evidence_precedence.json",
-    "head_commit": "93717e3ade5095dff02f5dfc86508015914505ac",
+    "head_commit": "1df51026d4dd765dc533fbdf3521031f3d87e79c",
     "claims": {
       "opa_envoy_container_e2e": {
         "claim": "opa_envoy_container_e2e",
@@ -28,7 +28,7 @@
           "tested_at": "2026-08-14T10:40:28.621959+00:00",
           "environment": "github_actions/ubuntu-latest",
           "commit": "167b2b0445ca9b93a980f44271dc15a8aebd7853",
-          "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 6 个提交，未被这次 CI 覆盖"
+          "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 12 个提交，未被这次 CI 覆盖"
         },
         "superseded_evidence": [
           {
@@ -67,7 +67,7 @@
           "tested_at": "2026-08-14T10:40:28.621959+00:00",
           "environment": "github_actions/ubuntu-latest",
           "commit": "167b2b0445ca9b93a980f44271dc15a8aebd7853",
-          "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 6 个提交，未被这次 CI 覆盖"
+          "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 12 个提交，未被这次 CI 覆盖"
         },
         "superseded_evidence": [
           {
@@ -293,10 +293,10 @@
     "invalid_approval_block_rate": 1.0,
     "unsafe_allow_count": 0,
     "cli_end_to_end_latency_ms": {
-      "mean": 72.558,
-      "median": 73.101,
-      "p95": 78.391,
-      "max": 80.597,
+      "mean": 66.089,
+      "median": 65.451,
+      "p95": 69.753,
+      "max": 77.44,
       "note": "包含每个用例启动一次 OPA CLI 的进程开销，不代表 sidecar/嵌入式部署时的纯策略延迟。"
     },
     "rego_total_coverage": 99.6063

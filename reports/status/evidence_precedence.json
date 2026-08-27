@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-08-28T02:49:20+08:00",
-  "head_commit": "db9cd855aae48ac899f2ca69e8d025cb4142b495",
+  "generated_at": "2026-08-28T05:56:55+08:00",
+  "head_commit": "1df51026d4dd765dc533fbdf3521031f3d87e79c",
   "precedence_order": [
     {
       "tier": "ci_evidence_head_commit",
@@ -39,7 +39,7 @@
         "tested_at": "2026-08-14T10:40:28.621959+00:00",
         "environment": "github_actions/ubuntu-latest",
         "commit": "167b2b0445ca9b93a980f44271dc15a8aebd7853",
-        "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 5 个提交，未被这次 CI 覆盖"
+        "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 12 个提交，未被这次 CI 覆盖"
       },
       "superseded_evidence": [
         {
@@ -78,7 +78,7 @@
         "tested_at": "2026-08-14T10:40:28.621959+00:00",
         "environment": "github_actions/ubuntu-latest",
         "commit": "167b2b0445ca9b93a980f44271dc15a8aebd7853",
-        "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 5 个提交，未被这次 CI 覆盖"
+        "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 12 个提交，未被这次 CI 覆盖"
       },
       "superseded_evidence": [
         {
