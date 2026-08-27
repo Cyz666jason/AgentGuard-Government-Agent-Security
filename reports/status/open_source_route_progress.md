@@ -1,6 +1,6 @@
 # AgentGuard 开源路线自动进度看板
 
-> 自动生成时间：2026-08-20T18:32:48+08:00
+> 自动生成时间：2026-08-28T02:49:22+08:00
 > 当前测试机范围：**通过**；生产就绪：**否**。
 
 ## 五阶段路线
@@ -20,13 +20,16 @@
 | OPA/Rego单元测试 | 31/31 | `reports/core/full_opa_tests.txt` |
 | OPA-Envoy前置策略测试 | 4/4 | `reports/e2e/network/opa_envoy_policy_tests.txt` |
 | 三态策略数据集 | 55/55 | `reports/core/evaluation_summary.json` |
-| 身份/审批/网关/内核Python测试 | 173/173 | `reports/core/full_python_tests.txt` |
+| 身份/审批/网关/内核Python测试 | 174/174 | `reports/core/full_python_tests.txt` |
 | 常驻OPA REST网络链路 | 5/5 | `reports/e2e/network/network_enforcement_e2e.json` |
 | Keycloak/OIDC真实链路 | 7/7 | `reports/e2e/identity/keycloak_oidc_e2e.json` |
 | 完整链路演示检查 | 23/23 | `reports/core/full_security_evaluation_summary.json` |
 | OpenBao外部密钥与共享票据核销 | 10/10 | `reports/e2e/openbao/openbao_kms_ha_e2e.json` |
 | OpenBao三节点Raft故障切换 | 8/8 | `reports/e2e/openbao/openbao_raft_ha_e2e.json` |
 | QEMU独立Linux来宾内核隔离 | 11/11 | `reports/e2e/isolation/qemu_native_isolation_e2e.json` |
+| OpenClaw模型固定合成测试集 | 5/5 | `reports/e2e/openclaw/openclaw_agentguard_model_dataset.json` |
+| OpenClaw CLI真实模型回合 | 14/14 | `reports/e2e/openclaw/openclaw_agentguard_model_turn.json` |
+| OpenClaw Control UI真实模型回合 | 16/16 | `reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.json` |
 
 ## 数据与性能
 
@@ -34,8 +37,15 @@
 - 公开基准适配：AgentDojo、InjecAgent、AgentHarm 三套转换/校验/独立分母管线已通过各2条自编fixture；未导入上游原始数据，不是公开基准成绩。
 - 阶段4只读预检：`blocked_external_environment`；产品验证完成：否，生产就绪：否。
 - 策略数据危险动作误放行：0；完整链路危险动作误执行：0。
-- OPA CLI逐例端到端：均值65.316 ms，P95 72.694 ms；该值包含进程启动，不代表常驻服务纯策略延迟。
+- OPA CLI逐例端到端：均值62.704 ms，P95 67.192 ms；该值包含进程启动，不代表常驻服务纯策略延迟。
 - 全部Rego文件总覆盖率：99.61%。
+
+## OpenClaw 模型回环证据
+
+- 核验时间：`2026-08-27T18:21:08.1738251Z`；总体状态：`passed_with_declared_scope`。
+- 固定合成模型测试集：5/5；CLI 与 Control UI 真实模型回合分别独立记录在 `reports/e2e/openclaw/openclaw_agentguard_model_turn.json` 和 `reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.json`。
+- 当前配置只允许 `agentguard-notices__list_notices`；5 个用例是项目自有固定 synthetic fixture，不是 AgentDojo、InjecAgent、AgentHarm 等公开基准成绩。
+- 回环静态开发身份、隔离合成 SQLite 与 loopback 服务仅用于测试；生产仍需 requester-scoped OIDC、TLS/mTLS、网络隔离和授权业务凭据。
 
 ## 未完成边界
 
@@ -46,6 +56,7 @@
 - **Kata/Firecracker产品隔离尚未运行**：QEMU独立Linux来宾内核/Alpine用户态/只读启动介质 11/11已验证无网络、无宿主目录和资源限制，但当前为TCG软件模拟 下一步：在Linux/KVM测试机运行Kata或Firecracker产品E2E和性能测试
 - **默认演示仍保留 OPA CLI 调用**：网络端到端测试已使用常驻 OPA REST；部分旧演示为便于单文件复现仍逐次启动 CLI 下一步：生产统一切换至 OPA sidecar/OPA-Envoy/Go SDK 或 Wasm 常驻求值，并做压力测试
 - **数据仍以合成场景为主**：确定性去标识、秘密删除、IP泛化和哈希报告流水线已实现；AgentDojo/InjecAgent/AgentHarm转换、严格校验和独立分母评测入口已用6条自编fixture验证，但尚未导入上游全量原始数据，也未获得单位批准的真实日志 下一步：按许可取得公开基准并生成真实策略预测；获得数据授权后运行脱敏脚本，隔离训练/调参与盲测数据并开展回放
+- **OpenClaw 模型回环已通过，但仍限测试范围**：固定合成模型测试集 5/5、CLI 检查 14/14、Control UI 检查 16/16 均有独立证据；调用只允许 agentguard-notices__list_notices，身份为回环静态开发身份，数据为隔离合成 SQLite 下一步：生产前补 requester-scoped OIDC、TLS/mTLS、网络零旁路、授权业务凭据与持续模型回合审计；不得把5例fixture当作公开基准
 - **公开仓库已发布，但公开不等于生产验收**：reports/status/github_publication.json 实测远程仓库匿名可读且可见性为 public；密钥、授权数据与运行态状态目录仍被 .gitignore 与发布前扫描挡在仓库外 下一步：保持发布前秘密扫描为 CI 必过项；对外材料继续区分“已开源”与“已生产就绪”
 
 ## 统计口径

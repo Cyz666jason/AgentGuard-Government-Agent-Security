@@ -1,0 +1,190 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-27T18:15:26.7596731Z",
+  "status": "passed_with_declared_scope",
+  "claim": "项目内 OpenClaw Gateway 的 Control UI 已可访问；OpenClaw 已实际注册、诊断并发现唯一的 AgentGuard 只读 MCP 工具。未运行 relay/model 回合或 tools/call，不能表述为模型自主调用或生产接入完成。",
+  "scope": {
+    "control_ui": "gateway_http_page_verified",
+    "openclaw_mcp_registration_and_tools_list": "real_project_local_runtime",
+    "protocol_schema": "separate_tools_list_only_probe",
+    "deterministic_low_risk_call_evidence": "reports/e2e/openclaw/openclaw_mcp_integration.json",
+    "relay_model_turn": "not_run",
+    "production_ready": false
+  },
+  "versions": {
+    "node": "v24.19.0",
+    "openclaw": "OpenClaw 2026.7.1-2 (0790d9f)",
+    "adapter": "0.1.0",
+    "requested_openclaw_version": "2026.7.1-2"
+  },
+  "locations": {
+    "project_root": "<PROJECT_ROOT>",
+    "openclaw_entry": "<PROJECT_ROOT>/third_party/runtime/openclaw-client/node_modules/openclaw/openclaw.mjs",
+    "state_directory": "<PROJECT_ROOT>/integrations/openclaw_mcp/.e2e_state/visual-demo/state",
+    "config_path": "<PROJECT_ROOT>/integrations/openclaw_mcp/.e2e_state/visual-demo/state/openclaw.json",
+    "workspace_directory": "<PROJECT_ROOT>/integrations/openclaw_mcp/.e2e_state/visual-demo/workspace",
+    "runtime_directory": "<PROJECT_ROOT>/integrations/openclaw_mcp/.e2e_state/visual-demo/runtime"
+  },
+  "gateway": {
+    "mode": "local",
+    "bind": "loopback",
+    "port": 18789,
+    "control_ui_url": "http://127.0.0.1:18789/",
+    "control_ui_http": {
+      "url": "http://127.0.0.1:18789/",
+      "reachable": true,
+      "status_code": 200,
+      "control_ui_marker_found": true,
+      "error": null
+    },
+    "auth_mode": "token",
+    "process_record_current": true,
+    "gateway_token_recorded": false
+  },
+  "mcp": {
+    "server_name": "agentguard-notices",
+    "discovered_openclaw_tool": "agentguard-notices__list_notices",
+    "list_server_names": [
+      "agentguard-notices"
+    ],
+    "tool_filter_include": [
+      "list_notices"
+    ],
+    "supports_parallel_tool_calls": false,
+    "schema": {
+      "tool_name": "list_notices",
+      "input_type": "object",
+      "input_properties": [
+        "limit"
+      ],
+      "additional_properties": false,
+      "limit_type": "integer",
+      "limit_minimum": 1,
+      "limit_maximum": 100,
+      "read_only_hint": true,
+      "destructive_hint": false
+    }
+  },
+  "checks": {
+    "project_local_openclaw_runtime": true,
+    "isolated_gateway_configuration": true,
+    "gateway_process_record_current": true,
+    "gateway_health_passed": true,
+    "control_ui_http_accessible": true,
+    "mcp_list_json_parsed": true,
+    "mcp_list_has_only_registered_server": true,
+    "mcp_doctor_live_probe_passed": true,
+    "mcp_probe_found_only_allowed_tool": true,
+    "config_has_only_list_notices_filter": true,
+    "config_disables_parallel_tool_calls": true,
+    "schema_has_only_bounded_limit": true,
+    "schema_marks_tool_read_only": true,
+    "protocol_tools_list_schema_passed": true,
+    "every_recorded_command_exited_zero": true,
+    "gateway_token_not_recorded": true
+  },
+  "commands": [
+    {
+      "name": "gateway_health",
+      "command": "& <NODE> <OPENCLAW_ENTRY> gateway health --port <PORT> --json",
+      "started_at": "2026-08-27T18:14:16.0604151Z",
+      "finished_at": "2026-08-27T18:14:34.3619611Z",
+      "duration_ms": 18304.133,
+      "exit_code": 0,
+      "stdout": "{\r\n  \"ok\": true,\r\n  \"ts\": 1787854473891,\r\n  \"durationMs\": 393,\r\n  \"eventLoop\": {\r\n    \"degraded\": true,\r\n    \"reasons\": [\r\n      \"event_loop_delay\"\r\n    ],\r\n    \"intervalMs\": 31690,\r\n    \"delayP99Ms\": 32.4,\r\n    \"delayMaxMs\": 1021.8,\r\n    \"utilization\": 0.072,\r\n    \"cpuCoreRatio\": 0.089\r\n  },\r\n  \"plugins\": {\r\n    \"loaded\": [\r\n      \"browser\",\r\n      \"canvas\",\r\n      \"device-pair\",\r\n      \"file-transfer\",\r\n      \"memory-core\",\r\n      \"ollama\",\r\n      \"phone-control\",\r\n      \"talk-voice\"\r\n    ],\r\n    \"errors\": []\r\n  },\r\n  \"configReload\": {\r\n    \"hotReloadStatus\": \"active\"\r\n  },\r\n  \"modelPricing\": {\r\n    \"state\": \"ok\",\r\n    \"sources\": []\r\n  },\r\n  \"channels\": {},\r\n  \"channelOrder\": [],\r\n  \"channelLabels\": {},\r\n  \"heartbeatSeconds\": 1800,\r\n  \"defaultAgentId\": \"main\",\r\n  \"agents\": [\r\n    {\r\n      \"agentId\": \"main\",\r\n      \"isDefault\": true,\r\n      \"heartbeat\": {\r\n        \"enabled\": true,\r\n        \"every\": \"30m\",\r\n        \"everyMs\": 1800000,\r\n        \"prompt\": \"Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK.\",\r\n        \"target\": \"none\",\r\n        \"ackMaxChars\": 300\r\n      },\r\n      \"sessions\": {\r\n        \"path\": \"<PROJECT_ROOT>\\\\integrations\\\\openclaw_mcp\\\\.e2e_state\\\\visual-demo\\\\state\\\\agents\\\\main\\\\sessions\\\\sessions.json\",\r\n        \"count\": 23,\r\n        \"recent\": [\r\n          {\r\n            \"key\": \"agent:main:dashboard:1b172ad7-a0f0-4856-8ae9-a941a254b357\",\r\n            \"updatedAt\": 1787838149621,\r\n            \"age\": 16323877\r\n          },\r\n          {\r\n            \"key\": \"agent:main:explicit:97fd2792-6ecd-4779-93b4-047a90975ffe\",\r\n            \"updatedAt\": 1787796906203,\r\n            \"age\": 57567295\r\n          },\r\n          {\r\n            \"key\": \"agent:main:explicit:836ed268-d4af-4aa3-80b8-765aa09eb14f\",\r\n            \"updatedAt\": 1787796794805,\r\n            \"age\": 57678693\r\n          },\r\n          {\r\n            \"key\": \"agent:main:explicit:9b66449e-4573-4714-ad18-35ffb262f1a4\",\r\n            \"updatedAt\": 1787796738319,\r\n            \"age\": 57735179\r\n          },\r\n          {\r\n            \"key\": \"agent:main:explicit:8c84960f-eb8c-4e73-9a8f-c18090b59350\",\r\n            \"updatedAt\": 1787796696178,\r\n            \"age\": 57777320\r\n          }\r\n        ]\r\n      }\r\n    }\r\n  ],\r\n  \"sessions\": {\r\n    \"path\": \"<PROJECT_ROOT>\\\\integrations\\\\openclaw_mcp\\\\.e2e_state\\\\visual-demo\\\\state\\\\agents\\\\main\\\\sessions\\\\sessions.json\",\r\n    \"count\": 23,\r\n    \"recent\": [\r\n      {\r\n        \"key\": \"agent:main:dashboard:1b172ad7-a0f0-4856-8ae9-a941a254b357\",\r\n        \"updatedAt\": 1787838149621,\r\n        \"age\": 16323877\r\n      },\r\n      {\r\n        \"key\": \"agent:main:explicit:97fd2792-6ecd-4779-93b4-047a90975ffe\",\r\n        \"updatedAt\": 1787796906203,\r\n        \"age\": 57567295\r\n      },\r\n      {\r\n        \"key\": \"agent:main:explicit:836ed268-d4af-4aa3-80b8-765aa09eb14f\",\r\n        \"updatedAt\": 1787796794805,\r\n        \"age\": 57678693\r\n      },\r\n      {\r\n        \"key\": \"agent:main:explicit:9b66449e-4573-4714-ad18-35ffb262f1a4\",\r\n        \"updatedAt\": 1787796738319,\r\n        \"age\": 57735179\r\n      },\r\n      {\r\n        \"key\": \"agent:main:explicit:8c84960f-eb8c-4e73-9a8f-c18090b59350\",\r\n        \"updatedAt\": 1787796696178,\r\n        \"age\": 57777320\r\n      }\r\n    ]\r\n  }\r\n}"
+    },
+    {
+      "name": "mcp_list",
+      "command": "& <NODE> <OPENCLAW_ENTRY> mcp list --json",
+      "started_at": "2026-08-27T18:14:34.5182379Z",
+      "finished_at": "2026-08-27T18:14:51.0616434Z",
+      "duration_ms": 16543.412,
+      "exit_code": 0,
+      "stdout": "{\r\n  \"agentguard-notices\": {\r\n    \"toolFilter\": {\r\n      \"include\": [\r\n        \"list_notices\"\r\n      ]\r\n    },\r\n    \"command\": \"<PROJECT_ROOT>\\\\.venv\\\\Scripts\\\\python.exe\",\r\n    \"connectionTimeoutMs\": 8000,\r\n    \"supportsParallelToolCalls\": false,\r\n    \"args\": [\r\n      \"-m\",\r\n      \"integrations.openclaw_mcp\"\r\n    ],\r\n    \"env\": {\r\n      \"AGENTGUARD_MCP_IDENTITY_MODE\": \"loopback_static_dev\",\r\n      \"AGENTGUARD_MCP_DEV_SUBJECT_FILE\": \"<PROJECT_ROOT>\\\\integrations\\\\openclaw_mcp\\\\dev-subject.example.json\",\r\n      \"AGENTGUARD_MCP_BASE_URL\": \"http://127.0.0.1:8080\"\r\n    },\r\n    \"requestTimeoutMs\": 20000,\r\n    \"cwd\": \"<PROJECT_ROOT>\"\r\n  }\r\n}"
+    },
+    {
+      "name": "mcp_doctor_probe",
+      "command": "& <NODE> <OPENCLAW_ENTRY> mcp doctor agentguard-notices --probe --json",
+      "started_at": "2026-08-27T18:14:51.0658998Z",
+      "finished_at": "2026-08-27T18:15:08.4574006Z",
+      "duration_ms": 17391.506,
+      "exit_code": 0,
+      "stdout": "{\r\n  \"path\": \"<PROJECT_ROOT>\\\\integrations\\\\openclaw_mcp\\\\.e2e_state\\\\visual-demo\\\\state\\\\openclaw.json\",\r\n  \"ok\": true,\r\n  \"servers\": [\r\n    {\r\n      \"name\": \"agentguard-notices\",\r\n      \"ok\": true,\r\n      \"issues\": []\r\n    }\r\n  ]\r\n}"
+    },
+    {
+      "name": "mcp_probe",
+      "command": "& <NODE> <OPENCLAW_ENTRY> mcp probe agentguard-notices --json",
+      "started_at": "2026-08-27T18:15:08.4590989Z",
+      "finished_at": "2026-08-27T18:15:25.9433722Z",
+      "duration_ms": 17484.279,
+      "exit_code": 0,
+      "stdout": "{\r\n  \"generatedAt\": \"2026-08-27T18:15:25.840Z\",\r\n  \"servers\": {\r\n    \"agentguard-notices\": {\r\n      \"launch\": \"<PROJECT_ROOT>\\\\.venv\\\\Scripts\\\\python.exe -m integrations.openclaw_mcp (cwd=<PROJECT_ROOT>)\",\r\n      \"tools\": 1,\r\n      \"requestTimeoutMs\": 20000\r\n    }\r\n  },\r\n  \"tools\": [\r\n    \"agentguard-notices__list_notices\"\r\n  ],\r\n  \"diagnostics\": []\r\n}"
+    },
+    {
+      "name": "protocol_tools_list_schema",
+      "command": "<PYTHON> -m integrations.openclaw_mcp.protocol_probe --skip-call --report <REPORT>",
+      "started_at": "2026-08-27T18:15:25.9449440Z",
+      "finished_at": "2026-08-27T18:15:26.4681921Z",
+      "duration_ms": 523.252,
+      "exit_code": 0,
+      "stdout": "{\"test_type\": \"mcp_protocol_compatibility\", \"openclaw_runtime_used\": false, \"claim\": \"\\u534f\\u8bae\\u517c\\u5bb9\\u6d4b\\u8bd5\\u901a\\u8fc7\", \"generated_at\": \"2026-08-27T18:15:26.452610+00:00\", \"versions\": {\"python\": \"3.12.13\", \"adapter\": \"0.1.0\", \"requested_mcp_protocol\": \"2025-11-25\"}, \"command\": [\"<PYTHON>\", \"-m\", \"integrations.openclaw_mcp\"], \"inputs\": [{\"jsonrpc\": \"2.0\", \"id\": 1, \"method\": \"initialize\", \"params\": {\"protocolVersion\": \"2025-11-25\", \"capabilities\": {}, \"clientInfo\": {\"name\": \"agentguard-protocol-probe\", \"version\": \"0.1.0\"}}}, {\"jsonrpc\": \"2.0\", \"method\": \"notifications/initialized\", \"params\": {}}, {\"jsonrpc\": \"2.0\", \"id\": 2, \"method\": \"tools/list\", \"params\": {}}], \"outputs\": [{\"jsonrpc\": \"2.0\", \"id\": 1, \"result\": {\"protocolVersion\": \"2025-11-25\", \"capabilities\": {\"tools\": {\"listChanged\": false}}, \"serverInfo\": {\"name\": \"agentguard-openclaw-readonly\", \"version\": \"0.1.0\"}, \"instructions\": \"\\u4ec5\\u63d0\\u4f9b\\u53ea\\u8bfb\\u516c\\u544a\\u67e5\\u8be2\\uff1b\\u6240\\u6709\\u5b9e\\u9645\\u8c03\\u7528\\u5fc5\\u987b\\u7ecf\\u8fc7 AgentGuard\\u3002\"}}, {\"jsonrpc\": \"2.0\", \"id\": 2, \"result\": {\"tools\": [{\"name\": \"list_notices\", \"title\": \"\\u67e5\\u8be2\\u5185\\u90e8\\u516c\\u544a\\uff08\\u53ea\\u8bfb\\uff09\", \"description\": \"\\u901a\\u8fc7 AgentGuard \\u7684\\u6743\\u9650\\u3001\\u7968\\u636e\\u3001\\u5b89\\u5168\\u5185\\u6838\\u548c\\u5ba1\\u8ba1\\u94fe\\u67e5\\u8be2\\u5185\\u90e8\\u516c\\u544a\\uff1b\\u4e0d\\u80fd\\u76f4\\u8fde\\u6570\\u636e\\u5e93\\uff0c\\u4e0d\\u63d0\\u4f9b\\u5199\\u5165\\u3001\\u5220\\u9664\\u3001\\u4ed8\\u6b3e\\u3001\\u53d1\\u5e03\\u6216\\u8fd0\\u7ef4\\u80fd\\u529b\\u3002\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"limit\": {\"type\": \"integer\", \"minimum\": 1, \"maximum\": 100, \"default\": 20, \"description\": \"\\u6700\\u591a\\u8fd4\\u56de\\u7684\\u516c\\u544a\\u6761\\u6570\"}}, \"additionalProperties\": false}, \"outputSchema\": {\"type\": \"object\", \"properties\": {\"status\": {\"type\": \"string\"}, \"reason_code\": {\"type\": \"string\"}, \"row_count\": {\"type\": \"integer\"}, \"rows\": {\"type\": \"array\"}, \"side_effect\": {\"const\": false}}, \"required\": [\"status\", \"reason_code\", \"row_count\", \"rows\", \"side_effect\"], \"additionalProperties\": false}, \"annotations\": {\"title\": \"AgentGuard \\u53ea\\u8bfb\\u516c\\u544a\\u67e5\\u8be2\", \"readOnlyHint\": true, \"destructiveHint\": false, \"idempotentHint\": true, \"openWorldHint\": false}}]}}], \"stderr\": \"\", \"process_exit_code\": 0, \"checks\": {\"process_exit_zero\": true, \"stdout_is_jsonrpc_only\": true, \"initialize_succeeded\": true, \"tools_list_has_single_readonly_tool\": true}, \"status\": \"passed\"}"
+    }
+  ],
+  "openclaw_mcp_list": {
+    "agentguard-notices": {
+      "toolFilter": {
+        "include": [
+          "list_notices"
+        ]
+      },
+      "command": "<PROJECT_ROOT>\\.venv\\Scripts\\python.exe",
+      "connectionTimeoutMs": 8000,
+      "supportsParallelToolCalls": false,
+      "args": [
+        "-m",
+        "integrations.openclaw_mcp"
+      ],
+      "env": {
+        "AGENTGUARD_MCP_IDENTITY_MODE": "loopback_static_dev",
+        "AGENTGUARD_MCP_DEV_SUBJECT_FILE": "<PROJECT_ROOT>\\integrations\\openclaw_mcp\\dev-subject.example.json",
+        "AGENTGUARD_MCP_BASE_URL": "http://127.0.0.1:8080"
+      },
+      "requestTimeoutMs": 20000,
+      "cwd": "<PROJECT_ROOT>"
+    }
+  },
+  "openclaw_mcp_doctor_probe": {
+    "path": "<PROJECT_ROOT>\\integrations\\openclaw_mcp\\.e2e_state\\visual-demo\\state\\openclaw.json",
+    "ok": true,
+    "servers": [
+      {
+        "name": "agentguard-notices",
+        "ok": true,
+        "issues": []
+      }
+    ]
+  },
+  "openclaw_mcp_probe": {
+    "generatedAt": "2026-08-27T18:15:25.84Z",
+    "servers": {
+      "agentguard-notices": {
+        "launch": "<PROJECT_ROOT>\\.venv\\Scripts\\python.exe -m integrations.openclaw_mcp (cwd=<PROJECT_ROOT>)",
+        "tools": 1,
+        "requestTimeoutMs": 20000
+      }
+    },
+    "tools": [
+      "agentguard-notices__list_notices"
+    ],
+    "diagnostics": []
+  },
+  "protocol_schema_report": "<PROJECT_ROOT>/reports/e2e/openclaw/openclaw_agentguard_visual_demo_protocol_probe.json",
+  "secret_values_recorded": false,
+  "limitations": [
+    "Gateway is bound only to loopback and uses a local temporary token that is stored only below the Git-ignored visual-demo runtime directory and the child-process environment.",
+    "The Control UI HTTP response proves the page is served; this report deliberately does not transfer the Gateway token into a browser or execute an authenticated UI session.",
+    "OpenClaw mcp probe establishes a real MCP session and performs tools/list, but it does not perform tools/call.",
+    "The protocol probe uses --skip-call. The separate model-turn evidence is required before claiming a model-driven tool call.",
+    "This report does not record a model API key or model provider credential."
+  ]
+}

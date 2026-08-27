@@ -1,6 +1,6 @@
 {
   "name": "AgentGuard 负责部分完整实测",
-  "generated_at": "2026-08-20",
+  "generated_at": "2026-08-28T02:49:22+08:00",
   "completed_scope": [
     "Keycloak/OIDC 可信身份",
     "OPA 权限策略",
@@ -11,7 +11,8 @@
     "OpenBao Transit外部密钥与共享票据账本",
     "OpenBao三节点Raft高可用与故障切换",
     "QEMU独立Linux来宾内核隔离",
-    "OPA-Envoy与ToolHive Linux容器E2E（CI测试环境）"
+    "OPA-Envoy与ToolHive Linux容器E2E（CI测试环境）",
+    "OpenClaw固定合成模型测试集与CLI/Control UI回环模型回合（测试范围）"
   ],
   "container_product_e2e": {
     "opa_envoy": true,
@@ -40,8 +41,8 @@
     "unsafe_allow_count": 0
   },
   "python_security_tests": {
-    "passed": 173,
-    "total": 173
+    "passed": 174,
+    "total": 174
   },
   "network_enforcement_e2e": {
     "passed": 5,
@@ -63,6 +64,31 @@
   "qemu_native_isolation_e2e": {
     "passed": 11,
     "total": 11
+  },
+  "openclaw_model_e2e": {
+    "status": "passed_with_declared_scope",
+    "checked_at": "2026-08-27T18:21:08.1738251Z",
+    "dataset": {
+      "passed": 5,
+      "total": 5,
+      "evidence": "reports/e2e/openclaw/openclaw_agentguard_model_dataset.json",
+      "data_type": "fixed_synthetic_fixture",
+      "public_benchmark": false
+    },
+    "model_turn": {
+      "passed": 14,
+      "total": 14,
+      "evidence": "reports/e2e/openclaw/openclaw_agentguard_model_turn.json"
+    },
+    "control_ui_turn": {
+      "passed": 16,
+      "total": 16,
+      "evidence": "reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.json"
+    },
+    "only_allowed_tool": "agentguard-notices__list_notices",
+    "unexpected_tool_call_count": 0,
+    "side_effect_result_count": 0,
+    "scope_boundary": "5个固定合成fixture，仅覆盖当前隔离回环配置；不是公开基准或生产安全结论。"
   },
   "demonstration_checks": {
     "低风险动作经网关与 Wasmtime 执行": true,
@@ -190,6 +216,12 @@
       "item": "数据仍以合成场景为主",
       "reason": "确定性去标识、秘密删除、IP泛化和哈希报告流水线已实现；AgentDojo/InjecAgent/AgentHarm转换、严格校验和独立分母评测入口已用6条自编fixture验证，但尚未导入上游全量原始数据，也未获得单位批准的真实日志",
       "next": "按许可取得公开基准并生成真实策略预测；获得数据授权后运行脱敏脚本，隔离训练/调参与盲测数据并开展回放"
+    },
+    {
+      "severity": "中",
+      "item": "OpenClaw 模型回环已通过，但仍限测试范围",
+      "reason": "固定合成模型测试集 5/5、CLI 检查 14/14、Control UI 检查 16/16 均有独立证据；调用只允许 agentguard-notices__list_notices，身份为回环静态开发身份，数据为隔离合成 SQLite",
+      "next": "生产前补 requester-scoped OIDC、TLS/mTLS、网络零旁路、授权业务凭据与持续模型回合审计；不得把5例fixture当作公开基准"
     },
     {
       "severity": "低",

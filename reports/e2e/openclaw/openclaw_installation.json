@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-27T04:31:40.3898995+08:00",
+  "installation_time": "2026-08-27T04:31:40.3898995+08:00",
+  "installation_time_basis": "Evidence generation and verification time; the original installation timestamp was unavailable because the required project-local installation already existed.",
+  "project_root": "<PROJECT_ROOT>",
+  "openclaw_installation_directory": "<PROJECT_ROOT>/third_party/runtime/openclaw-client",
+  "openclaw_entrypoint": "<PROJECT_ROOT>/third_party/runtime/openclaw-client/node_modules/openclaw/openclaw.mjs",
+  "node_version": "v24.19.0",
+  "pnpm_version": "11.19.0",
+  "openclaw_version": "OpenClaw 2026.7.1-2 (0790d9f)",
+  "requested_openclaw_version": "2026.7.1-2",
+  "installation": {
+    "scope": "project_local",
+    "global_install_used": false,
+    "command": "& $pnpm add --dir $runtimeDir --ignore-workspace --allow-build=openclaw --allow-build=protobufjs --allow-build=tree-sitter-bash --allow-build='@google/genai' openclaw@2026.7.1-2",
+    "executed_in_this_run": false,
+    "reason": "The required project-local OpenClaw entrypoint already existed and reported the required fixed version."
+  },
+  "verification": {
+    "commands": [
+      {
+        "command": "& $node --version",
+        "exit_code": 0,
+        "output": "v24.19.0"
+      },
+      {
+        "command": "& $pnpm --version",
+        "exit_code": 0,
+        "output": "11.19.0"
+      },
+      {
+        "command": "& $node $openclawEntry --version",
+        "exit_code": 0,
+        "output": "OpenClaw 2026.7.1-2 (0790d9f)"
+      },
+      {
+        "command": "& $node $openclawEntry mcp --help",
+        "exit_code": 0
+      },
+      {
+        "command": "& $node $openclawEntry agent --help",
+        "exit_code": 0
+      }
+    ],
+    "mcp_command_available": true,
+    "agent_command_available": true
+  },
+  "final_status": "already_installed_and_verified"
+}

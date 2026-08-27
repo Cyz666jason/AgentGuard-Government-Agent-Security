@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-08-20T18:32:44+08:00",
-  "head_commit": "ffd5a17c6ad2a9be20a742ca617954c00ebeb34d",
+  "generated_at": "2026-08-28T02:49:20+08:00",
+  "head_commit": "db9cd855aae48ac899f2ca69e8d025cb4142b495",
   "precedence_order": [
     {
       "tier": "ci_evidence_head_commit",
@@ -39,7 +39,7 @@
         "tested_at": "2026-08-14T10:40:28.621959+00:00",
         "environment": "github_actions/ubuntu-latest",
         "commit": "167b2b0445ca9b93a980f44271dc15a8aebd7853",
-        "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 2 个提交，未被这次 CI 覆盖"
+        "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 5 个提交，未被这次 CI 覆盖"
       },
       "superseded_evidence": [
         {
@@ -48,7 +48,7 @@
           "tier": "local_fresh_evidence",
           "tier_rank": 30,
           "source": "reports/e2e/network/container_product_e2e_attempt.json",
-          "tested_at": "2026-08-20T17:05:38.198420+08:00",
+          "tested_at": "2026-08-28T02:38:32.469688+08:00",
           "environment": "local_windows_test_machine",
           "commit": "",
           "detail": "本机 runtime=None；status=blocked_external_environment"
@@ -78,7 +78,7 @@
         "tested_at": "2026-08-14T10:40:28.621959+00:00",
         "environment": "github_actions/ubuntu-latest",
         "commit": "167b2b0445ca9b93a980f44271dc15a8aebd7853",
-        "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 2 个提交，未被这次 CI 覆盖"
+        "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 5 个提交，未被这次 CI 覆盖"
       },
       "superseded_evidence": [
         {
@@ -87,7 +87,7 @@
           "tier": "local_fresh_evidence",
           "tier_rank": 30,
           "source": "reports/e2e/network/container_product_e2e_attempt.json",
-          "tested_at": "2026-08-20T17:05:38.198420+08:00",
+          "tested_at": "2026-08-28T02:38:32.469688+08:00",
           "environment": "local_windows_test_machine",
           "commit": "",
           "detail": "本机 runtime=None；status=blocked_external_environment"
@@ -122,8 +122,8 @@
       "decided_by": {
         "claim": "github_public_release",
         "verdict": true,
-        "tier": "local_fresh_evidence",
-        "tier_rank": 30,
+        "tier": "historical_environment_check",
+        "tier_rank": 10,
         "source": "reports/status/github_publication.json",
         "tested_at": "2026-08-20T10:32:44+00:00",
         "environment": "git_remote_probe",

@@ -1,10 +1,10 @@
 # 陈彦钊负责部分：完整实现与测试机实测报告
 
-生成日期：2026-08-20
+生成日期：2026-08-28T02:49:22+08:00
 
 ## 总结
 
-原先列出的高优先级缺口均已完成测试级补齐：真实 Keycloak/OIDC 7/7、常驻 OPA REST 网络强制链路 5/5、OpenBao共享审批/票据 10/10、QEMU隔离 11/11。测试机上 OPA 单元测试 31/31 通过，OPA-Envoy 网络策略测试 4/4 通过，OPA 数据集 55/55 通过，Python 身份/审批/网关/内核测试 173/173 通过，关键演示与新增端到端检查 23/23 通过；危险、拒绝、重放、篡改、身份伪造和沙箱攻击场景的误执行次数为 0。
+原先列出的高优先级缺口均已完成测试级补齐：真实 Keycloak/OIDC 7/7、常驻 OPA REST 网络强制链路 5/5、OpenBao共享审批/票据 10/10、QEMU隔离 11/11。测试机上 OPA 单元测试 31/31 通过，OPA-Envoy 网络策略测试 4/4 通过，OPA 数据集 55/55 通过，Python 身份/审批/网关/内核测试 174/174 通过，关键演示与新增端到端检查 23/23 通过；OpenClaw 固定合成模型测试集 5/5，CLI 与 Control UI 回合分别保留独立检查；危险、拒绝、重放、篡改、身份伪造和沙箱攻击场景的误执行次数为 0。
 
 ## 已完成内容
 
@@ -23,6 +23,15 @@
 - OPA / LangGraph / Wasmtime：1.19.0 / 1.2.10 / 47.0.1
 - 本机容器条件：Docker=False；Linux 发行版=False
 - 容器 E2E 执行环境：github_actions_linux_runner，10/10 通过，证据 `reports/e2e/network/github_actions_container_product_e2e.json`
+
+## OpenClaw 模型回环（测试范围）
+
+- 核验时间：`2026-08-27T18:21:08.1738251Z`；状态：`passed_with_declared_scope`。
+- 固定合成模型测试集：5/5，证据 `reports/e2e/openclaw/openclaw_agentguard_model_dataset.json`。
+- CLI 真实模型回合检查：14/14，证据 `reports/e2e/openclaw/openclaw_agentguard_model_turn.json`。
+- 已认证 Control UI 真实模型回合检查：16/16，证据 `reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.json`。
+- 所有模型工具调用均限于 `agentguard-notices__list_notices`；非允许工具调用 `0`，副作用结果 `0`。
+- 该5例测试集是固定 synthetic fixture，不是公开基准；身份为回环静态开发身份、数据为隔离合成公告，不能据此宣称生产就绪。
 
 ## 关键攻击与故障验证
 
@@ -63,6 +72,7 @@
 | 中 | Kata/Firecracker产品隔离尚未运行 | QEMU独立Linux来宾内核/Alpine用户态/只读启动介质 11/11已验证无网络、无宿主目录和资源限制，但当前为TCG软件模拟 | 在Linux/KVM测试机运行Kata或Firecracker产品E2E和性能测试 |
 | 中 | 默认演示仍保留 OPA CLI 调用 | 网络端到端测试已使用常驻 OPA REST；部分旧演示为便于单文件复现仍逐次启动 CLI | 生产统一切换至 OPA sidecar/OPA-Envoy/Go SDK 或 Wasm 常驻求值，并做压力测试 |
 | 中 | 数据仍以合成场景为主 | 确定性去标识、秘密删除、IP泛化和哈希报告流水线已实现；AgentDojo/InjecAgent/AgentHarm转换、严格校验和独立分母评测入口已用6条自编fixture验证，但尚未导入上游全量原始数据，也未获得单位批准的真实日志 | 按许可取得公开基准并生成真实策略预测；获得数据授权后运行脱敏脚本，隔离训练/调参与盲测数据并开展回放 |
+| 中 | OpenClaw 模型回环已通过，但仍限测试范围 | 固定合成模型测试集 5/5、CLI 检查 14/14、Control UI 检查 16/16 均有独立证据；调用只允许 agentguard-notices__list_notices，身份为回环静态开发身份，数据为隔离合成 SQLite | 生产前补 requester-scoped OIDC、TLS/mTLS、网络零旁路、授权业务凭据与持续模型回合审计；不得把5例fixture当作公开基准 |
 | 低 | 公开仓库已发布，但公开不等于生产验收 | reports/status/github_publication.json 实测远程仓库匿名可读且可见性为 public；密钥、授权数据与运行态状态目录仍被 .gitignore 与发布前扫描挡在仓库外 | 保持发布前秘密扫描为 CI 必过项；对外材料继续区分“已开源”与“已生产就绪” |
 
 ## 结论边界

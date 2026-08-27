@@ -77,7 +77,7 @@ test_no_evidence_yields_none_not_false (evidence.tests.test_precedence.ResolveRe
 test_same_tier_prefers_later_test_time (evidence.tests.test_precedence.ResolveRecordsTests.test_same_tier_prefers_later_test_time) ... ok
 test_unmeasured_records_do_not_decide (evidence.tests.test_precedence.ResolveRecordsTests.test_unmeasured_records_do_not_decide) ... ok
 test_ci_failure_at_head_is_not_masked_by_stale_local_success (evidence.tests.test_precedence.ResolverIntegrationTests.test_ci_failure_at_head_is_not_masked_by_stale_local_success)
-CI 在当前提交失败时，不允许被更旧的本机成功记录掩盖。 ... ok
+CI �ڵ�ǰ�ύʧ��ʱ�������������ɵı����ɹ���¼�ڸǡ� ... ok
 test_fresh_local_failure_overrides_unrelated_ci_success (evidence.tests.test_precedence.ResolverIntegrationTests.test_fresh_local_failure_overrides_unrelated_ci_success) ... ok
 test_head_commit_evidence_ranks_above_ancestor (evidence.tests.test_precedence.ResolverIntegrationTests.test_head_commit_evidence_ranks_above_ancestor) ... ok
 test_missing_reports_yield_no_evidence (evidence.tests.test_precedence.ResolverIntegrationTests.test_missing_reports_yield_no_evidence) ... ok
@@ -110,7 +110,7 @@ test_connection_refused_is_reported_as_unavailable (service.tests.test_service.D
 test_dependency_recovery_flips_readiness_back (service.tests.test_service.DependencyFailureTests.test_dependency_recovery_flips_readiness_back) ... ok
 test_identity_is_blocking_when_declared_required (service.tests.test_service.DependencyFailureTests.test_identity_is_blocking_when_declared_required) ... ok
 test_identity_unavailable_blocks_invoke_when_oidc_required (service.tests.test_service.DependencyFailureTests.test_identity_unavailable_blocks_invoke_when_oidc_required)
-启用 OIDC 但 discovery 失败时，/invoke 必须拒绝而不是放行。 ... ok
+���� OIDC �� discovery ʧ��ʱ��/invoke ����ܾ������Ƿ��С� ... ok
 test_invoke_fails_closed_when_opa_is_unavailable (service.tests.test_service.DependencyFailureTests.test_invoke_fails_closed_when_opa_is_unavailable) ... ok
 test_malformed_opa_response_is_not_ready (service.tests.test_service.DependencyFailureTests.test_malformed_opa_response_is_not_ready) ... ok
 test_slow_dependency_times_out_and_is_not_ready (service.tests.test_service.DependencyFailureTests.test_slow_dependency_times_out_and_is_not_ready) ... ok
@@ -121,15 +121,17 @@ test_oversized_body_is_rejected_before_policy_evaluation (service.tests.test_ser
 test_require_approval_returns_pending_not_execution (service.tests.test_service.InvokeContractTests.test_require_approval_returns_pending_not_execution) ... ok
 test_unknown_path_returns_404 (service.tests.test_service.InvokeContractTests.test_unknown_path_returns_404) ... ok
 test_healthz_stays_200_while_opa_is_down (service.tests.test_service.LivenessVersusReadinessTests.test_healthz_stays_200_while_opa_is_down)
-存活与就绪必须分离：OPA 挂掉不应让编排系统重启进程。 ... ok
+��������������룺OPA �ҵ���Ӧ�ñ���ϵͳ�������̡� ... ok
 test_readyz_reports_each_dependency_separately (service.tests.test_service.LivenessVersusReadinessTests.test_readyz_reports_each_dependency_separately) ... ok
 test_signer_and_ticket_state_are_probed_independently_of_opa (service.tests.test_service.LivenessVersusReadinessTests.test_signer_and_ticket_state_are_probed_independently_of_opa) ... ok
 test_missing_binary_is_reported (service.tests.test_service.ResidentOpaProcessTests.test_missing_binary_is_reported) ... ok
 test_real_opa_returns_three_state_decision_through_invoke (service.tests.test_service.ResidentOpaProcessTests.test_real_opa_returns_three_state_decision_through_invoke) ... ok
+test_resident_opa_does_not_leave_unread_output_pipes (service.tests.test_service.ResidentOpaProcessTests.test_resident_opa_does_not_leave_unread_output_pipes)
+OPA access logs must not block the long-running policy server. ... ok
 test_service_manages_resident_opa_lifecycle (service.tests.test_service.ResidentOpaProcessTests.test_service_manages_resident_opa_lifecycle) ... ok
 test_stop_before_start_is_safe (service.tests.test_service.ResidentOpaProcessTests.test_stop_before_start_is_safe) ... ok
 test_unbindable_address_reports_startup_failure (service.tests.test_service.ResidentOpaProcessTests.test_unbindable_address_reports_startup_failure)
-OPA 无法绑定时必须报错，不能静默当成已就绪。 ... ok
+OPA �޷���ʱ���뱨�������ܾ�Ĭ�����Ѿ����� ... ok
 test_close_is_idempotent (service.tests.test_service.StartupAndShutdownTests.test_close_is_idempotent) ... ok
 test_context_manager_closes_service (service.tests.test_service.StartupAndShutdownTests.test_context_manager_closes_service) ... ok
 test_service_starts_and_serves_all_endpoints (service.tests.test_service.StartupAndShutdownTests.test_service_starts_and_serves_all_endpoints) ... ok
@@ -178,6 +180,6 @@ test_ready_external_environment_without_secrets_awaits_authorisation (deployment
 test_secret_values_are_not_serialized (deployment.stage4.tests.test_stage4_preflight.Stage4PreflightTests.test_secret_values_are_not_serialized) ... ok
 
 ----------------------------------------------------------------------
-Ran 173 tests in 53.796s
+Ran 174 tests in 57.688s
 
 OK

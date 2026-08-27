@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-27T18:21:08.1738251Z",
+  "status": "passed_with_declared_scope",
+  "claim": "授权中转模型已在项目内 OpenClaw 真实回合中主动调用唯一允许的 AgentGuard 只读 MCP 工具；调用经过本机 AgentGuard、OPA、票据执行与隔离测试数据链。",
+  "scope": {
+    "identity": "loopback_static_dev_test_only",
+    "data": "isolated_synthetic_notices",
+    "production_ready": false
+  },
+  "configuration": {
+    "provider": "modelflare",
+    "base_url": "https://modelflare.dev/v1",
+    "model": "modelflare/gpt-5.6-sol",
+    "api": "openai-completions",
+    "credential": "environment_secret_ref_in_git_ignored_state",
+    "api_key_recorded": false,
+    "gateway_token_recorded": false,
+    "tool_filter_include": [
+      "list_notices"
+    ],
+    "supports_parallel_tool_calls": false
+  },
+  "model_turn": {
+    "command": "& <NODE> <OPENCLAW_ENTRY> agent --session-id <SESSION_ID> --message <FIXED_GROUNDED_PROMPT> --model modelflare/gpt-5.6-sol --thinking off --timeout 300 --json",
+    "started_at": "2026-08-27T18:20:24.7627786Z",
+    "finished_at": "2026-08-27T18:21:07.8816208Z",
+    "duration_ms": 43118.842,
+    "exit_code": 0,
+    "session_id": "309c490b-0464-4d24-a4f0-0b682fc9049e",
+    "run_id": "3840af65-99ae-4e05-a1e0-c1fbe293450f",
+    "provider": "modelflare",
+    "model": "gpt-5.6-sol",
+    "fallback_used": false,
+    "tool_call": {
+      "name": "agentguard-notices__list_notices",
+      "limit": 2,
+      "transcript_role": "assistant",
+      "call_id": "call_64y25h5uBpdq1eAkwWoGqarb"
+    },
+    "tool_result": {
+      "status": "executed_isolated",
+      "reason_code": "G000_EXECUTED",
+      "row_count": 2,
+      "rows": [
+        {
+          "id": 1,
+          "title": "政务服务系统维护通知",
+          "department": "信息中心",
+          "published_at": "2026-08-01"
+        },
+        {
+          "id": 2,
+          "title": "第三季度材料归档安排",
+          "department": "综合办公室",
+          "published_at": "2026-08-03"
+        }
+      ],
+      "side_effect": false,
+      "is_error": false
+    },
+    "final_answer": "1. 政务服务系统维护通知（信息中心，2026-08-01）\n2. 第三季度材料归档安排（综合办公室，2026-08-03）",
+    "usage": {
+      "input": 3602,
+      "output": 191,
+      "cacheRead": 29648,
+      "reasoningTokens": 52,
+      "total": 16919
+    }
+  },
+  "agentguard": {
+    "ready": true,
+    "opa_healthy": true,
+    "opa_detail": "mode=rest；canary_effect=deny",
+    "audit_request_id": "mcp-req-cdeaf495fb614b50b5cba8fc4ed9a3ca",
+    "audit_statuses": [
+      "authorized",
+      "executed_isolated"
+    ],
+    "audit_reason_codes": [
+      "G000_AUTHORIZED",
+      "G000_EXECUTED"
+    ],
+    "ticket_value_recorded": false
+  },
+  "checks": {
+    "fixed_project_local_openclaw_version": true,
+    "isolated_gateway_loaded_current_config": true,
+    "loopback_gateway_and_agentguard_only": true,
+    "model_secret_ref_configured": true,
+    "model_call_succeeded": true,
+    "configured_provider_and_model_used": true,
+    "model_initiated_exactly_one_allowed_tool_call": true,
+    "openclaw_tool_summary_matches_transcript": true,
+    "mcp_tool_result_succeeded": true,
+    "result_is_two_read_only_isolated_rows": true,
+    "final_answer_grounded_in_tool_rows": true,
+    "agentguard_authorized_and_executed_same_request": true,
+    "agentguard_ticket_value_not_recorded": true,
+    "opa_was_healthy_for_turn": true
+  },
+  "secret_values_recorded": false,
+  "limitations": [
+    "The identity is a loopback static development identity, not a requester-scoped production OIDC token.",
+    "The notices are isolated synthetic SQLite rows, not production data.",
+    "The Gateway and AgentGuard service are bound to loopback for a same-machine demonstration.",
+    "Production still requires requester-scoped identity, TLS/mTLS, network isolation, HA state and authorized business credentials."
+  ]
+}

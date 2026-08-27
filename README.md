@@ -112,7 +112,7 @@ $node = Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\
 
 模型配置脚本使用不可见的安全输入提示。API Key 只保存在被 Git 忽略、限制当前用户访问的 `integrations/openclaw_mcp/.e2e_state/visual-demo/state/.env`；`openclaw.json` 只保存环境 SecretRef。不要把密钥写进命令参数、README、报告或浏览器 URL。
 
-启动脚本同时准备本机隔离 AgentGuard/OPA 测试后端，并输出实际 `control_ui_url`。默认端口为 `18789`；若已被占用，会选择空闲回环端口。本次运行地址为 `http://127.0.0.1:18790/`。Gateway token 不打印、不写报告；首次认证只应在本机 Control UI 内完成。
+启动脚本同时准备本机隔离 AgentGuard/OPA 测试后端，并输出实际 `control_ui_url`。默认端口为 `18789`；若已被占用，会选择空闲回环端口。历史 Control UI 证据（生成时间 `2026-08-27T00:12:07Z`）使用过 `http://127.0.0.1:18790/`；当前端口以启动脚本输出的 `control_ui_url` 为准。Gateway token 不打印、不写报告；首次认证只应在本机 Control UI 内完成。
 
 本演示只注册 `agentguard-notices`，只允许 `list_notices`，并设置 `supportsParallelToolCalls=false`。可视化报告证明 Gateway、Control UI、MCP 注册和 schema；[已认证网页回合](reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.md)证明用户在 Control UI 新会话中亲眼看到模型发起 `limit=2` 的工具调用、两条结果与 `side_effect=false`；CLI 模型回合报告提供另一条可自动复核的转录和 AgentGuard/OPA 审计链。这些证据都不能混为生产验收。
 

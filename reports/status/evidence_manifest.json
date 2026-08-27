@@ -1,0 +1,262 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-28T03:15:21+08:00",
+  "timezone": "中国标准时间",
+  "tested_source_commit": "db9cd855aae48ac899f2ca69e8d025cb4142b495",
+  "source_tree_hash": "f84cbfbd14a5b8b5688e26a9b41cb6661379662b",
+  "working_tree_clean": false,
+  "working_tree_clean_at_test_start": true,
+  "environment": {
+    "os": "Windows-11-10.0.26200-SP0",
+    "python": "Python 3.12.13",
+    "opa": "Version: 1.19.0",
+    "node": "v24.19.0",
+    "pnpm": "11.19.0",
+    "openclaw": "OpenClaw 2026.7.1-2 (0790d9f)",
+    "global_openclaw_used": false
+  },
+  "checks": [
+    {
+      "name": "OPA核心策略测试",
+      "command": "tools\\opa.exe test policy tests data --fail-on-empty",
+      "exit_code": 0,
+      "result": "passed",
+      "executed_at": "2026-08-28T03:08:47+08:00",
+      "version": "Version: 1.19.0",
+      "input_scope": "policy tests data；31 cases",
+      "evidence": [
+        "reports/core/full_opa_tests.txt"
+      ]
+    },
+    {
+      "name": "OPA-Envoy部署策略测试",
+      "command": "tools\\opa.exe test deployment\\opa-envoy --fail-on-empty",
+      "exit_code": 0,
+      "result": "passed",
+      "executed_at": "2026-08-28T03:08:46+08:00",
+      "version": "Version: 1.19.0",
+      "input_scope": "deployment/opa-envoy；4 cases",
+      "evidence": [
+        "reports/e2e/network/opa_envoy_policy_tests.txt"
+      ]
+    },
+    {
+      "name": "Python全量安全回归",
+      "command": ".venv\\Scripts\\python.exe -m enforcement.run_tests",
+      "exit_code": 0,
+      "result": "passed",
+      "executed_at": "2026-08-28T02:48:51+08:00",
+      "version": "Python 3.12.13",
+      "input_scope": "身份、审批、网关、内核、公开fixture与阶段4测试；174 tests",
+      "evidence": [
+        "reports/core/full_python_tests.txt"
+      ]
+    },
+    {
+      "name": "OPA核心55例评测",
+      "command": ".venv\\Scripts\\python.exe scripts\\evaluate.py --opa tools\\opa.exe",
+      "exit_code": 0,
+      "result": "passed",
+      "executed_at": "2026-08-28T02:48:55+08:00",
+      "version": "Version: 1.19.0",
+      "input_scope": "datasets/agent_guard_cases.jsonl；55 synthetic project cases",
+      "evidence": [
+        "reports/core/evaluation_results.csv",
+        "reports/core/evaluation_summary.json",
+        "reports/core/evaluation_report.md"
+      ]
+    },
+    {
+      "name": "阶段4只读预检",
+      "command": ".venv\\Scripts\\python.exe scripts\\run_stage4_preflight.py",
+      "exit_code": 2,
+      "result": "blocked_external_environment",
+      "executed_at": "2026-08-28T02:36:53+08:00",
+      "version": "Python 3.12.13",
+      "input_scope": "非密配置与授权输入前置条件；不替代产品级环境验证",
+      "evidence": [
+        "reports/preflight/stage4_preflight.json",
+        "reports/preflight/stage4_preflight.md"
+      ],
+      "notes": "退出码2表示按项目契约保留的外部环境/授权阻塞，不是伪造通过。"
+    },
+    {
+      "name": "发布前敏感信息扫描",
+      "command": ".venv\\Scripts\\python.exe scripts\\prepublish_security_check.py",
+      "exit_code": 0,
+      "result": "passed",
+      "executed_at": "2026-08-28T03:15:20.975754+08:00",
+      "version": "Python 3.12.13",
+      "input_scope": "Git已跟踪文件与未忽略新文件；私密值不写入报告",
+      "evidence": [
+        "reports/status/prepublish_security_check.json"
+      ]
+    },
+    {
+      "name": "状态一致性检查",
+      "command": ".venv\\Scripts\\python.exe scripts\\check_status_consistency.py",
+      "exit_code": 0,
+      "result": "passed",
+      "executed_at": "2026-08-28T03:15:21+08:00",
+      "version": "Python 3.12.13",
+      "input_scope": "状态报告、阶段4边界、公开fixture与历史证据标注",
+      "evidence": [
+        "reports/status/status_consistency_check.json"
+      ]
+    },
+    {
+      "name": "项目内OpenClaw安装与命令可用性",
+      "command": "<NODE> <PROJECT_ROOT>/third_party/runtime/openclaw-client/node_modules/openclaw/openclaw.mjs --version/mcp --help/agent --help",
+      "exit_code": 0,
+      "result": "passed",
+      "executed_at": "2026-08-27T04:31:40.3898995+08:00",
+      "version": "OpenClaw 2026.7.1-2 (0790d9f)",
+      "input_scope": "项目内固定OpenClaw 2026.7.1-2；不依赖全局安装",
+      "evidence": [
+        "reports/e2e/openclaw/openclaw_installation.json",
+        "reports/e2e/openclaw/openclaw_installation.md"
+      ]
+    },
+    {
+      "name": "OpenClaw固定5例模型fixture",
+      "command": "<NODE> <OPENCLAW_ENTRY> agent --message <FIXED_SYNTHETIC_CASES>",
+      "exit_code": 0,
+      "result": "passed",
+      "executed_at": "2026-08-27T18:19:45.1861768Z",
+      "version": "modelflare/gpt-5.6-sol",
+      "input_scope": "5 fixed synthetic project fixtures；not a public benchmark",
+      "evidence": [
+        "reports/e2e/openclaw/openclaw_agentguard_model_dataset.json"
+      ],
+      "notes": "本轮复用已保存的真实模型证据，未重新调用模型；报告明确标注其测试时间和隔离范围。"
+    },
+    {
+      "name": "OpenClaw CLI真实模型回合",
+      "command": "<NODE> <OPENCLAW_ENTRY> agent --message <FIXED_GROUNDED_PROMPT> --model modelflare/gpt-5.6-sol --json",
+      "exit_code": 0,
+      "result": "passed",
+      "executed_at": "2026-08-27T18:21:08.1738251Z",
+      "version": "modelflare/gpt-5.6-sol",
+      "input_scope": "single loopback model turn；read-only list_notices tool",
+      "evidence": [
+        "reports/e2e/openclaw/openclaw_agentguard_model_turn.json"
+      ],
+      "notes": "本轮复用已保存的真实模型证据，未重新调用模型；报告明确标注其测试时间和隔离范围。"
+    },
+    {
+      "name": "OpenClaw Control UI真实模型回合",
+      "command": "Control UI authenticated session with fixed grounded prompt",
+      "exit_code": 0,
+      "result": "passed",
+      "executed_at": "2026-08-27T00:12:07.1830027Z",
+      "version": "modelflare/gpt-5.6-sol",
+      "input_scope": "single authenticated loopback UI turn；read-only list_notices tool",
+      "evidence": [
+        "reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.json"
+      ],
+      "notes": "本轮复用已保存的真实模型证据，未重新调用模型；报告明确标注其测试时间和隔离范围。"
+    }
+  ],
+  "artifact_hashes": [
+    {
+      "path": "datasets/openclaw_agentguard_model_cases.jsonl",
+      "kind": "dataset",
+      "sha256": "48b5b3f60c1c3415e58fdb4eb89114510f597f2352de439594c921dc3703128e"
+    },
+    {
+      "path": "datasets/openclaw_agentguard_model_metadata.json",
+      "kind": "dataset_metadata",
+      "sha256": "d7e8dcba1085ea706fd9f0dda3b2ab12a48a32bdb01dc50b641ccc3ed3857c66"
+    },
+    {
+      "path": "reports/e2e/openclaw/openclaw_agentguard_model_dataset.json",
+      "kind": "model_report",
+      "sha256": "969e551726541c78b97b4c20a50de4f071281f536ccbfc2c5acda2ed07c5f3c7"
+    },
+    {
+      "path": "reports/e2e/openclaw/openclaw_agentguard_model_turn.json",
+      "kind": "transcript_and_audit_report",
+      "sha256": "6bd7fd07a6fe35e0e2be8e764147ca3cc1cc28de3342abad27545984ae3213d0"
+    },
+    {
+      "path": "reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.json",
+      "kind": "control_ui_and_audit_report",
+      "sha256": "bff3a8c3797a2cb039a8d6cbed6891e8b2fb0593c9ec59a2236a15275208c7cb"
+    },
+    {
+      "path": "reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.png",
+      "kind": "screenshot",
+      "sha256": "86d2b4f543a87e22de20d42007e0e8b352caf819e5d521cdf4bc9180d5e31f98"
+    },
+    {
+      "path": "reports/e2e/openclaw/openclaw_agentguard_control_ui_result.png",
+      "kind": "screenshot",
+      "sha256": "85191097441300183b1ef5a5a10bd9a4cc7b519b3f7b45b8b7fe110edeefd02d"
+    },
+    {
+      "path": "reports/e2e/openclaw/openclaw_agentguard_visual_demo.json",
+      "kind": "protocol_and_visual_report",
+      "sha256": "bb6ed73a54c92475b5f09966100e37fed049ca5acfbe42e72acfed418101a2ed"
+    },
+    {
+      "path": "reports/e2e/openclaw/openclaw_installation.json",
+      "kind": "installation_report",
+      "sha256": "7b655cc19681214abfad8762dc77c104065605484e0d9b75988b4fd285e533a3"
+    },
+    {
+      "path": "reports/core/evaluation_summary.json",
+      "kind": "evaluation_report",
+      "sha256": "12f2361c3112cc0e64bdd7e1fdf8900721f51ca69dbf1445424d0f827651b2de"
+    },
+    {
+      "path": "reports/core/full_python_tests.txt",
+      "kind": "test_log",
+      "sha256": "ba049137cbc60f0efed8548ee8c4f186a19e4d5af1520bbea1e341a04a00db12"
+    },
+    {
+      "path": "reports/core/full_opa_tests.txt",
+      "kind": "test_log",
+      "sha256": "d013e81ed357419e26e116d49c6555d0831d874049ff0044729ce4a47db74fe3"
+    }
+  ],
+  "local_ignored_evidence_hashes": [
+    {
+      "path": "integrations/openclaw_mcp/.e2e_state/visual-demo/state/agents/main/sessions/309c490b-0464-4d24-a4f0-0b682fc9049e.jsonl",
+      "kind": "openclaw_cli_transcript",
+      "sha256": "9db834b503aafda0c190444e28ce25e46c1f1fc3b4d363619a5df30ff0c68f08",
+      "tracked": false,
+      "availability": "git_ignored_local_only"
+    },
+    {
+      "path": "integrations/openclaw_mcp/.e2e_state/visual-demo/state/agents/main/sessions/9513dfbb-eb51-4ed9-b813-5a2ad4c596bf.trajectory.jsonl",
+      "kind": "openclaw_control_ui_trajectory",
+      "sha256": "7d099301b333bb5bbe8340061766a2ca43da9216194b74dad37c5beaf4ec5b0a",
+      "tracked": false,
+      "availability": "git_ignored_local_only"
+    },
+    {
+      "path": "integrations/openclaw_mcp/.e2e_state/visual-demo/agentguard-state/enforcement_audit.jsonl",
+      "kind": "agentguard_enforcement_audit",
+      "sha256": "50511457990fae2aae1265f8c9d4d658241ae58c63cf7b8783e8b9789c1a28d8",
+      "tracked": false,
+      "availability": "git_ignored_local_only"
+    }
+  ],
+  "data_properties": {
+    "synthetic": true,
+    "benchmark_type": "project_fixture",
+    "public_benchmark": false,
+    "production_ready": false,
+    "identity_scope": "loopback_static_dev_test_only",
+    "business_data_scope": "isolated_synthetic_sqlite",
+    "only_allowed_tool": "agentguard-notices__list_notices"
+  },
+  "secret_values_recorded": false,
+  "notes": [
+    "模型凭据、Gateway token、票据值、Cookie和个人私密路径均未写入本清单。",
+    "OpenClaw模型证据来自已保存的真实回环回合；本清单生成过程不重新调用模型。",
+    "5例模型fixture不是公开基准成绩；状态仅覆盖当前隔离配置。",
+    "production_ready固定为false，外部生产环境和授权业务凭据仍需单独验收。",
+    "原始OpenClaw转录和AgentGuard enforcement_audit仅保留在Git忽略的本地状态目录；本清单只记录SHA-256，不随Git发布原始内容。"
+  ]
+}

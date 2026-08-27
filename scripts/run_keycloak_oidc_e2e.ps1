@@ -63,7 +63,7 @@ $process = Start-Process -FilePath $kcBat.FullName -ArgumentList @(
     "--http-port=18080",
     "--hostname=127.0.0.1",
     "--import-realm"
-) -WorkingDirectory $keycloakHome -WindowStyle Hidden -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
+) -WorkingDirectory (Split-Path -Parent $kcBat.FullName) -WindowStyle Hidden -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
 
 try {
     $ready = $false

@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-08-20T18:32:48+08:00",
+  "generated_at": "2026-08-28T02:49:22+08:00",
   "project": "AgentGuard 政企智能体权限、审批、阻断与安全内核",
   "contest_focus": "面向工具调用和任务执行的安全约束与审批控制",
   "overall": {
@@ -14,7 +14,7 @@
   "evidence_precedence": {
     "rule": "与当前提交历史匹配的CI实测证据 > 当前机器新鲜实测证据 > 历史环境检查与历史失败记录",
     "report": "reports/status/evidence_precedence.json",
-    "head_commit": "ffd5a17c6ad2a9be20a742ca617954c00ebeb34d",
+    "head_commit": "db9cd855aae48ac899f2ca69e8d025cb4142b495",
     "claims": {
       "opa_envoy_container_e2e": {
         "claim": "opa_envoy_container_e2e",
@@ -28,7 +28,7 @@
           "tested_at": "2026-08-14T10:40:28.621959+00:00",
           "environment": "github_actions/ubuntu-latest",
           "commit": "167b2b0445ca9b93a980f44271dc15a8aebd7853",
-          "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 2 个提交，未被这次 CI 覆盖"
+          "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 5 个提交，未被这次 CI 覆盖"
         },
         "superseded_evidence": [
           {
@@ -37,7 +37,7 @@
             "tier": "local_fresh_evidence",
             "tier_rank": 30,
             "source": "reports/e2e/network/container_product_e2e_attempt.json",
-            "tested_at": "2026-08-20T17:05:38.198420+08:00",
+            "tested_at": "2026-08-28T02:38:32.469688+08:00",
             "environment": "local_windows_test_machine",
             "commit": "",
             "detail": "本机 runtime=None；status=blocked_external_environment"
@@ -67,7 +67,7 @@
           "tested_at": "2026-08-14T10:40:28.621959+00:00",
           "environment": "github_actions/ubuntu-latest",
           "commit": "167b2b0445ca9b93a980f44271dc15a8aebd7853",
-          "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 2 个提交，未被这次 CI 覆盖"
+          "detail": "GitHub Actions ubuntu-latest 10/10；https://github.com/Cyz666jason/AgentGuard-Government-Agent-Security/actions/runs/31793116819；该提交之后本地又有 5 个提交，未被这次 CI 覆盖"
         },
         "superseded_evidence": [
           {
@@ -76,7 +76,7 @@
             "tier": "local_fresh_evidence",
             "tier_rank": 30,
             "source": "reports/e2e/network/container_product_e2e_attempt.json",
-            "tested_at": "2026-08-20T17:05:38.198420+08:00",
+            "tested_at": "2026-08-28T02:38:32.469688+08:00",
             "environment": "local_windows_test_machine",
             "commit": "",
             "detail": "本机 runtime=None；status=blocked_external_environment"
@@ -111,8 +111,8 @@
         "decided_by": {
           "claim": "github_public_release",
           "verdict": true,
-          "tier": "local_fresh_evidence",
-          "tier_rank": 30,
+          "tier": "historical_environment_check",
+          "tier_rank": 10,
           "source": "reports/status/github_publication.json",
           "tested_at": "2026-08-20T10:32:44+00:00",
           "environment": "git_remote_probe",
@@ -182,8 +182,8 @@
     },
     {
       "name": "身份/审批/网关/内核Python测试",
-      "passed": 173,
-      "total": 173,
+      "passed": 174,
+      "total": 174,
       "pass_rate": 1.0,
       "status": "passed",
       "evidence": "reports/core/full_python_tests.txt"
@@ -235,8 +235,55 @@
       "pass_rate": 1.0,
       "status": "passed",
       "evidence": "reports/e2e/isolation/qemu_native_isolation_e2e.json"
+    },
+    {
+      "name": "OpenClaw模型固定合成测试集",
+      "passed": 5,
+      "total": 5,
+      "pass_rate": 1.0,
+      "status": "passed",
+      "evidence": "reports/e2e/openclaw/openclaw_agentguard_model_dataset.json",
+      "checked_at": "2026-08-27T18:19:45.1861768Z",
+      "scope": "test_only_synthetic_fixture"
+    },
+    {
+      "name": "OpenClaw CLI真实模型回合",
+      "passed": 14,
+      "total": 14,
+      "pass_rate": 1.0,
+      "status": "passed",
+      "evidence": "reports/e2e/openclaw/openclaw_agentguard_model_turn.json",
+      "checked_at": "2026-08-27T18:21:08.1738251Z",
+      "scope": "test_only_synthetic_fixture"
+    },
+    {
+      "name": "OpenClaw Control UI真实模型回合",
+      "passed": 16,
+      "total": 16,
+      "pass_rate": 1.0,
+      "status": "passed",
+      "evidence": "reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.json",
+      "checked_at": "2026-08-27T00:12:07.1830027Z",
+      "scope": "test_only_synthetic_fixture"
     }
   ],
+  "openclaw_model_e2e": {
+    "status": "passed_with_declared_scope",
+    "checked_at": "2026-08-27T18:21:08.1738251Z",
+    "dataset": {
+      "passed": 5,
+      "total": 5,
+      "evidence": "reports/e2e/openclaw/openclaw_agentguard_model_dataset.json",
+      "data_type": "fixed_synthetic_fixture",
+      "public_benchmark": false
+    },
+    "cli_model_turn_evidence": "reports/e2e/openclaw/openclaw_agentguard_model_turn.json",
+    "control_ui_model_turn_evidence": "reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.json",
+    "only_allowed_tool": "agentguard-notices__list_notices",
+    "unexpected_tool_call_count": 0,
+    "side_effect_result_count": 0,
+    "scope_boundary": "5个固定合成fixture，仅覆盖当前隔离回环配置；不是公开基准或生产安全结论。"
+  },
   "policy_effect_metrics": {
     "effect_accuracy": 1.0,
     "reason_code_accuracy": 1.0,
@@ -246,10 +293,10 @@
     "invalid_approval_block_rate": 1.0,
     "unsafe_allow_count": 0,
     "cli_end_to_end_latency_ms": {
-      "mean": 65.316,
-      "median": 65.856,
-      "p95": 72.694,
-      "max": 74.85,
+      "mean": 62.704,
+      "median": 62.349,
+      "p95": 67.192,
+      "max": 70.218,
       "note": "包含每个用例启动一次 OPA CLI 的进程开销，不代表 sidecar/嵌入式部署时的纯策略延迟。"
     },
     "rego_total_coverage": 99.6063
@@ -284,6 +331,14 @@
     "total_layered_case_definitions": 83,
     "data_type": "synthetic",
     "warning": "83是三层测试定义数量，不是可以相加后称为83/83的单一准确率分母。",
+    "openclaw_model_fixture": {
+      "total_cases": 5,
+      "passed_cases": 5,
+      "evidence": "reports/e2e/openclaw/openclaw_agentguard_model_dataset.json",
+      "data_type": "fixed_synthetic_fixture",
+      "is_public_benchmark": false,
+      "boundary": "固定5例只验证当前模型、工具过滤和隔离回环；不得泛化为公开基准或生产安全结论。"
+    },
     "public_benchmark_support": {
       "adapter_contract_passed": true,
       "uses_synthetic_fixtures": true,
@@ -338,7 +393,8 @@
     "toolhive_container_tested": true,
     "toolhive_container_environment": "github_actions_linux_runner",
     "local_machine_container_runtime_available": false,
-    "environment_blocker": "本测试机未安装 Docker，WSL 命令存在但没有 Linux 发行版；容器类 E2E 因此在 GitHub Linux Runner 上执行并取得实测证据。"
+    "environment_blocker": "本测试机未安装 Docker，WSL 命令存在但没有 Linux 发行版；容器类 E2E 因此在 GitHub Linux Runner 上执行并取得实测证据。",
+    "openclaw_model_e2e_checked_at": "2026-08-27T18:21:08.1738251Z"
   },
   "publication": {
     "github_public_release": true,
@@ -387,6 +443,12 @@
       "item": "数据仍以合成场景为主",
       "reason": "确定性去标识、秘密删除、IP泛化和哈希报告流水线已实现；AgentDojo/InjecAgent/AgentHarm转换、严格校验和独立分母评测入口已用6条自编fixture验证，但尚未导入上游全量原始数据，也未获得单位批准的真实日志",
       "next": "按许可取得公开基准并生成真实策略预测；获得数据授权后运行脱敏脚本，隔离训练/调参与盲测数据并开展回放"
+    },
+    {
+      "severity": "中",
+      "item": "OpenClaw 模型回环已通过，但仍限测试范围",
+      "reason": "固定合成模型测试集 5/5、CLI 检查 14/14、Control UI 检查 16/16 均有独立证据；调用只允许 agentguard-notices__list_notices，身份为回环静态开发身份，数据为隔离合成 SQLite",
+      "next": "生产前补 requester-scoped OIDC、TLS/mTLS、网络零旁路、授权业务凭据与持续模型回合审计；不得把5例fixture当作公开基准"
     },
     {
       "severity": "低",

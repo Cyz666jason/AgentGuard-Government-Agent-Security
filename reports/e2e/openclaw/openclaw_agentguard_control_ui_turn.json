@@ -1,0 +1,128 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-27T00:12:07.1830027Z",
+  "status": "passed_with_declared_scope",
+  "scope": "authenticated_openclaw_control_ui_model_tool_turn",
+  "gateway": {
+    "control_ui_url": "http://127.0.0.1:18790/chat?session=agent%3Amain%3Adashboard%3A2f42f2d3-3f97-4aa0-99da-3862c03f4258",
+    "bind": "loopback",
+    "authenticated_ui_session": true,
+    "gateway_token_recorded": false
+  },
+  "session": {
+    "source": "control_ui",
+    "session_key": "agent:main:dashboard:2f42f2d3-3f97-4aa0-99da-3862c03f4258",
+    "session_id": "9513dfbb-eb51-4ed9-b813-5a2ad4c596bf",
+    "started_at": "2026-08-27T00:05:18Z",
+    "ended_at": "2026-08-27T00:05:34Z",
+    "trajectory": "<DEMO_STATE>/state/agents/main/sessions/9513dfbb-eb51-4ed9-b813-5a2ad4c596bf.trajectory.jsonl"
+  },
+  "model": {
+    "provider": "modelflare",
+    "model": "gpt-5.6-sol",
+    "first_stop_reason": "toolUse",
+    "final_stop_reason": "stop",
+    "api_key_recorded": false
+  },
+  "prompt": "请调用 agentguard-notices 的 list_notices 工具，查询 2 条公告。你必须实际调用该工具，参数必须是 {\"limit\":2}；只能依据工具结果回答，并明确说明该操作没有副作用。",
+  "tool_call": {
+    "initiated_by_model": true,
+    "name": "agentguard-notices__list_notices",
+    "arguments": {
+      "limit": 2
+    }
+  },
+  "tool_result": {
+    "is_error": false,
+    "status": "executed_isolated",
+    "reason_code": "G000_EXECUTED",
+    "row_count": 2,
+    "rows": [
+      {
+        "id": 1,
+        "title": "政务服务系统维护通知",
+        "department": "信息中心",
+        "published_at": "2026-08-01"
+      },
+      {
+        "id": 2,
+        "title": "第三季度材料归档安排",
+        "department": "综合办公室",
+        "published_at": "2026-08-03"
+      }
+    ],
+    "side_effect": false
+  },
+  "final_answer": "查询到 2 条公告：政务服务系统维护通知；第三季度材料归档安排。工具结果明确显示 side_effect: false，因此本次查询没有副作用。",
+  "agentguard": {
+    "audit_path": "<DEMO_STATE>/agentguard-state/enforcement_audit.jsonl",
+    "request_id": "mcp-req-49131a4f77484e91a4e6ab83d516fc89",
+    "tool": "database.query",
+    "operation": "query",
+    "parameters": {
+      "item_count": 2,
+      "limit": 2
+    },
+    "subject_id": "user-001",
+    "statuses": [
+      "authorized",
+      "executed_isolated"
+    ],
+    "reason_codes": [
+      "G000_AUTHORIZED",
+      "G000_EXECUTED"
+    ],
+    "ticket_value_recorded": false,
+    "ticket_jti_present": true,
+    "sandbox": {
+      "status": "executed_isolated",
+      "reason_code": "K000_OK",
+      "module": "database_query.wat",
+      "host_imports_allowed": false,
+      "wasi_enabled": false
+    }
+  },
+  "browser_observation": {
+    "gateway_online_indicator_visible": true,
+    "tool_card_visible": true,
+    "tool_input_visible": true,
+    "tool_output_visible": true,
+    "final_answer_visible": true,
+    "screenshots": [
+      {
+        "path": "<PROJECT_ROOT>/reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.png",
+        "sha256": "86d2b4f543a87e22de20d42007e0e8b352caf819e5d521cdf4bc9180d5e31f98"
+      },
+      {
+        "path": "<PROJECT_ROOT>/reports/e2e/openclaw/openclaw_agentguard_control_ui_result.png",
+        "sha256": "85191097441300183b1ef5a5a10bd9a4cc7b519b3f7b45b8b7fe110edeefd02d"
+      }
+    ]
+  },
+  "checks": {
+    "authenticated_control_ui_session_established": true,
+    "gateway_online_indicator_visible": true,
+    "configured_provider_and_model_used": true,
+    "new_dashboard_session_created": true,
+    "model_initiated_tool_call": true,
+    "only_allowed_tool_called": true,
+    "tool_input_limit_equals_two": true,
+    "tool_result_not_error": true,
+    "tool_result_executed_isolated": true,
+    "tool_result_contains_two_rows": true,
+    "tool_result_has_no_side_effect": true,
+    "final_answer_grounded_in_tool_rows": true,
+    "agentguard_authorized_and_executed_same_request": true,
+    "agentguard_ticket_value_not_recorded": true,
+    "browser_tool_card_and_answer_visible": true,
+    "secret_values_not_recorded": true
+  },
+  "secret_values_recorded": false,
+  "limitations": [
+    "The session uses a loopback static development identity, not requester-scoped production OIDC.",
+    "The notices are isolated synthetic SQLite rows, not production data.",
+    "The Gateway and AgentGuard service are bound to loopback for a same-machine demonstration.",
+    "The screenshots prove the rendered Control UI state but are not a substitute for production audit retention.",
+    "Production still requires requester-scoped identity, TLS/mTLS, network isolation, HA state and authorized business credentials."
+  ]
+}

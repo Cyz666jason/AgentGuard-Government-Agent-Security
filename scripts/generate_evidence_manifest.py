@@ -27,6 +27,7 @@ ROOT = Path(__file__).resolve().parents[1]
 REPORT_DIR = ROOT / "reports"
 STATUS_DIR = REPORT_DIR / "status"
 OPENCLAW_DIR = REPORT_DIR / "e2e" / "openclaw"
+OPENCLAW_STATE_DIR = ROOT / "integrations" / "openclaw_mcp" / ".e2e_state" / "visual-demo"
 
 
 def iso_from_timestamp(timestamp: float) -> str:
@@ -101,7 +102,25 @@ def test_count(path: Path) -> tuple[int, bool]:
     except OSError:
         return 0, False
     match = re.search(r"Ran\s+(\d+)\s+tests?", text)
-    return (int(match.group(1)), "OK" in text and "FAILED" not in text) if match else (0, False)
+    if match:
+        return int(match.group(1)), "OK" in text and "FAILED" not in text
+    # The complete regression wrapper records unittest's per-case output but
+    # does not append the runner summary; its existing evaluation report is
+    # the authoritative count for this check.
+    if path.name == "full_python_tests.txt":
+        summary = load_json(REPORT_DIR / "core" / "full_security_evaluation_summary.json") or {}
+        python_summary = summary.get("python_security_tests", {})
+        total = int(python_summary.get("total", 0) or 0)
+        passed = int(python_summary.get("passed", 0) or 0)
+        if total > 0:
+            return total, passed == total
+    # OPA's verbose test output ends with `PASS: passed/total` rather than
+    # unittest's `Ran N tests`; retain the denominator and pass/fail result.
+    opa_match = re.findall(r"(?:^|\n)PASS:\s*(\d+)\s*/\s*(\d+)\s*(?:\r?\n|$)", text)
+    if opa_match:
+        passed, total = (int(value) for value in opa_match[-1])
+        return total, passed == total and total > 0 and "FAIL:" not in text
+    return 0, False
 
 
 def artifact_entry(path: Path, kind: str) -> dict[str, str] | None:
@@ -109,6 +128,76 @@ def artifact_entry(path: Path, kind: str) -> dict[str, str] | None:
     if digest is None:
         return None
     return {"path": relative(path), "kind": kind, "sha256": digest}
+
+
+def local_evidence_entries() -> list[dict[str, Any]]:
+    """Hash ignored local transcripts/audit logs without copying their contents.
+
+    OpenClaw keeps raw session and AgentGuard audit material below the
+    git-ignored demo state directory.  The published reports contain the
+    redacted, reviewable summaries; this list records integrity hashes for the
+    raw local evidence while explicitly marking it as unavailable to Git.
+    """
+
+    model = load_json(OPENCLAW_DIR / "openclaw_agentguard_model_turn.json") or {}
+    control_ui = load_json(OPENCLAW_DIR / "openclaw_agentguard_control_ui_turn.json") or {}
+    candidates: list[tuple[Path, str]] = []
+    model_session_id = ((model.get("model_turn") or {}).get("session_id"))
+    if isinstance(model_session_id, str) and model_session_id:
+        candidates.append(
+            (
+                OPENCLAW_STATE_DIR
+                / "state"
+                / "agents"
+                / "main"
+                / "sessions"
+                / f"{model_session_id}.jsonl",
+                "openclaw_cli_transcript",
+            )
+        )
+    ui_session = control_ui.get("session") or {}
+    trajectory = ui_session.get("trajectory") if isinstance(ui_session, dict) else None
+    if isinstance(trajectory, str) and trajectory:
+        basename = Path(trajectory.replace("\\", "/")).name
+        if basename:
+            candidates.append(
+                (
+                    OPENCLAW_STATE_DIR
+                    / "state"
+                    / "agents"
+                    / "main"
+                    / "sessions"
+                    / basename,
+                    "openclaw_control_ui_trajectory",
+                )
+            )
+    # The audit report intentionally uses a <DEMO_STATE> placeholder; resolve
+    # it to the local ignored state directory without exposing machine paths.
+    candidates.append(
+        (
+            OPENCLAW_STATE_DIR / "agentguard-state" / "enforcement_audit.jsonl",
+            "agentguard_enforcement_audit",
+        )
+    )
+    entries: list[dict[str, Any]] = []
+    seen: set[Path] = set()
+    for path, kind in candidates:
+        if path in seen:
+            continue
+        seen.add(path)
+        digest = sha256(path)
+        if digest is None:
+            continue
+        entries.append(
+            {
+                "path": relative(path),
+                "kind": kind,
+                "sha256": digest,
+                "tracked": False,
+                "availability": "git_ignored_local_only",
+            }
+        )
+    return entries
 
 
 def build_check(
@@ -365,6 +454,12 @@ def main() -> int:
         if entry:
             artifacts.append(entry)
 
+    # Raw OpenClaw transcripts and AgentGuard audit logs stay below the
+    # git-ignored demo state directory.  Record integrity hashes only so a
+    # reviewer can reconcile local evidence without publishing credentials,
+    # cookies, tokens or machine-specific state.
+    local_ignored_evidence = local_evidence_entries()
+
     output = ROOT / args.output
     markdown = ROOT / args.markdown
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -387,6 +482,7 @@ def main() -> int:
         },
         "checks": checks,
         "artifact_hashes": artifacts,
+        "local_ignored_evidence_hashes": local_ignored_evidence,
         "data_properties": {
             "synthetic": True,
             "benchmark_type": "project_fixture",
@@ -402,6 +498,7 @@ def main() -> int:
             "OpenClaw模型证据来自已保存的真实回环回合；本清单生成过程不重新调用模型。",
             "5例模型fixture不是公开基准成绩；状态仅覆盖当前隔离配置。",
             "production_ready固定为false，外部生产环境和授权业务凭据仍需单独验收。",
+            "原始OpenClaw转录和AgentGuard enforcement_audit仅保留在Git忽略的本地状态目录；本清单只记录SHA-256，不随Git发布原始内容。",
         ],
     }
     output.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -447,6 +544,21 @@ def main() -> int:
         ]
     )
     lines.extend(f"| {item['kind']} | `{item['path']}` | `{item['sha256']}` |" for item in artifacts)
+    lines.extend(
+        [
+            "",
+            "## Git忽略的本地证据哈希",
+            "",
+            "原始转录和审计日志不随 Git 发布；以下仅记录本机忽略目录中的 SHA-256，便于本地完整性核对。",
+            "",
+            "| 类型 | 路径 | SHA-256 | 可用性 |",
+            "|---|---|---|---|",
+        ]
+    )
+    lines.extend(
+        f"| {item['kind']} | `{item['path']}` | `{item['sha256']}` | `{item['availability']}` |"
+        for item in local_ignored_evidence
+    )
     markdown.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(json.dumps({"output": relative(output), "markdown": relative(markdown), "checks": len(checks)}, ensure_ascii=False))
     return 0 if all(check["result"] in {"passed", "blocked_external_environment"} for check in checks) else 1
