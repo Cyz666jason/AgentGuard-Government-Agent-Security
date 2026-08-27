@@ -1,0 +1,13 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: agentguard-openclaw-mcp
+  labels:
+    app.kubernetes.io/name: agentguard-openclaw-mcp
+spec:
+  # Matches the single-replica pre-production baseline.  A multi-replica PDB
+  # is unsafe until the ticket/approval ledgers and audit sink are shared.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: agentguard-openclaw-mcp

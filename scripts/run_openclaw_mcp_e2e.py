@@ -202,7 +202,7 @@ def _write_markdown(report: Mapping[str, Any], path: Path) -> None:
             f"- 返回条数：`{call_output.get('row_count', 0)}`",
             f"- 副作用：`{call_output.get('side_effect')}`",
             "- 调用层级：确定性 MCP `tools/call` → 真实本机 AgentGuard → OPA → 一次性票据 → Wasmtime → 隔离测试公告 SQLite。",
-            "- 限定：本次没有使用模型凭据运行 OpenClaw agent 回合，因此不写“OpenClaw 模型已自主调用工具”。",
+            "- 限定：本脚本范围未执行模型回合；独立模型报告另行覆盖。",
             "",
             "## 证据边界",
             "",
@@ -473,9 +473,10 @@ def main(argv: list[str] | None = None) -> int:
         "generated_at": generated_at,
         "status": "passed_with_declared_scope" if passed else "failed",
         "claim": (
-            "OpenClaw 2026.7.1-2 实机注册、doctor 和 MCP tools/list 已完成；"
-            "一个只读工具已通过确定性 MCP tools/call 调用真实 AgentGuard 测试链。"
-            "未配置模型凭据，故未执行 OpenClaw agent 模型回合，不能表述为“OpenClaw 模型自主调用完成”。"
+            "本脚本仅覆盖 OpenClaw 2026.7.1-2 实机注册、doctor、MCP tools/list "
+            "和确定性只读 tools/call；本脚本范围不执行模型回合。"
+            "独立模型回合证据见 openclaw_agentguard_model_dataset、"
+            "openclaw_agentguard_model_turn 和 openclaw_agentguard_control_ui_turn 报告。"
             if passed
             else "最小接入测试存在失败项，不得声称 OpenClaw 接入完成。"
         ),
@@ -483,7 +484,12 @@ def main(argv: list[str] | None = None) -> int:
             "openclaw_runtime_registration": "completed",
             "openclaw_live_tools_list": "completed",
             "low_risk_call": "completed_by_deterministic_mcp_client_against_real_agentguard",
-            "openclaw_model_driven_tool_call": "not_run_no_authorized_model_credentials",
+            "openclaw_model_driven_tool_call": "not_run_in_this_registration_protocol_scope",
+            "follow_up_model_evidence": [
+                "reports/e2e/openclaw/openclaw_agentguard_model_dataset.json",
+                "reports/e2e/openclaw/openclaw_agentguard_model_turn.json",
+                "reports/e2e/openclaw/openclaw_agentguard_control_ui_turn.json",
+            ],
             "identity": "loopback_static_dev_test_only",
             "data": "isolated_synthetic_notice_sqlite",
             "production_ready": False,
@@ -511,7 +517,7 @@ def main(argv: list[str] | None = None) -> int:
         "commands": steps,
         "limitations": [
             "OpenClaw probe establishes a real MCP session and performs tools/list; it does not call tools/call.",
-            "The low-risk tools/call was deterministic protocol testing, not a model-driven OpenClaw agent turn.",
+            "This script's low-risk tools/call is deterministic protocol testing, not a model-driven OpenClaw agent turn; model-turn evidence is produced by separate reports.",
             "The identity is an operator-configured loopback test identity, not a real per-user OIDC token.",
             "The returned notices come from isolated synthetic SQLite test data, not production data.",
             "Production still requires requester-scoped OIDC/OAuth, HTTPS/mTLS, network isolation, HA state and authorized business credentials.",

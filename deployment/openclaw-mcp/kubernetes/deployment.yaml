@@ -1,0 +1,184 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agentguard-openclaw-mcp
+  labels:
+    app.kubernetes.io/name: agentguard-openclaw-mcp
+    app.kubernetes.io/component: remote-mcp
+    app.kubernetes.io/part-of: agentguard
+spec:
+  # Safe pre-production baseline: one replica because this template uses the
+  # local HMAC signer and a per-Pod state volume.  Do not increase replicas or
+  # enable HPA until signer, ticket/approval ledgers and audit are moved to
+  # shared OpenBao/external services and replay behavior is re-validated.
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: agentguard-openclaw-mcp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: agentguard-openclaw-mcp
+        app.kubernetes.io/component: remote-mcp
+        app.kubernetes.io/part-of: agentguard
+      annotations:
+        # Change only when the image digest changes; this makes a rollout
+        # explicit and prevents accidental restarts on config-only edits.
+        security.agentguard.io/config-revision: "replace-after-review"
+    spec:
+      serviceAccountName: agentguard-openclaw-mcp
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: remote-mcp
+          # Replace with a registry digest produced by the release pipeline.
+          image: ghcr.io/example/agentguard-openclaw-mcp:0.1.0@sha256:REPLACE_WITH_RELEASE_DIGEST
+          imagePullPolicy: IfNotPresent
+          args: ["--transport", "streamable-http"]
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          env:
+            - name: AGENTGUARD_SERVICE_HOST
+              value: "127.0.0.1"
+            - name: AGENTGUARD_SERVICE_PORT
+              value: "8081"
+            - name: AGENTGUARD_OPA_MODE
+              value: "rest"
+            - name: AGENTGUARD_OPA_BASE_URL
+              value: "http://agentguard-opa.agentguard.svc.cluster.local:8181"
+            - name: AGENTGUARD_SIGNER_MODE
+              value: "hmac_env"
+            - name: AGENTGUARD_TICKET_SECRET_FILE
+              value: "/run/secrets/ticket-secret"
+            - name: AGENTGUARD_ENABLE_LOCAL_ADAPTERS
+              value: "false"
+            - name: AGENTGUARD_OIDC_ENABLED
+              value: "false"
+            - name: AGENTGUARD_STATE_DIR
+              value: "/var/lib/agentguard"
+            - name: MCP_HTTP_HOST
+              value: "0.0.0.0"
+            - name: MCP_HTTP_PORT
+              value: "8000"
+            # The pod listener is plain HTTP only behind the reviewed TLS
+            # terminating Ingress.  Keep this explicit so an overlay cannot
+            # accidentally expose a non-loopback listener without the
+            # required termination declaration.
+            - name: MCP_TLS_TERMINATED
+              value: "true"
+            - name: MCP_RESOURCE_URL
+              value: "https://mcp.example.gov.cn/mcp"
+            - name: MCP_OIDC_ISSUER
+              value: "https://sso.example.gov.cn/realms/agentguard"
+            - name: MCP_OIDC_AUDIENCE
+              value: "agentguard"
+            - name: MCP_OIDC_CLIENT_ID
+              value: "agentguard-mcp"
+            - name: MCP_OIDC_REQUIRE_MFA
+              value: "true"
+            - name: MCP_AUTHORIZATION_SERVERS
+              value: "https://sso.example.gov.cn/realms/agentguard"
+            - name: MCP_EXPECTED_RESOURCE
+              value: "https://mcp.example.gov.cn/mcp"
+            - name: MCP_REQUIRED_SCOPE
+              value: "agentguard.notices.read"
+            - name: MCP_REQUIRED_ROLES
+              value: "agentguard-mcp-user"
+            - name: MCP_ALLOWED_CLIENT_IDS
+              value: "agentguard-mcp"
+            - name: MCP_ALLOWED_DEPARTMENTS
+              value: ""
+            - name: MCP_ALLOWED_ORIGINS
+              value: "https://openclaw.example.gov.cn"
+            - name: MCP_REQUIRE_ORIGIN
+              value: "true"
+            - name: MCP_MAX_REQUEST_BYTES
+              value: "1048576"
+            - name: MCP_MAX_RESPONSE_BYTES
+              value: "1048576"
+            - name: MCP_MAX_CONCURRENT_REQUESTS
+              value: "32"
+            - name: MCP_RATE_LIMIT_PER_MINUTE
+              value: "120"
+            - name: MCP_SESSION_TTL_SECONDS
+              value: "3600"
+            - name: MCP_REQUEST_TIMEOUT_SECONDS
+              value: "8"
+          envFrom:
+            - configMapRef:
+                name: agentguard-openclaw-mcp-config
+                optional: true
+          volumeMounts:
+            - name: runtime-secret
+              mountPath: /run/secrets
+              readOnly: true
+            - name: state
+              mountPath: /var/lib/agentguard
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 12
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+      volumes:
+        - name: runtime-secret
+          secret:
+            secretName: agentguard-openclaw-mcp-secrets
+            defaultMode: 0400
+            items:
+              - key: ticket-secret
+                path: ticket-secret
+        - name: state
+          emptyDir:
+            sizeLimit: 1Gi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: agentguard-openclaw-mcp
+  labels:
+    app.kubernetes.io/name: agentguard-openclaw-mcp

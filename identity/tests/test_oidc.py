@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import unittest
+from unittest.mock import patch
 
+import jwt
 from identity import OidcIdentityError, OidcVerifier
 from identity.run_keycloak_e2e import tamper_jwt_signature
+from identity.oidc import _RejectRedirectHandler, _StrictPyJWKClient
 
 
 class OidcClaimMappingTests(unittest.TestCase):
@@ -59,6 +62,44 @@ class OidcClaimMappingTests(unittest.TestCase):
         tampered = tamper_jwt_signature(token)
         self.assertNotEqual(token, tampered)
         self.assertNotEqual(token.rsplit(".", 1)[1], tampered.rsplit(".", 1)[1])
+
+    def test_jwks_fetch_rejects_redirects(self) -> None:
+        """The strict PyJWT client must not follow a JWKS 30x response."""
+
+        captured: dict[str, tuple[object, ...]] = {}
+
+        def fake_build_opener(*handlers: object) -> object:
+            captured["handlers"] = tuple(handlers)
+
+            class RedirectingOpener:
+                def open(self, request: object, *, timeout: float) -> object:
+                    redirect_handler = next(
+                        handler
+                        for handler in handlers
+                        if isinstance(handler, _RejectRedirectHandler)
+                    )
+                    # The custom handler raises before an attacker-controlled
+                    # Location can be opened.
+                    redirect_handler.redirect_request(
+                        request,
+                        None,
+                        302,
+                        "Found",
+                        {"Location": "https://attacker.invalid/jwks"},
+                        "https://attacker.invalid/jwks",
+                    )
+                    raise AssertionError("redirect handler did not fail closed")
+
+            return RedirectingOpener()
+
+        with patch("identity.oidc.urllib.request.build_opener", side_effect=fake_build_opener):
+            client = _StrictPyJWKClient("https://issuer.example/jwks", timeout=1)
+            with self.assertRaises(jwt.PyJWKClientConnectionError):
+                client.fetch_data()
+
+        self.assertTrue(
+            any(isinstance(handler, _RejectRedirectHandler) for handler in captured["handlers"])
+        )
 
 
 if __name__ == "__main__":

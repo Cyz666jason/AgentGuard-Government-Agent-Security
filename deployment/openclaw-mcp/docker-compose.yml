@@ -1,0 +1,97 @@
+# Local/pre-production wiring template only.  It does not publish a public
+# endpoint and it intentionally depends on externally-created secrets.  A
+# real deployment must replace every *.example value and put TLS at an
+# approved reverse proxy or ingress.
+
+services:
+  opa:
+    image: openpolicyagent/opa:1.19.0-static
+    command:
+      - run
+      - --server
+      - --addr=0.0.0.0:8181
+      - --config-file=/config/opa.yaml
+      - /policy
+      - /data
+    volumes:
+      - ../../policy:/policy:ro
+      - ../../data:/data:ro
+      - ../../config:/config:ro
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=8m
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - agentguard-internal
+
+  remote-mcp:
+    build:
+      context: ../..
+      dockerfile: deployment/openclaw-mcp/Dockerfile
+    image: agentguard-openclaw-mcp:deployment-template
+    # Bind to loopback for local verification.  Do not change this to 0.0.0.0
+    # without an HTTPS reverse proxy and the deployment review described in
+    # docs/integrations/OpenClaw远程接入说明.md.
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      # AgentGuard is embedded in this process after the MCP token has been
+      # verified.  OIDC is therefore enforced by the remote MCP authenticator;
+      # never enable local test adapters in this profile.
+      AGENTGUARD_SERVICE_HOST: 127.0.0.1
+      AGENTGUARD_SERVICE_PORT: "8081"
+      AGENTGUARD_OPA_MODE: rest
+      AGENTGUARD_OPA_BASE_URL: http://opa:8181
+      AGENTGUARD_SIGNER_MODE: hmac_env
+      AGENTGUARD_TICKET_SECRET_FILE: /run/secrets/ticket-secret
+      AGENTGUARD_ENABLE_LOCAL_ADAPTERS: "false"
+      AGENTGUARD_OIDC_ENABLED: "false"
+      AGENTGUARD_STATE_DIR: /var/lib/agentguard
+
+      MCP_HTTP_HOST: 0.0.0.0
+      MCP_HTTP_PORT: "8000"
+      MCP_TLS_TERMINATED: "true"
+      MCP_RESOURCE_URL: https://mcp.example.gov.cn/mcp
+      MCP_OIDC_ISSUER: https://sso.example.gov.cn/realms/agentguard
+      MCP_OIDC_AUDIENCE: agentguard
+      MCP_OIDC_CLIENT_ID: agentguard-mcp
+      MCP_OIDC_REQUIRE_MFA: "true"
+      MCP_AUTHORIZATION_SERVERS: https://sso.example.gov.cn/realms/agentguard
+      MCP_EXPECTED_RESOURCE: https://mcp.example.gov.cn/mcp
+      MCP_REQUIRED_SCOPE: agentguard.notices.read
+      MCP_REQUIRED_ROLES: agentguard-mcp-user
+      MCP_ALLOWED_CLIENT_IDS: agentguard-mcp
+      MCP_ALLOWED_DEPARTMENTS: ""
+      MCP_ALLOWED_ORIGINS: https://openclaw.example.gov.cn
+      MCP_REQUIRE_ORIGIN: "true"
+      MCP_MAX_REQUEST_BYTES: "1048576"
+      MCP_MAX_RESPONSE_BYTES: "1048576"
+      MCP_MAX_CONCURRENT_REQUESTS: "32"
+      MCP_RATE_LIMIT_PER_MINUTE: "120"
+      MCP_SESSION_TTL_SECONDS: "3600"
+      MCP_REQUEST_TIMEOUT_SECONDS: "8"
+    secrets:
+      - ticket-secret
+    depends_on:
+      - opa
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=16m
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - agentguard-internal
+
+secrets:
+  # Create this secret outside Git, for example with a local secret manager.
+  # The compose file must not be made runnable by committing a fallback value.
+  ticket-secret:
+    external: true
+    name: agentguard_ticket_secret
+
+networks:
+  agentguard-internal:
+    internal: true

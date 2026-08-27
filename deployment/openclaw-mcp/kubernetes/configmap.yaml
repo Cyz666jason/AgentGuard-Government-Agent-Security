@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agentguard-openclaw-mcp-config
+  labels:
+    app.kubernetes.io/name: agentguard-openclaw-mcp
+    app.kubernetes.io/component: remote-mcp
+data:
+  MCP_TLS_TERMINATED: "true"
+  # Non-secret placeholders only.  Set these to the real, reviewed values in
+  # the environment overlay; never put an access token, client secret or
+  # private key in this ConfigMap.
+  MCP_RESOURCE_URL: "https://mcp.example.gov.cn/mcp"
+  MCP_OIDC_ISSUER: "https://sso.example.gov.cn/realms/agentguard"
+  MCP_OIDC_AUDIENCE: "agentguard"
+  MCP_OIDC_CLIENT_ID: "agentguard-mcp"
+  MCP_OIDC_REQUIRE_MFA: "true"
+  MCP_AUTHORIZATION_SERVERS: "https://sso.example.gov.cn/realms/agentguard"
+  MCP_EXPECTED_RESOURCE: "https://mcp.example.gov.cn/mcp"
+  MCP_REQUIRED_SCOPE: "agentguard.notices.read"
+  MCP_REQUIRED_ROLES: "agentguard-mcp-user"
+  MCP_ALLOWED_CLIENT_IDS: "agentguard-mcp"
+  MCP_ALLOWED_ORIGINS: "https://openclaw.example.gov.cn"
+  MCP_REQUIRE_ORIGIN: "true"
+  MCP_MAX_REQUEST_BYTES: "1048576"
+  MCP_MAX_RESPONSE_BYTES: "1048576"
+  MCP_MAX_CONCURRENT_REQUESTS: "32"
+  MCP_RATE_LIMIT_PER_MINUTE: "120"
+  MCP_SESSION_TTL_SECONDS: "3600"
+  MCP_REQUEST_TIMEOUT_SECONDS: "8"

@@ -6,7 +6,21 @@ no database or business-adapter imports: every call must cross AgentGuard's
 """
 
 from .agentguard_client import AgentGuardClient, AgentGuardClientError
+from .auth import (
+    AuthenticatedPrincipal,
+    McpAuthenticationError,
+    McpAuthenticator,
+    protected_resource_metadata,
+    validate_https_endpoint,
+)
 from .config import AdapterConfig, AdapterConfigError
+from .http_server import (
+    McpHttpServer,
+    RemoteAgentGuardClient,
+    RemoteMcpError,
+    RemoteMcpServer,
+    StreamableHttpMcpServer,
+)
 from .server import MCP_PROTOCOL_VERSION, SERVER_VERSION, McpServer
 
 __all__ = [
@@ -14,7 +28,17 @@ __all__ = [
     "AdapterConfigError",
     "AgentGuardClient",
     "AgentGuardClientError",
+    "AuthenticatedPrincipal",
     "MCP_PROTOCOL_VERSION",
+    "McpHttpServer",
+    "McpAuthenticationError",
+    "McpAuthenticator",
+    "RemoteAgentGuardClient",
+    "RemoteMcpError",
+    "RemoteMcpServer",
     "SERVER_VERSION",
     "McpServer",
+    "StreamableHttpMcpServer",
+    "protected_resource_metadata",
+    "validate_https_endpoint",
 ]

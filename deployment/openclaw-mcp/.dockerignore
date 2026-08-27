@@ -1,0 +1,17 @@
+.git
+.github
+.venv
+__pycache__
+*.pyc
+third_party/runtime
+third_party/cache
+third_party/downloads
+reports
+work
+private_data
+deployment/*.env
+deployment/*.pem
+deployment/*.key
+**/*token*
+**/*secret*
+**/node_modules

@@ -58,3 +58,4 @@ reports/**/*console*
 reports/**/*stdout.log
 reports/**/*stderr.log
 reports/core/python_dependency_install.json
+tmp/

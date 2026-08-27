@@ -1,4 +1,5 @@
 -r requirements-approval.txt
+mcp==2.1.1
 wasmtime==47.0.1
 PyJWT[crypto]==2.10.1
 pycdlib==1.14.0

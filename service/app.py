@@ -16,6 +16,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import copy
 import subprocess
 import sys
 import threading
@@ -245,6 +246,51 @@ class AgentGuardService:
                 request, authorization_header, self.verifier
             )
         return self.gateway.invoke(request)
+
+    def invoke_verified(
+        self,
+        request: Mapping[str, Any],
+        subject: Mapping[str, Any],
+        *,
+        session_id: str = "",
+        client_id: str = "",
+    ) -> dict[str, Any]:
+        """Execute an internal call after an upstream identity was verified.
+
+        The remote MCP resource server authenticates the external bearer token
+        before crossing this boundary.  This explicit method makes that trust
+        transition visible and prevents callers from accidentally relying on
+        ``invoke(request, None)``'s legacy no-token behavior.  The verified
+        subject replaces any request-supplied subject; only non-secret session
+        and client correlation metadata is carried into the gateway context.
+        """
+
+        if not isinstance(subject, Mapping):
+            return {
+                "status": "blocked",
+                "http_status": 401,
+                "reason_code": "S005_VERIFIED_SUBJECT_REQUIRED",
+                "message": "已验证身份缺失，默认拒绝",
+                "receipt": None,
+            }
+        authenticated = copy.deepcopy(dict(request))
+        authenticated["subject"] = copy.deepcopy(dict(subject))
+        context = authenticated.get("context")
+        safe_context = copy.deepcopy(dict(context)) if isinstance(context, Mapping) else {}
+        safe_context["identity_source"] = "remote_mcp_verified_subject"
+        if session_id:
+            safe_context["session_id"] = str(session_id)
+        if client_id:
+            safe_context["client_id"] = str(client_id)
+        authenticated["context"] = safe_context
+        # OIDC is intentionally not re-run here: the remote MCP authenticator
+        # has already validated signature, issuer, audience/resource, scope,
+        # client binding, roles, department and MFA.
+        return self.gateway.invoke(authenticated)
+
+    # Descriptive alias for embedding code that prefers the trust-boundary
+    # name over the shorter method used by the remote adapter.
+    invoke_verified_identity = invoke_verified
 
     # ------------------------------------------------------------ server
 

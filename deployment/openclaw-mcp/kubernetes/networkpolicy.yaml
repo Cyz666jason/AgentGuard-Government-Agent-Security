@@ -1,0 +1,75 @@
+# NetworkPolicy is effective only when the cluster CNI enforces it.  Verify
+# that property and run the negative tests in the remote-ingress runbook before
+# treating this manifest as a security control.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: agentguard-openclaw-mcp-default-deny
+  labels:
+    app.kubernetes.io/name: agentguard-openclaw-mcp
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: agentguard-openclaw-mcp
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: agentguard-openclaw-mcp-allow-reviewed
+  labels:
+    app.kubernetes.io/name: agentguard-openclaw-mcp
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: agentguard-openclaw-mcp
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8000
+  egress:
+    # Cluster DNS is required for OIDC discovery, OPA and audit endpoints.
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # OPA is an explicitly named in-cluster dependency.  Adjust the labels to
+    # the reviewed OPA Deployment; do not replace this with 0.0.0.0/0.
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: agentguard
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: agentguard-opa
+      ports:
+        - protocol: TCP
+          port: 8181
+    # Keycloak/IdP egress is explicit and should be narrowed to the namespace
+    # and port used by the organization's OIDC provider.
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: keycloak
+      ports:
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 8443

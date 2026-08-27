@@ -1,0 +1,21 @@
+{
+  "mcp": {
+    "servers": {
+      "agentguard-notices": {
+        "url": "https://mcp.example.gov.cn/mcp",
+        "transport": "streamable-http",
+        "timeout": 20,
+        "connectTimeout": 5,
+        "supportsParallelToolCalls": false,
+        "auth": "oauth",
+        "oauth": {
+          "scope": "agentguard.notices.read"
+        },
+        "sslVerify": true,
+        "toolFilter": {
+          "include": ["list_notices"]
+        }
+      }
+    }
+  }
+}

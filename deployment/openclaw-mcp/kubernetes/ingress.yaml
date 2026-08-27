@@ -1,0 +1,54 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: agentguard-openclaw-mcp
+  annotations:
+    # These annotations are examples for ingress-nginx.  Confirm the target
+    # controller's exact names and enforce TLS before applying.  Plain HTTP
+    # must be rejected at the edge; do not redirect it because an MCP client
+    # may send a bearer token and redirects are not an acceptable transport
+    # policy for this endpoint.
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    # ingress-nginx must have allow-snippet-annotations enabled and reviewed
+    # by the platform team.  If snippets are disabled, install an equivalent
+    # controller-level HTTP listener policy that returns 421 (never 30x).
+    nginx.ingress.kubernetes.io/server-snippet: |
+      if ($scheme = http) {
+        return 421;
+      }
+    nginx.ingress.kubernetes.io/proxy-body-size: "1m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - mcp.example.gov.cn
+      secretName: agentguard-openclaw-mcp-tls
+  rules:
+    - host: mcp.example.gov.cn
+      http:
+        paths:
+          - path: /mcp
+            pathType: Exact
+            backend:
+              service:
+                name: agentguard-openclaw-mcp
+                port:
+                  name: http
+          - path: /.well-known/oauth-protected-resource
+            pathType: Exact
+            backend:
+              service:
+                name: agentguard-openclaw-mcp
+                port:
+                  name: http
+          - path: /.well-known/oauth-protected-resource/mcp
+            pathType: Exact
+            backend:
+              service:
+                name: agentguard-openclaw-mcp
+                port:
+                  name: http

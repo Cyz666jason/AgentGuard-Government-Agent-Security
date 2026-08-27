@@ -218,11 +218,25 @@ class ProductionHttpBusinessAdapter:
             raise
         if status < 200 or status >= 300:
             raise ProductionAdapterError(f"业务API拒绝请求：HTTP {status}")
+        # The enforcement/MCP boundary consumes a stable business-result shape.
+        # Keep the original upstream payload under ``response`` for operators,
+        # but expose only normalized rows/count/side_effect to callers.  This
+        # prevents a backend-specific ``response`` wrapper from being mistaken
+        # for a verified read-only result.
+        if key == ("database.query", "query"):
+            raw_rows = body.get("rows", []) if isinstance(body, Mapping) else []
+            rows = [dict(row) for row in raw_rows if isinstance(row, Mapping)] if isinstance(raw_rows, list) else []
+            row_count = len(rows)
+        else:
+            rows = []
+            row_count = 0
         return {
             "adapter": "authorized_production_https_api",
             "endpoint_host": self.hostname,
             "http_status": status,
             "side_effect": side_effect,
+            "row_count": row_count,
+            "rows": rows,
             "idempotency_key": idempotency_key,
             "response": body,
         }
